@@ -78,10 +78,29 @@ export const isProductInStock = (product: Product): boolean => {
 
 // Helper function to get discount percentage
 export const getDiscountPercentage = (product: Product): number | null => {
-  if (!product.originalPrice || product.originalPrice <= product.price) {
-    return null;
+  let maxDiscount = 0;
+  
+  // Check SKU discounts first
+  if (product.skus && product.skus.length > 0) {
+    product.skus.forEach((sku) => {
+      if (sku.originalPrice && sku.originalPrice > sku.price) {
+        const discount = ((sku.originalPrice - sku.price) / sku.originalPrice) * 100;
+        if (discount > maxDiscount) {
+          maxDiscount = discount;
+        }
+      }
+    });
   }
-  return Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+  
+  // Check general product discount
+  if (product.originalPrice && product.originalPrice > product.price) {
+    const discount = ((product.originalPrice - product.price) / product.originalPrice) * 100;
+    if (discount > maxDiscount) {
+      maxDiscount = discount;
+    }
+  }
+  
+  return maxDiscount > 0 ? Math.round(maxDiscount) : null;
 };
 
 // Helper function to format price

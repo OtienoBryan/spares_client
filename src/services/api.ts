@@ -26,6 +26,12 @@ export interface SubCategory {
   updatedAt: string;
 }
 
+export interface ProductSKU {
+  code: string;
+  price: number;
+  originalPrice?: number;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -50,6 +56,7 @@ export interface Product {
   categoryId: number;
   subcategory?: SubCategory;
   subcategoryId?: number;
+  skus?: ProductSKU[];
   createdAt: string;
   updatedAt: string;
 }

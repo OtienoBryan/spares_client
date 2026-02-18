@@ -29,6 +29,7 @@ import type { Product } from "@/services/api";
 import { useProduct, useProductsByCategory } from "@/hooks/useApi";
 import { ProductCard } from "@/components/ui/product-card";
 import { LoadingWine, LoadingWave } from "@/components/ui/lottie-loader";
+import { formatPrice } from "@/data/products";
 
 const Product = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +39,7 @@ const Product = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [selectedSku, setSelectedSku] = useState<string | null>(null);
   const { addToCart } = useCart();
 
   // Use API hooks to fetch product data
@@ -51,19 +53,37 @@ const Product = () => {
   const handleAddToCart = () => {
     if (!product || product.stock <= 0) return;
     
+    // If product has SKUs, require SKU selection
+    if (product.skus && product.skus.length > 0 && !selectedSku) {
+      toast({
+        title: "Please select a SKU",
+        description: "Please select a SKU before adding to cart.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsLoading(true);
-    // Add the product to cart with the selected quantity
+    // Add the product to cart with the selected quantity and SKU
     for (let i = 0; i < quantity; i++) {
-      addToCart(product);
+      addToCart(product, selectedSku);
     }
     setTimeout(() => {
       setIsLoading(false);
+      const skuText = selectedSku ? ` (${selectedSku})` : '';
       toast({
         title: "Added to cart",
-        description: `${product.name} (${quantity}x) has been added to your cart.`,
+        description: `${product.name}${skuText} (${quantity}x) has been added to your cart.`,
       });
     }, 500);
   };
+
+  // Set default SKU when product loads
+  useEffect(() => {
+    if (product?.skus && product.skus.length > 0 && !selectedSku) {
+      setSelectedSku(product.skus[0].code);
+    }
+  }, [product, selectedSku]);
 
   const handleQuantityChange = (change: number) => {
     const newQuantity = quantity + change;
@@ -295,17 +315,59 @@ const Product = () => {
               </div>
             </div>
 
-            {/* Price */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              <span className="text-base sm:text-lg md:text-xl font-bold text-wine">
-                {product.price}
-              </span>
-              {product.originalPrice && (
-                <span className="text-xs sm:text-sm md:text-base text-muted-foreground line-through">
-                  {product.originalPrice}
+            {/* SKU Selection */}
+            {product.skus && product.skus.length > 0 && (
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700">Select SKU:</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {product.skus.map((sku, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setSelectedSku(sku.code)}
+                      className={`p-3 rounded-lg border-2 transition-all ${
+                        selectedSku === sku.code
+                          ? 'border-wine bg-wine/10'
+                          : 'border-gray-200 hover:border-wine/50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col items-start">
+                          <span className="text-sm font-semibold text-gray-900">{sku.code}</span>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-base font-bold text-wine">
+                              {formatPrice(sku.price)}
+                            </span>
+                            {sku.originalPrice && (
+                              <span className="text-xs text-muted-foreground line-through">
+                                {formatPrice(sku.originalPrice)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {selectedSku === sku.code && (
+                          <CheckCircle className="h-5 w-5 text-wine" />
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Price (fallback if no SKUs) */}
+            {(!product.skus || product.skus.length === 0) && (
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="text-base sm:text-lg md:text-xl font-bold text-wine">
+                  {formatPrice(product.price)}
                 </span>
-              )}
-            </div>
+                {product.originalPrice && (
+                  <span className="text-xs sm:text-sm md:text-base text-muted-foreground line-through">
+                    {formatPrice(product.originalPrice)}
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Stock Status */}
             <div className="flex items-center gap-2">
@@ -529,10 +591,27 @@ const Product = () => {
       {product.stock > 0 && (
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur border-t p-2 sm:hidden">
           <div className="container mx-auto px-2 flex items-center justify-between gap-2">
-            <div className="flex items-baseline gap-1">
-              <span className="text-base font-bold text-wine">{product.price}</span>
-              {product.originalPrice && (
-                <span className="text-xs text-muted-foreground line-through">{product.originalPrice}</span>
+            <div className="flex flex-col gap-0.5">
+              {product.skus && product.skus.length > 0 && selectedSku ? (
+                (() => {
+                  const selectedSkuData = product.skus.find(sku => sku.code === selectedSku);
+                  return selectedSkuData ? (
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xs font-semibold text-gray-700">{selectedSkuData.code}:</span>
+                      <span className="text-sm font-bold text-wine">{formatPrice(selectedSkuData.price)}</span>
+                      {selectedSkuData.originalPrice && (
+                        <span className="text-[10px] text-muted-foreground line-through">{formatPrice(selectedSkuData.originalPrice)}</span>
+                      )}
+                    </div>
+                  ) : null;
+                })()
+              ) : (
+                <div className="flex items-baseline gap-1">
+                  <span className="text-base font-bold text-wine">{formatPrice(product.price)}</span>
+                  {product.originalPrice && (
+                    <span className="text-xs text-muted-foreground line-through">{formatPrice(product.originalPrice)}</span>
+                  )}
+                </div>
               )}
             </div>
             <Button

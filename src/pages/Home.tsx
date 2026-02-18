@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, memo, lazy, Suspense } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +41,7 @@ const Home = memo(() => {
   const [visibleSections, setVisibleSections] = useState(new Set(['hero']));
   const { addToCart } = useCart();
   const { isOnline } = useNetworkStatus();
+  const navigate = useNavigate();
 
   // Memoized helper function to get category images
   const getCategoryImage = useCallback((categoryName: string) => {
@@ -532,7 +533,7 @@ const Home = memo(() => {
 
 
       {/* All Categories - From Database */}
-       <section className="py-3 sm:py-4 md:py-6 lg:py-8 xl:py-10 bg-background" aria-label="Product Categories">
+       <section className="py-3 sm:py-4 md:py-6 lg:py-8 xl:py-10 bg-background hidden" aria-label="Product Categories">
          <div className="container mx-auto px-3 sm:px-4">
           
           {categoriesLoading ? (
@@ -610,16 +611,16 @@ const Home = memo(() => {
           </div>
           
           {(offersOfTheWeek as any[])?.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
               {(offersOfTheWeek as any[])?.map((product) => (
                 <div key={product.id} className="relative group">
-                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-2 border-wine/20 hover:border-wine/40 touch-manipulation">
-                    <Link to={`/product/${product.id}`} className="block">
+                  <Link to={`/product/${product.id}`} className="block">
+                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
                       <div className="relative overflow-hidden">
                         <img
                           src={product.image || '/placeholder-product.jpg'}
                           alt={product.name}
-                          className="h-40 sm:h-44 md:h-48 lg:h-52 xl:h-56 w-full object-contain bg-white"
+                          className="h-36 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
                           loading="lazy"
                           decoding="async"
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -629,14 +630,11 @@ const Home = memo(() => {
                           {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
                         </div>
                       </div>
-                    </Link>
-                    <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
-                      <div className="space-y-1 sm:space-y-2">
-                        <Link to={`/product/${product.id}`}>
-                          <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors cursor-pointer">
+                      <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
+                        <div className="space-y-1 sm:space-y-2">
+                          <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors">
                             {product.name}
                           </h3>
-                        </Link>
                         <div className="flex items-center gap-1">
                           <div className="flex">
                             {[...Array(5)].map((_, i) => (
@@ -654,40 +652,47 @@ const Home = memo(() => {
                             ({product.reviewCount})
                           </span>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1 sm:gap-2">
-                            <span className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-wine">
-                              {formatPrice(product.price)}
-                            </span>
-                            <span className="text-xs sm:text-sm text-muted-foreground line-through">
-                              {formatPrice(product.originalPrice)}
-                            </span>
-                          </div>
-                          {product.stock > 0 ? (
-                          <Button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              addToCart(product);
-                            }}
-                            size="sm"
-                            className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-white text-xs sm:text-xs md:text-sm px-2 py-1 h-6 sm:h-6 md:h-7 touch-manipulation"
-                          >
-                            <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                            Add
-                          </Button>
+                        <div className="flex flex-col gap-1">
+                          {product.skus && product.skus.length > 0 ? (
+                            <>
+                              {product.skus.map((sku, idx) => (
+                                <div key={idx} className="flex items-center gap-1 sm:gap-2">
+                                  <span className="text-[10px] sm:text-xs font-semibold text-gray-700">{sku.code}:</span>
+                                  <span className="text-xs sm:text-xs md:text-sm font-bold text-wine">
+                                    {formatPrice(sku.price)}
+                                  </span>
+                                  {sku.originalPrice && (
+                                    <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
+                                      {formatPrice(sku.originalPrice)}
+                                    </span>
+                                  )}
+                                </div>
+                              ))}
+                            </>
                           ) : (
-                            <div className="bg-gray-100 text-gray-500 text-xs sm:text-xs md:text-sm px-2 py-1 h-6 sm:h-6 md:h-7 rounded-md text-center font-medium flex items-center justify-center">
-                              Out of Stock
-                            </div>
+                            <>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1 sm:gap-2">
+                                  <span className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-wine">
+                                    {formatPrice(product.price)}
+                                  </span>
+                                  <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                                    {formatPrice(product.originalPrice)}
+                                  </span>
+                                </div>
+                              </div>
+                              {product.originalPrice && product.originalPrice > product.price && (
+                                <div className="text-xs sm:text-sm text-green-600 font-medium">
+                                  Save {formatPrice(product.originalPrice - product.price)}
+                                </div>
+                              )}
+                            </>
                           )}
-                        </div>
-                        <div className="text-xs sm:text-sm text-green-600 font-medium">
-                          Save {formatPrice(product.originalPrice - product.price)}
                         </div>
                       </div>
                     </CardContent>
-                  </Card>
+                    </Card>
+                  </Link>
                 </div>
               ))}
             </div>
@@ -763,13 +768,13 @@ const Home = memo(() => {
                 <div className="grid grid-cols-2 gap-3">
                   {displayProducts.slice(0, 4).map((product) => (
                     <div key={product.id} className="relative group">
-                      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-2 border-wine/20 hover:border-wine/40 touch-manipulation">
-                        <Link to={`/product/${product.id}`} className="block">
+                      <Link to={`/product/${product.id}`} className="block">
+                        <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
                           <div className="relative overflow-hidden">
                             <img
                               src={product.image || '/placeholder-product.jpg'}
                               alt={product.name}
-                              className="h-48 sm:h-52 md:h-56 lg:h-60 w-full object-contain bg-white"
+                              className="h-44 sm:h-48 md:h-52 lg:h-56 w-full object-contain bg-white"
                               loading="lazy"
                               decoding="async"
                             />
@@ -782,14 +787,11 @@ const Home = memo(() => {
                               ⭐ {product.rating || 0}
                             </div>
                           </div>
-                        </Link>
-                        <CardContent className="p-2">
-                          <div className="space-y-1">
-                            <Link to={`/product/${product.id}`}>
-                              <h3 className="font-semibold text-xs line-clamp-1 group-hover:text-wine transition-colors cursor-pointer">
+                          <CardContent className="p-2">
+                            <div className="space-y-1">
+                              <h3 className="font-semibold text-xs line-clamp-1 group-hover:text-wine transition-colors">
                                 {product.name}
                               </h3>
-                            </Link>
                             <div className="flex items-center gap-1">
                               <div className="flex">
                                 {[...Array(5)].map((_, i) => (
@@ -807,44 +809,49 @@ const Home = memo(() => {
                                 ({product.reviewCount || 0})
                               </span>
                             </div>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1">
-                                <span className="text-sm font-bold text-wine">
-                                  {formatPrice(product.price || 0)}
-                                </span>
-                                {product.originalPrice && product.originalPrice > product.price && (
-                                  <span className="text-xs text-muted-foreground line-through">
-                                    {formatPrice(product.originalPrice)}
-                                  </span>
-                                )}
-                              </div>
-                              {product.stock > 0 ? (
-                              <Button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  addToCart(product);
-                                }}
-                                size="sm"
-                                className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-white text-xs px-2 py-1 h-6 touch-manipulation"
-                              >
-                                <ShoppingCart className="h-3 w-3 mr-1" />
-                                Add
-                              </Button>
+                            <div className="flex flex-col gap-1">
+                              {product.skus && product.skus.length > 0 ? (
+                                <>
+                                  {product.skus.map((sku, idx) => (
+                                    <div key={idx} className="flex items-center gap-1">
+                                      <span className="text-[10px] font-semibold text-gray-700">{sku.code}:</span>
+                                      <span className="text-xs font-bold text-wine">
+                                        {formatPrice(sku.price)}
+                                      </span>
+                                      {sku.originalPrice && (
+                                        <span className="text-[10px] text-muted-foreground line-through">
+                                          {formatPrice(sku.originalPrice)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </>
                               ) : (
-                                <div className="bg-gray-100 text-gray-500 text-xs px-2 py-1 h-6 rounded-md text-center font-medium flex items-center justify-center">
-                                  Out of Stock
-                                </div>
+                                <>
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-sm font-bold text-wine">
+                                        {formatPrice(product.price || 0)}
+                                      </span>
+                                      {product.originalPrice && product.originalPrice > product.price && (
+                                        <span className="text-xs text-muted-foreground line-through">
+                                          {formatPrice(product.originalPrice)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {product.originalPrice && product.originalPrice > product.price && (
+                                    <div className="text-xs text-green-600 font-medium">
+                                      Save {formatPrice(product.originalPrice - product.price)}
+                                    </div>
+                                  )}
+                                </>
                               )}
                             </div>
-                            {product.originalPrice && product.originalPrice > product.price && (
-                              <div className="text-xs text-green-600 font-medium">
-                                Save {formatPrice(product.originalPrice - product.price)}
-                              </div>
-                            )}
                           </div>
                         </CardContent>
-                      </Card>
+                        </Card>
+                      </Link>
                     </div>
                   ))}
                 </div>
@@ -852,7 +859,7 @@ const Home = memo(() => {
 
               {/* Desktop: Grid Layout */}
               <div className="hidden sm:block">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
                   {displayProducts.map((product, index) => (
                     <div 
                       key={product.id} 
@@ -863,6 +870,7 @@ const Home = memo(() => {
                       <ProductCard
                         product={product}
                         onAddToCart={addToCart}
+                        hideAddToCart={true}
                       />
                       </Suspense>
                     </div>
@@ -941,13 +949,13 @@ const Home = memo(() => {
                 <div className="grid grid-cols-2 gap-3">
                   {((popularWines as any[]) || []).slice(0, 4).map((product) => (
                     <div key={product.id} className="relative group">
-                      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-2 border-wine/20 hover:border-wine/40 touch-manipulation">
-                        <Link to={`/product/${product.id}`} className="block">
+                      <Link to={`/product/${product.id}`} className="block">
+                        <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
                           <div className="relative overflow-hidden">
                             <img
                               src={product.image || '/placeholder-product.jpg'}
                               alt={product.name}
-                              className="h-48 sm:h-52 md:h-56 lg:h-60 w-full object-contain bg-white"
+                              className="h-44 sm:h-48 md:h-52 lg:h-56 w-full object-contain bg-white"
                               loading="lazy"
                               decoding="async"
                             />
@@ -962,14 +970,11 @@ const Home = memo(() => {
                               </div>
                             )}
                           </div>
-                        </Link>
-                        <CardContent className="p-2">
-                          <div className="space-y-1">
-                            <Link to={`/product/${product.id}`}>
-                              <h3 className="font-semibold text-xs line-clamp-1 group-hover:text-wine transition-colors cursor-pointer">
+                          <CardContent className="p-2">
+                            <div className="space-y-1">
+                              <h3 className="font-semibold text-xs line-clamp-1 group-hover:text-wine transition-colors">
                                 {product.name}
                               </h3>
-                            </Link>
                             <div className="flex items-center gap-1">
                               <div className="flex">
                                 {[...Array(5)].map((_, i) => (
@@ -987,41 +992,45 @@ const Home = memo(() => {
                                 ({product.reviewCount || 0})
                               </span>
                             </div>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1">
-                                <span className="text-sm font-bold text-wine">
-                                  {formatPrice(product.price)}
-                                </span>
-                                {product.originalPrice && product.originalPrice > product.price && (
-                                  <span className="text-xs text-muted-foreground line-through">
-                                    {formatPrice(product.originalPrice)}
-                                  </span>
-                                )}
-                              </div>
-                              {product.stock > 0 ? (
-                              <Button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  addToCart(product);
-                                }}
-                                size="sm"
-                                className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-white text-xs px-2 py-1 h-6 touch-manipulation"
-                              >
-                                <ShoppingCart className="h-3 w-3 mr-1" />
-                                Add
-                              </Button>
+                            <div className="flex flex-col gap-1">
+                              {product.skus && product.skus.length > 0 ? (
+                                <>
+                                  {product.skus.map((sku, idx) => (
+                                    <div key={idx} className="flex items-center gap-1">
+                                      <span className="text-[10px] font-semibold text-gray-700">{sku.code}:</span>
+                                      <span className="text-xs font-bold text-wine">
+                                        {formatPrice(sku.price)}
+                                      </span>
+                                      {sku.originalPrice && (
+                                        <span className="text-[10px] text-muted-foreground line-through">
+                                          {formatPrice(sku.originalPrice)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))}
+                                </>
                               ) : (
-                                <div className="bg-gray-100 text-gray-500 text-xs px-2 py-1 h-6 rounded-md text-center font-medium flex items-center justify-center">
-                                  Out of Stock
-                                </div>
+                                <>
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-sm font-bold text-wine">
+                                        {formatPrice(product.price)}
+                                      </span>
+                                      {product.originalPrice && product.originalPrice > product.price && (
+                                        <span className="text-xs text-muted-foreground line-through">
+                                          {formatPrice(product.originalPrice)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {product.originalPrice && product.originalPrice > product.price && (
+                                    <div className="text-xs text-muted-foreground">
+                                      Save {formatPrice(product.originalPrice - product.price)}
+                                    </div>
+                                  )}
+                                </>
                               )}
                             </div>
-                            {product.originalPrice && product.originalPrice > product.price && (
-                              <div className="text-xs text-muted-foreground">
-                                Save {formatPrice(product.originalPrice - product.price)}
-                              </div>
-                            )}
                             {/* Wine specific details */}
                             {product.origin && (
                               <div className="text-xs text-muted-foreground">
@@ -1030,7 +1039,8 @@ const Home = memo(() => {
                             )}
                           </div>
                         </CardContent>
-                      </Card>
+                        </Card>
+                      </Link>
                     </div>
                   ))}
                 </div>
@@ -1038,16 +1048,16 @@ const Home = memo(() => {
 
               {/* Desktop: Grid Layout */}
               <div className="hidden sm:block">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
                   {(popularWines as any[])?.map((product) => (
                     <div key={product.id} className="relative group">
-                      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-2 border-wine/20 hover:border-wine/40 touch-manipulation">
-                        <Link to={`/product/${product.id}`} className="block">
+                      <Link to={`/product/${product.id}`} className="block">
+                        <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
                           <div className="relative overflow-hidden">
                             <img
                               src={product.image || '/placeholder-product.jpg'}
                               alt={product.name}
-                              className="h-40 sm:h-44 md:h-48 lg:h-52 xl:h-56 w-full object-contain bg-white"
+                              className="h-36 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
                               loading="lazy"
                               decoding="async"
                             />
@@ -1062,14 +1072,11 @@ const Home = memo(() => {
                               </div>
                             )}
                           </div>
-                        </Link>
-                        <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
-                          <div className="space-y-1 sm:space-y-2">
-                            <Link to={`/product/${product.id}`}>
-                              <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors cursor-pointer">
+                          <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
+                            <div className="space-y-1 sm:space-y-2">
+                              <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors">
                                 {product.name}
                               </h3>
-                            </Link>
                             <div className="flex items-center gap-1">
                               <div className="flex">
                                 {[...Array(5)].map((_, i) => (
@@ -1087,41 +1094,59 @@ const Home = memo(() => {
                                 ({product.reviewCount || 0})
                               </span>
                             </div>
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-1 sm:gap-2">
-                                <span className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-wine">
-                                  {formatPrice(product.price)}
-                                </span>
-                                {product.originalPrice && product.originalPrice > product.price && (
-                                  <span className="text-xs sm:text-sm text-muted-foreground line-through">
-                                    {formatPrice(product.originalPrice)}
-                                  </span>
-                                )}
-                              </div>
-                              {product.stock > 0 ? (
-                              <Button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  addToCart(product);
-                                }}
-                                size="sm"
-                                className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-white text-xs sm:text-xs md:text-sm px-2 py-1 h-6 sm:h-6 md:h-7 touch-manipulation"
-                              >
-                                <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                Add
-                              </Button>
+                            <div className="flex flex-col gap-1">
+                              {product.skus && product.skus.length > 0 ? (
+                                <>
+                                  {product.skus.map((sku, idx) => (
+                                    <div key={idx} className="flex items-center gap-1 sm:gap-2">
+                                      <span className="text-[10px] sm:text-xs font-semibold text-gray-700">{sku.code}:</span>
+                                      <span className="text-xs sm:text-xs md:text-sm font-bold text-wine">
+                                        {formatPrice(sku.price)}
+                                      </span>
+                                      {sku.originalPrice && (
+                                        <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
+                                          {formatPrice(sku.originalPrice)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))}
+                                  {product.stock > 0 && (
+                                    <Button
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        navigate(`/product/${product.id}`);
+                                      }}
+                                      size="sm"
+                                      className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-white text-xs sm:text-xs md:text-sm px-2 py-1 h-6 sm:h-6 md:h-7 touch-manipulation w-full mt-1"
+                                    >
+                                      <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                                      Select SKU
+                                    </Button>
+                                  )}
+                                </>
                               ) : (
-                                <div className="bg-gray-100 text-gray-500 text-xs sm:text-xs md:text-sm px-2 py-1 h-6 sm:h-6 md:h-7 rounded-md text-center font-medium flex items-center justify-center">
-                                  Out of Stock
-                                </div>
+                                <>
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-1 sm:gap-2">
+                                      <span className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-wine">
+                                        {formatPrice(product.price)}
+                                      </span>
+                                      {product.originalPrice && product.originalPrice > product.price && (
+                                        <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                                          {formatPrice(product.originalPrice)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {product.originalPrice && product.originalPrice > product.price && (
+                                    <div className="text-xs sm:text-sm text-green-600 font-medium">
+                                      Save {formatPrice(product.originalPrice - product.price)}
+                                    </div>
+                                  )}
+                                </>
                               )}
                             </div>
-                            {product.originalPrice && product.originalPrice > product.price && (
-                              <div className="text-xs sm:text-sm text-green-600 font-medium">
-                                Save {formatPrice(product.originalPrice - product.price)}
-                              </div>
-                            )}
                             {/* Wine specific details */}
                             {product.origin && (
                               <div className="text-xs sm:text-sm text-muted-foreground">
@@ -1130,7 +1155,8 @@ const Home = memo(() => {
                             )}
                           </div>
                         </CardContent>
-                      </Card>
+                        </Card>
+                      </Link>
                     </div>
                   ))}
                 </div>
@@ -1196,7 +1222,18 @@ const Home = memo(() => {
                       <div key={product.id} className="text-center">
                         <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-muted rounded mx-auto mb-1 sm:mb-2"></div>
                         <p className="text-xs text-muted-foreground truncate leading-tight">{product.name}</p>
-                        <p className="text-xs font-bold text-wine">{formatPrice(product.price)}</p>
+                        {product.skus && product.skus.length > 0 ? (
+                          <div className="space-y-0.5">
+                            {product.skus.map((sku, idx) => (
+                              <div key={idx}>
+                                <p className="text-[10px] font-semibold text-gray-700">{sku.code}</p>
+                                <p className="text-xs font-bold text-wine">{formatPrice(sku.price)}</p>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs font-bold text-wine">{formatPrice(product.price)}</p>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1254,16 +1291,16 @@ const Home = memo(() => {
               <p className="text-muted-foreground">Failed to load new arrivals</p>
             </div>
           ) : newArrivals && (newArrivals as any[])?.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
               {(newArrivals as any[])?.map((product) => (
                 <div key={product.id} className="relative group">
-                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-2 border-wine/20 hover:border-wine/40 touch-manipulation">
-                    <Link to={`/product/${product.id}`} className="block">
+                  <Link to={`/product/${product.id}`} className="block">
+                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
                       <div className="relative overflow-hidden">
                         <img
                           src={product.image || '/placeholder-product.jpg'}
                           alt={product.name}
-                          className="h-40 sm:h-44 md:h-48 lg:h-52 xl:h-56 w-full object-contain bg-white"
+                          className="h-36 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
                           loading="lazy"
                           decoding="async"
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -1279,14 +1316,11 @@ const Home = memo(() => {
                           </div>
                         )}
                       </div>
-                    </Link>
-                    <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
-                      <div className="space-y-1 sm:space-y-2">
-                        <Link to={`/product/${product.id}`}>
-                          <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors cursor-pointer">
+                      <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
+                        <div className="space-y-1 sm:space-y-2">
+                          <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors">
                             {product.name}
                           </h3>
-                        </Link>
                         <div className="flex items-center gap-1">
                           <div className="flex">
                             {[...Array(5)].map((_, i) => (
@@ -1304,44 +1338,49 @@ const Home = memo(() => {
                             ({product.reviewCount || 0})
                           </span>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1 sm:gap-2">
-                            <span className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-wine">
-                              {formatPrice(product.price)}
-                            </span>
-                            {product.originalPrice && product.originalPrice > product.price && (
-                              <span className="text-xs sm:text-sm text-muted-foreground line-through">
-                                {formatPrice(product.originalPrice)}
-                              </span>
-                            )}
-                          </div>
-                          {product.stock > 0 ? (
-                          <Button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              addToCart(product);
-                            }}
-                            size="sm"
-                            className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-white text-xs sm:text-xs md:text-sm px-2 py-1 h-6 sm:h-6 md:h-7 touch-manipulation"
-                          >
-                            <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                            Add
-                          </Button>
+                        <div className="flex flex-col gap-1">
+                          {product.skus && product.skus.length > 0 ? (
+                            product.skus.map((sku, idx) => (
+                              <div key={idx} className="flex items-center justify-between">
+                                <div className="flex items-center gap-1 sm:gap-2">
+                                  <span className="text-[10px] sm:text-xs font-semibold text-gray-700">{sku.code}:</span>
+                                  <span className="text-xs sm:text-xs md:text-sm font-bold text-wine">
+                                    {formatPrice(sku.price)}
+                                  </span>
+                                  {sku.originalPrice && (
+                                    <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
+                                      {formatPrice(sku.originalPrice)}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            ))
                           ) : (
-                            <div className="bg-gray-100 text-gray-500 text-xs sm:text-xs md:text-sm px-2 py-1 h-6 sm:h-6 md:h-7 rounded-md text-center font-medium flex items-center justify-center">
-                              Out of Stock
-                            </div>
+                            <>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1 sm:gap-2">
+                                  <span className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-wine">
+                                    {formatPrice(product.price)}
+                                  </span>
+                                  {product.originalPrice && product.originalPrice > product.price && (
+                                    <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                                      {formatPrice(product.originalPrice)}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              {product.originalPrice && product.originalPrice > product.price && (
+                                <div className="text-xs sm:text-sm text-green-600 font-medium">
+                                  Save {formatPrice(product.originalPrice - product.price)}
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
-                        {product.originalPrice && product.originalPrice > product.price && (
-                          <div className="text-xs sm:text-sm text-green-600 font-medium">
-                            Save {formatPrice(product.originalPrice - product.price)}
-                          </div>
-                        )}
                       </div>
                     </CardContent>
-                  </Card>
+                    </Card>
+                  </Link>
                 </div>
               ))}
             </div>

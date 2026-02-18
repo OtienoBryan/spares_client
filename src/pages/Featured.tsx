@@ -190,7 +190,7 @@ const Featured = () => {
                         <img
                           src={product.image || '/placeholder-product.jpg'}
                           alt={product.name}
-                          className="h-40 sm:h-48 md:h-56 lg:h-64 w-full object-contain bg-white"
+                          className="h-48 sm:h-56 md:h-64 lg:h-80 w-full object-contain bg-white"
                           loading="lazy"
                           decoding="async"
                         />
@@ -234,20 +234,45 @@ const Featured = () => {
                         
                         
                         <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-1 sm:gap-2">
-                            <span className="text-lg sm:text-xl font-bold text-wine">
-                              {formatPrice(product.price || 0)}
-                            </span>
-                            {product.originalPrice && product.price && product.originalPrice > product.price && (
-                              <span className="text-xs sm:text-sm text-muted-foreground line-through">
-                                {formatPrice(product.originalPrice)}
-                              </span>
-                            )}
-                          </div>
-                          {product.originalPrice && product.price && product.originalPrice > product.price && (
-                            <div className="text-xs text-green-600 font-medium">
-                              You save {formatPrice(product.originalPrice - product.price)}
-                            </div>
+                          {product.skus && product.skus.length > 0 ? (
+                            product.skus.map((sku, idx) => (
+                              <div key={idx} className="flex flex-col gap-1">
+                                <div className="flex items-center gap-1 sm:gap-2">
+                                  <span className="text-xs sm:text-sm font-semibold text-gray-700">{sku.code}:</span>
+                                  <span className="text-lg sm:text-xl font-bold text-wine">
+                                    {formatPrice(sku.price)}
+                                  </span>
+                                  {sku.originalPrice && (
+                                    <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                                      {formatPrice(sku.originalPrice)}
+                                    </span>
+                                  )}
+                                </div>
+                                {sku.originalPrice && sku.originalPrice > sku.price && (
+                                  <div className="text-xs text-green-600 font-medium">
+                                    You save {formatPrice(sku.originalPrice - sku.price)}
+                                  </div>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <>
+                              <div className="flex items-center gap-1 sm:gap-2">
+                                <span className="text-lg sm:text-xl font-bold text-wine">
+                                  {formatPrice(product.price || 0)}
+                                </span>
+                                {product.originalPrice && product.price && product.originalPrice > product.price && (
+                                  <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                                    {formatPrice(product.originalPrice)}
+                                  </span>
+                                )}
+                              </div>
+                              {product.originalPrice && product.price && product.originalPrice > product.price && (
+                                <div className="text-xs text-green-600 font-medium">
+                                  You save {formatPrice(product.originalPrice - product.price)}
+                                </div>
+                              )}
+                            </>
                           )}
                           
                           {product.stock > 0 ? (

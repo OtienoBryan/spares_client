@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,15 +26,53 @@ const Offers = () => {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const { addToCart } = useCart();
   const { isOnline } = useNetworkStatus();
+  const navigate = useNavigate();
 
   // Fetch data from API
   const { data: allProducts, loading: productsLoading, error: productsError } = useProducts();
 
-  // Get all offer products (products with original price higher than current price)
+  // Helper function to check if product has any offers (from SKUs or general price)
+  const hasOffer = (product: any) => {
+    // Check if product has SKUs with discounts
+    if (product.skus && product.skus.length > 0) {
+      return product.skus.some((sku: any) => 
+        sku.originalPrice && sku.originalPrice > sku.price
+      );
+    }
+    // Check general product price discount
+    return product.originalPrice && product.originalPrice > product.price;
+  };
+
+  // Helper function to get best discount percentage
+  const getBestDiscount = (product: any) => {
+    let maxDiscount = 0;
+    
+    // Check SKU discounts
+    if (product.skus && product.skus.length > 0) {
+      product.skus.forEach((sku: any) => {
+        if (sku.originalPrice && sku.originalPrice > sku.price) {
+          const discount = ((sku.originalPrice - sku.price) / sku.originalPrice) * 100;
+          if (discount > maxDiscount) {
+            maxDiscount = discount;
+          }
+        }
+      });
+    }
+    
+    // Check general product discount
+    if (product.originalPrice && product.originalPrice > product.price) {
+      const discount = ((product.originalPrice - product.price) / product.originalPrice) * 100;
+      if (discount > maxDiscount) {
+        maxDiscount = discount;
+      }
+    }
+    
+    return maxDiscount;
+  };
+
+  // Get all offer products (products with SKU discounts or general price discounts)
   const offerProducts = allProducts?.filter(product => 
-    product && 
-    product.originalPrice && 
-    product.originalPrice > product.price
+    product && hasOffer(product)
   ) || [];
 
   // Filter products by category
@@ -44,10 +82,10 @@ const Offers = () => {
         product.category?.name.toLowerCase() === filterCategory.toLowerCase()
       );
 
-  // Sort products by discount percentage
+  // Sort products by discount percentage (using best discount)
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    const discountA = ((a.originalPrice - a.price) / a.originalPrice) * 100;
-    const discountB = ((b.originalPrice - b.price) / b.originalPrice) * 100;
+    const discountA = getBestDiscount(a);
+    const discountB = getBestDiscount(b);
     return sortOrder === 'desc' ? discountB - discountA : discountA - discountB;
   });
 
@@ -183,7 +221,7 @@ const Offers = () => {
       <section className="py-8 sm:py-12 md:py-16">
         <div className="container mx-auto px-3 sm:px-4">
           {sortedProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-2 md:gap-3">
               {sortedProducts.map((product) => (
                 <div key={product.id} className="relative group">
                   <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-2 border-wine/20 hover:border-wine/40 touch-manipulation flex flex-col">
@@ -192,76 +230,106 @@ const Offers = () => {
                         <img
                           src={product.image || '/placeholder-product.jpg'}
                           alt={product.name}
-                          className="h-40 sm:h-48 md:h-56 lg:h-64 w-full object-contain bg-white"
+                          className="h-40 sm:h-44 md:h-48 lg:h-52 w-full object-contain bg-white"
                           loading="lazy"
                           decoding="async"
                         />
                         {/* Discount Badge */}
-                        <div className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold">
-                          {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                        <div className="absolute top-0.5 sm:top-1 left-0.5 sm:left-1 bg-red-500 text-white px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold">
+                          {Math.round(getBestDiscount(product))}% OFF
                         </div>
                         {/* Hot Deal Badge */}
-                        <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-wine text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold">
-                          HOT DEAL
+                        <div className="absolute top-0.5 sm:top-1 right-0.5 sm:right-1 bg-wine text-white px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold">
+                          HOT
                         </div>
                         {/* Timer Badge */}
-                        <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2 bg-black/70 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs">
-                          <Clock className="h-2 w-2 sm:h-3 sm:w-3 inline mr-1" />
-                          <span className="hidden sm:inline">Limited Time</span>
-                          <span className="sm:hidden">Limited</span>
+                        <div className="absolute bottom-0.5 sm:bottom-1 left-0.5 sm:left-1 bg-black/70 text-white px-1 sm:px-1.5 py-0.5 rounded text-[10px]">
+                          <Clock className="h-2 w-2 inline mr-0.5" />
+                          <span>Limited</span>
                         </div>
                       </div>
                     </Link>
                     
-                    <CardContent className="p-2 sm:p-3">
-                      <div className="space-y-1 sm:space-y-2">
+                    <CardContent className="p-1.5 sm:p-2">
+                      <div className="space-y-0.5 sm:space-y-1">
                         <Link to={`/product/${product.id}`}>
-                          <h3 className="font-semibold text-sm sm:text-base line-clamp-1 group-hover:text-wine transition-colors cursor-pointer">
+                          <h3 className="font-semibold text-xs sm:text-xs line-clamp-1 group-hover:text-wine transition-colors cursor-pointer">
                             {product.name}
                           </h3>
                         </Link>
                         
-                        <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1 sm:gap-2">
+                        <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground">
+                          <div className="flex items-center gap-0.5 sm:gap-1">
                             <span className="text-gold font-medium">Alc. {product.alcoholContent || 'N/A'}%</span>
                           </div>
                           {product.volume && (
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-0.5">
                               <span className="font-medium">{product.volume}</span>
                             </div>
                           )}
                         </div>
                         
                         
-                        <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-1 sm:gap-2">
-                            <span className="text-lg sm:text-xl font-bold text-wine">
-                              {formatPrice(product.price)}
-                            </span>
-                            <span className="text-xs sm:text-sm text-muted-foreground line-through">
-                              {formatPrice(product.originalPrice)}
-                            </span>
-                          </div>
-                          <div className="text-xs text-green-600 font-medium">
-                            You save {formatPrice(product.originalPrice - product.price)}
-                          </div>
+                        <div className="flex flex-col gap-1">
+                          {product.skus && product.skus.length > 0 ? (
+                            product.skus.map((sku, idx) => (
+                              <div key={idx} className="flex flex-col gap-0.5">
+                                <div className="flex items-center gap-0.5 sm:gap-1">
+                                  <span className="text-[10px] sm:text-xs font-semibold text-gray-700">{sku.code}:</span>
+                                  <span className="text-xs sm:text-sm font-bold text-wine">
+                                    {formatPrice(sku.price)}
+                                  </span>
+                                  {sku.originalPrice && (
+                                    <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
+                                      {formatPrice(sku.originalPrice)}
+                                    </span>
+                                  )}
+                                </div>
+                                {sku.originalPrice && sku.originalPrice > sku.price && (
+                                  <div className="text-[10px] text-green-600 font-medium">
+                                    Save {formatPrice(sku.originalPrice - sku.price)}
+                                  </div>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <>
+                              <div className="flex items-center gap-0.5 sm:gap-1">
+                                <span className="text-xs sm:text-sm font-bold text-wine">
+                                  {formatPrice(product.price)}
+                                </span>
+                                <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
+                                  {formatPrice(product.originalPrice)}
+                                </span>
+                              </div>
+                              <div className="text-[10px] text-green-600 font-medium">
+                                Save {formatPrice(product.originalPrice - product.price)}
+                              </div>
+                            </>
+                          )}
                           
                           {product.stock > 0 ? (
                             <Button
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                addToCart(product);
+                                // If product has SKUs, navigate to product page to select SKU
+                                if (product.skus && product.skus.length > 0) {
+                                  navigate(`/product/${product.id}`);
+                                } else {
+                                  addToCart(product);
+                                }
                               }}
                               size="sm"
-                              className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-white text-xs sm:text-sm w-full touch-manipulation active:scale-95 transition-transform"
+                              className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-white text-[10px] sm:text-xs w-full touch-manipulation active:scale-95 transition-transform py-1 h-6 sm:h-7"
                             >
-                              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                              <span className="hidden sm:inline">Add to Cart</span>
-                              <span className="sm:hidden">Add</span>
+                              <ShoppingCart className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
+                              <span>
+                                {product.skus && product.skus.length > 0 ? 'Select SKU' : 'Add'}
+                              </span>
                             </Button>
                           ) : (
-                            <div className="w-full bg-gray-100 text-gray-500 text-xs sm:text-sm py-2 rounded-md text-center font-medium">
+                            <div className="w-full bg-gray-100 text-gray-500 text-[10px] sm:text-xs py-1 h-6 sm:h-7 rounded-md text-center font-medium flex items-center justify-center">
                               Out of Stock
                             </div>
                           )}

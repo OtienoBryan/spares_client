@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LazyImage } from "@/components/ui/lazy-image";
 import { ShoppingCart, Heart } from "lucide-react";
 import { formatPrice } from "@/data/products";
+import type { Product as ApiProduct } from "@/services/api";
 
 interface Product {
   id: string;
@@ -18,6 +19,7 @@ interface Product {
   discount?: number;
   isNew?: boolean;
   isBestSeller?: boolean;
+  skus?: ApiProduct['skus'];
 }
 
 interface OptimizedProductCardProps {
@@ -102,12 +104,28 @@ const OptimizedProductCard = memo<OptimizedProductCardProps>(({
           </div>
 
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-lg">{formatPrice(product.price)}</span>
-              {hasDiscount && (
-                <span className="text-sm text-muted-foreground line-through">
-                  {formatPrice(product.originalPrice!)}
-                </span>
+            <div className="flex flex-col gap-1">
+              {product.skus && product.skus.length > 0 ? (
+                product.skus.map((sku, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-gray-700">{sku.code}:</span>
+                    <span className="font-bold text-base">{formatPrice(sku.price)}</span>
+                    {sku.originalPrice && (
+                      <span className="text-xs text-muted-foreground line-through">
+                        {formatPrice(sku.originalPrice)}
+                      </span>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-lg">{formatPrice(product.price)}</span>
+                  {hasDiscount && (
+                    <span className="text-sm text-muted-foreground line-through">
+                      {formatPrice(product.originalPrice!)}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
           </div>

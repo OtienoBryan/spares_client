@@ -171,6 +171,11 @@ const Cart = () => {
                     <div className="flex justify-between items-start mb-3 sm:mb-2">
                       <div className="flex-1">
                         <h3 className="text-base sm:text-lg font-semibold text-wine mb-1 leading-tight">{item.name}</h3>
+                        {item.selectedSku && (
+                          <Badge variant="secondary" className="text-xs mb-1 bg-wine/10 text-wine border-wine/20">
+                            SKU: {item.selectedSku}
+                          </Badge>
+                        )}
                         <div className="flex items-center gap-1 sm:gap-2 mb-2 flex-wrap">
                           <Badge variant="outline" className="text-xs">
                             {typeof item.category === 'string' ? item.category : item.category?.name || 'Unknown'}

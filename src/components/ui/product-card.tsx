@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Star } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Product } from "@/services/api";
 import { formatPrice, getDiscountPercentage, isProductInStock } from "@/data/products";
 
@@ -12,15 +12,27 @@ interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
   compact?: boolean; // render a smaller, denser card layout
+  hideAddToCart?: boolean; // hide the add to cart button
 }
 
-export function ProductCard({ product, onAddToCart, compact = false }: ProductCardProps) {
+export function ProductCard({ product, onAddToCart, compact = false, hideAddToCart = false }: ProductCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (!isProductInStock(product)) return;
     
+    // If product has SKUs, navigate to product page to select SKU
+    if (product.skus && product.skus.length > 0) {
+      navigate(`/product/${product.id}`);
+      return;
+    }
+    
+    // If no SKUs, add directly to cart
     setIsLoading(true);
     setTimeout(() => {
       onAddToCart(product);
@@ -36,15 +48,15 @@ export function ProductCard({ product, onAddToCart, compact = false }: ProductCa
   const inStock = isProductInStock(product);
 
   return (
-    <Card className={
-      `group overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] border-transparent hover:border-border flex flex-col touch-manipulation`
-    }>
-      <Link to={`/product/${product.id}`} className="block">
+    <Link to={`/product/${product.id}`} className="block">
+      <Card className={
+        `group overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] border-0 flex flex-col touch-manipulation cursor-pointer`
+      }>
         <div className="relative overflow-hidden">
           <img
             src={product.image || '/placeholder-product.jpg'}
             alt={product.name}
-            className={`${compact ? 'h-24 sm:h-28 md:h-32 lg:h-36' : 'h-32 sm:h-36 md:h-40 lg:h-44'} w-full object-contain bg-white transition-transform duration-300 group-hover:scale-105`}
+            className={`${compact ? 'h-36 sm:h-40 md:h-44 lg:h-48' : 'h-40 sm:h-44 md:h-48 lg:h-52'} w-full object-contain bg-white transition-transform duration-300 group-hover:scale-105`}
             loading="lazy"
             decoding="async"
           />
@@ -64,15 +76,12 @@ export function ProductCard({ product, onAddToCart, compact = false }: ProductCa
             {product.category?.name || 'Drink'}
           </Badge>
         </div>
-      </Link>
-      
-      <CardContent className={`${compact ? 'p-2' : 'p-2 sm:p-3 md:p-4'} flex flex-col h-full`}>
-        <div className={`${compact ? 'space-y-1' : 'space-y-1 sm:space-y-2'} flex-1`}>
-          <Link to={`/product/${product.id}`}>
-            <h3 className={`${compact ? 'text-[10px] sm:text-xs' : 'text-xs sm:text-sm md:text-sm'} font-semibold line-clamp-1 group-hover:text-wine transition-colors cursor-pointer`}>
+        
+        <CardContent className={`${compact ? 'p-2' : 'p-2 sm:p-3 md:p-4'} flex flex-col h-full`}>
+          <div className={`${compact ? 'space-y-1' : 'space-y-1 sm:space-y-2'} flex-1`}>
+            <h3 className={`${compact ? 'text-[10px] sm:text-xs' : 'text-xs sm:text-sm md:text-sm'} font-semibold line-clamp-1 group-hover:text-wine transition-colors`}>
               {product.name}
             </h3>
-          </Link>
           
           <div className={`flex items-center justify-between ${compact ? 'text-[11px] sm:text-xs' : 'text-xs sm:text-sm'} text-muted-foreground`}>
             <div className={`flex items-center ${compact ? 'gap-1' : 'gap-1 sm:gap-2'}`}>
@@ -86,39 +95,62 @@ export function ProductCard({ product, onAddToCart, compact = false }: ProductCa
           </div>
           
           <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${compact ? 'mt-1' : 'mt-2'}`}>
-            <div className={`flex items-center ${compact ? 'gap-1' : 'gap-1 sm:gap-2'}`}>
-              <span className={`${compact ? 'text-xs sm:text-sm' : 'text-sm sm:text-base md:text-lg'} font-bold text-wine`}>
-                {formatPrice(product.price)}
-              </span>
-              {product.originalPrice && (
-                <span className={`${compact ? 'text-[11px] sm:text-xs' : 'text-xs sm:text-sm'} text-muted-foreground line-through`}>
-                  {formatPrice(product.originalPrice)}
-                </span>
+            <div className={`flex flex-col ${compact ? 'gap-0.5' : 'gap-1'}`}>
+              {product.skus && product.skus.length > 0 ? (
+                product.skus.map((sku, idx) => (
+                  <div key={idx} className={`flex items-center ${compact ? 'gap-1' : 'gap-1 sm:gap-2'}`}>
+                    <span className={`${compact ? 'text-[10px] sm:text-xs' : 'text-xs sm:text-sm'} font-semibold text-gray-700`}>
+                      {sku.code}:
+                    </span>
+                    <span className={`${compact ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} font-bold text-wine`}>
+                      {formatPrice(sku.price)}
+                    </span>
+                    {sku.originalPrice && (
+                      <span className={`${compact ? 'text-[10px] sm:text-xs' : 'text-xs'} text-muted-foreground line-through`}>
+                        {formatPrice(sku.originalPrice)}
+                      </span>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className={`flex items-center ${compact ? 'gap-1' : 'gap-1 sm:gap-2'}`}>
+                  <span className={`${compact ? 'text-xs sm:text-sm' : 'text-sm sm:text-base md:text-lg'} font-bold text-wine`}>
+                    {formatPrice(product.price)}
+                  </span>
+                  {product.originalPrice && (
+                    <span className={`${compact ? 'text-[11px] sm:text-xs' : 'text-xs sm:text-sm'} text-muted-foreground line-through`}>
+                      {formatPrice(product.originalPrice)}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
             
-            {inStock ? (
-              <Button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleAddToCart();
-                }}
-                disabled={isLoading}
-                size="sm"
-                className={`bg-wine hover:bg-wine-light text-white w-full sm:w-auto ${compact ? 'text-[11px] px-2 py-1 h-7' : 'text-xs sm:text-sm px-3 py-2 h-8 sm:h-9'} touch-manipulation active:scale-95 transition-transform`}
-              >
-                <ShoppingCart className={`${compact ? 'h-3 w-3' : 'h-3 w-3 sm:h-4 sm:w-4'} mr-1`} />
-                {isLoading ? "Adding..." : "Add"}
-              </Button>
-            ) : (
-              <div className={`w-full sm:w-auto flex items-center justify-center ${compact ? 'px-2 py-1 h-7 text-[11px]' : 'px-3 py-2 h-8 sm:h-9 text-xs sm:text-sm'} bg-gray-100 text-gray-500 font-medium rounded-md`}>
-                Out of Stock
-              </div>
+            {!hideAddToCart && (
+              inStock ? (
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleAddToCart();
+                  }}
+                  disabled={isLoading}
+                  size="sm"
+                  className={`bg-wine hover:bg-wine-light text-white w-full sm:w-auto ${compact ? 'text-[11px] px-2 py-1 h-7' : 'text-xs sm:text-sm px-3 py-2 h-8 sm:h-9'} touch-manipulation active:scale-95 transition-transform`}
+                >
+                  <ShoppingCart className={`${compact ? 'h-3 w-3' : 'h-3 w-3 sm:h-4 sm:w-4'} mr-1`} />
+                  {isLoading ? "Adding..." : "Add"}
+                </Button>
+              ) : (
+                <div className={`w-full sm:w-auto flex items-center justify-center ${compact ? 'px-2 py-1 h-7 text-[11px]' : 'px-3 py-2 h-8 sm:h-9 text-xs sm:text-sm'} bg-gray-100 text-gray-500 font-medium rounded-md`}>
+                  Out of Stock
+                </div>
+              )
             )}
           </div>
         </div>
       </CardContent>
-    </Card>
+      </Card>
+    </Link>
   );
 }

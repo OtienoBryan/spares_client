@@ -11,11 +11,14 @@ interface CartItem {
   volume: string;
   inStock: boolean;
   quantity: number;
+  selectedSku?: string | null;
+  skuPrice?: number;
+  skuOriginalPrice?: number;
 }
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (product: any) => void;
+  addToCart: (product: any, selectedSku?: string | null) => void;
   updateQuantity: (id: string, quantity: number) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
@@ -68,29 +71,48 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (product: any) => {
+  const addToCart = (product: any, selectedSku?: string | null) => {
     setCartItems(prev => {
-      const existing = prev.find(item => item.id === product.id.toString());
+      // Create a unique ID that includes SKU if selected
+      const itemId = selectedSku 
+        ? `${product.id.toString()}_${selectedSku}` 
+        : product.id.toString();
+      
+      const existing = prev.find(item => item.id === itemId);
       if (existing) {
         return prev.map(item =>
-          item.id === product.id.toString()
+          item.id === itemId
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
       
+      // Get SKU data if SKU is selected
+      let price = product.price;
+      let originalPrice = product.originalPrice;
+      if (selectedSku && product.skus && product.skus.length > 0) {
+        const skuData = product.skus.find((sku: any) => sku.code === selectedSku);
+        if (skuData) {
+          price = skuData.price;
+          originalPrice = skuData.originalPrice;
+        }
+      }
+      
       // Map API Product to CartItem structure
       const cartItem: CartItem = {
-        id: product.id.toString(),
+        id: itemId,
         name: product.name,
         category: product.category, // This will be the full category object
-        price: product.price,
-        originalPrice: product.originalPrice,
+        price: price,
+        originalPrice: originalPrice,
         image: product.image,
         alcohol: product.alcoholContent, // Map alcoholContent to alcohol
         volume: product.volume,
         inStock: product.stock > 0, // Map stock > 0 to inStock boolean
-        quantity: 1
+        quantity: 1,
+        selectedSku: selectedSku || null,
+        skuPrice: selectedSku && product.skus ? product.skus.find((sku: any) => sku.code === selectedSku)?.price : undefined,
+        skuOriginalPrice: selectedSku && product.skus ? product.skus.find((sku: any) => sku.code === selectedSku)?.originalPrice : undefined
       };
       
       return [...prev, cartItem];
