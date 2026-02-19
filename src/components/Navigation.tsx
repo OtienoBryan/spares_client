@@ -20,7 +20,7 @@ import {
   Package,
   Star
 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 
 const Navigation = () => {
   const location = useLocation();
@@ -131,6 +131,29 @@ const Navigation = () => {
     setSearchQuery("");
     setShowSuggestions(false);
   };
+
+  const handleBrandClick = (brand: string) => {
+    navigate(`/brands/${encodeURIComponent(brand)}`);
+    setSearchQuery("");
+    setShowSuggestions(false);
+  };
+
+  // Extract unique brands from search suggestions
+  const uniqueBrands = useMemo(() => {
+    if (!searchSuggestions || searchSuggestions.length === 0 || !searchQuery) return [];
+    const brands = new Set<string>();
+    const lowerQuery = searchQuery.toLowerCase();
+    searchSuggestions.forEach((product: any) => {
+      if (product.brand) {
+        // Include brand if it matches the search query or if any product with this brand matches
+        const brandMatches = product.brand.toLowerCase().includes(lowerQuery);
+        if (brandMatches) {
+          brands.add(product.brand);
+        }
+      }
+    });
+    return Array.from(brands).slice(0, 5); // Limit to 5 brands
+  }, [searchSuggestions, searchQuery]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!showSuggestions || searchSuggestions.length === 0) return;
@@ -467,38 +490,79 @@ const Navigation = () => {
                         <LoadingWine size="sm" />
                         <span className="ml-2">Searching...</span>
                       </div>
-                    ) : searchSuggestions.length > 0 ? (
+                    ) : (uniqueBrands.length > 0 || searchSuggestions.length > 0) ? (
                       <div className="py-2">
-                        {searchSuggestions.slice(0, 8).map((product, index) => (
-                          <button
-                            key={product.id}
-                            onClick={() => handleSuggestionClick(product)}
-                            className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 ${
-                              index === selectedSuggestionIndex ? 'bg-gray-100' : ''
-                            }`}
-                          >
-                            <img
-                              src={product.image || '/placeholder-product.jpg'}
-                              alt={product.name}
-                              className="w-10 h-10 object-contain rounded"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium text-gray-900 truncate">
-                                {product.name}
-                              </div>
-                              <div className="text-sm text-gray-500 truncate">
-                                {product.brand}
-                              </div>
-                              <div className="text-sm font-semibold text-wine">
-                                KES {formatPrice(product.price)}
-                              </div>
+                        {/* Brands Section - Upper */}
+                        {uniqueBrands.length > 0 && (
+                          <>
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">
+                              Brands
                             </div>
-                          </button>
-                        ))}
-                        {searchSuggestions.length > 8 && (
-                          <div className="px-4 py-2 text-sm text-gray-500 border-t">
-                            And {searchSuggestions.length - 8} more results...
-                          </div>
+                            {uniqueBrands.map((brand, index) => (
+                              <button
+                                key={brand}
+                                onClick={() => handleBrandClick(brand)}
+                                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3"
+                              >
+                                <div className="w-10 h-10 rounded-full bg-wine/10 flex items-center justify-center">
+                                  <span className="text-wine font-semibold text-sm">
+                                    {brand.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-gray-900 truncate">
+                                    {brand}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    View all {brand} products
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                            <div className="border-t my-1"></div>
+                          </>
+                        )}
+                        
+                        {/* Products Section - Lower */}
+                        {searchSuggestions.length > 0 && (
+                          <>
+                            {uniqueBrands.length > 0 && (
+                              <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                Products
+                              </div>
+                            )}
+                            {searchSuggestions.slice(0, 8).map((product, index) => (
+                              <button
+                                key={product.id}
+                                onClick={() => handleSuggestionClick(product)}
+                                className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 ${
+                                  index === selectedSuggestionIndex ? 'bg-gray-100' : ''
+                                }`}
+                              >
+                                <img
+                                  src={product.image || '/placeholder-product.jpg'}
+                                  alt={product.name}
+                                  className="w-10 h-10 object-contain rounded"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-gray-900 truncate">
+                                    {product.name}
+                                  </div>
+                                  <div className="text-sm text-gray-500 truncate">
+                                    {product.brand}
+                                  </div>
+                                  <div className="text-sm font-semibold text-wine">
+                                    KES {formatPrice(product.price)}
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                            {searchSuggestions.length > 8 && (
+                              <div className="px-4 py-2 text-sm text-gray-500 border-t">
+                                And {searchSuggestions.length - 8} more results...
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     ) : (
@@ -645,35 +709,76 @@ const Navigation = () => {
                             <LoadingWine size="sm" />
                             <span className="ml-2 text-sm">Searching...</span>
                           </div>
-                        ) : searchSuggestions.length > 0 ? (
+                        ) : (uniqueBrands.length > 0 || searchSuggestions.length > 0) ? (
                           <div className="py-1">
-                            {searchSuggestions.slice(0, 5).map((product, index) => (
-                              <button
-                                key={product.id}
-                                onClick={() => handleSuggestionClick(product)}
-                                className={`w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-2 ${
-                                  index === selectedSuggestionIndex ? 'bg-gray-100' : ''
-                                }`}
-                              >
-                                <img
-                                  src={product.image || '/placeholder-product.jpg'}
-                                  alt={product.name}
-                                  className="w-8 h-8 object-contain rounded"
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-medium text-gray-900 text-sm truncate">
-                                    {product.name}
-                                  </div>
-                                  <div className="text-xs text-gray-500 truncate">
-                                    {product.brand}
-                                  </div>
+                            {/* Brands Section - Upper */}
+                            {uniqueBrands.length > 0 && (
+                              <>
+                                <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">
+                                  Brands
                                 </div>
-                              </button>
-                            ))}
-                            {searchSuggestions.length > 5 && (
-                              <div className="px-3 py-1 text-xs text-gray-500 border-t">
-                                And {searchSuggestions.length - 5} more results...
-                              </div>
+                                {uniqueBrands.map((brand) => (
+                                  <button
+                                    key={brand}
+                                    onClick={() => handleBrandClick(brand)}
+                                    className="w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-2"
+                                  >
+                                    <div className="w-8 h-8 rounded-full bg-wine/10 flex items-center justify-center">
+                                      <span className="text-wine font-semibold text-xs">
+                                        {brand.charAt(0).toUpperCase()}
+                                      </span>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-medium text-gray-900 text-sm truncate">
+                                        {brand}
+                                      </div>
+                                      <div className="text-xs text-gray-500">
+                                        View all products
+                                      </div>
+                                    </div>
+                                  </button>
+                                ))}
+                                <div className="border-t my-1"></div>
+                              </>
+                            )}
+                            
+                            {/* Products Section - Lower */}
+                            {searchSuggestions.length > 0 && (
+                              <>
+                                {uniqueBrands.length > 0 && (
+                                  <div className="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                    Products
+                                  </div>
+                                )}
+                                {searchSuggestions.slice(0, 5).map((product, index) => (
+                                  <button
+                                    key={product.id}
+                                    onClick={() => handleSuggestionClick(product)}
+                                    className={`w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-2 ${
+                                      index === selectedSuggestionIndex ? 'bg-gray-100' : ''
+                                    }`}
+                                  >
+                                    <img
+                                      src={product.image || '/placeholder-product.jpg'}
+                                      alt={product.name}
+                                      className="w-8 h-8 object-contain rounded"
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                      <div className="font-medium text-gray-900 text-sm truncate">
+                                        {product.name}
+                                      </div>
+                                      <div className="text-xs text-gray-500 truncate">
+                                        {product.brand}
+                                      </div>
+                                    </div>
+                                  </button>
+                                ))}
+                                {searchSuggestions.length > 5 && (
+                                  <div className="px-3 py-1 text-xs text-gray-500 border-t">
+                                    And {searchSuggestions.length - 5} more results...
+                                  </div>
+                                )}
+                              </>
                             )}
                           </div>
                         ) : (

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, memo, lazy, Suspense } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,12 +36,23 @@ const beerImage = "/beer-bottles.jpg";
 const whiskeyImage = "/whiskey-bottle.jpg";
 
 const Home = memo(() => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Read search query from URL parameters
+  const urlSearchParams = new URLSearchParams(location.search);
+  const urlSearchQuery = urlSearchParams.get('search') || '';
+  
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
   const [imagesPreloaded, setImagesPreloaded] = useState(false);
   const [visibleSections, setVisibleSections] = useState(new Set(['hero']));
   const { addToCart } = useCart();
   const { isOnline } = useNetworkStatus();
-  const navigate = useNavigate();
+  
+  // Update search query when URL changes
+  useEffect(() => {
+    setSearchQuery(urlSearchQuery);
+  }, [urlSearchQuery]);
 
   // Memoized helper function to get category images
   const getCategoryImage = useCallback((categoryName: string) => {
@@ -81,7 +92,10 @@ const Home = memo(() => {
   const { data: popularWines, loading: popularWinesLoading, error: popularWinesError } = usePopularWines();
   
   // Search only when needed
-  const { data: searchResults, loading: searchLoading } = useSearchProductsDebounced(searchQuery, { enabled: searchQuery.length > 2 });
+  const { data: searchResults, loading: searchLoading } = useSearchProductsDebounced(
+    searchQuery.length > 2 ? searchQuery : '', 
+    300
+  );
 
   // Memoized data processing for better performance
   const popularProducts = useMemo(() => 
@@ -137,10 +151,53 @@ const Home = memo(() => {
     [allProducts]
   );
 
-  const displayProducts = useMemo(() => 
-    searchQuery ? (searchResults as any[]) || [] : (featuredProducts as any[])?.slice(0, 4) || [],
-    [searchQuery, searchResults, featuredProducts]
-  );
+  // Get all unique brands from products
+  const allBrands = useMemo(() => {
+    if (!allProducts || !Array.isArray(allProducts)) return [];
+    const brands = new Set<string>();
+    (allProducts as any[]).forEach((product: any) => {
+      if (product.brand) {
+        brands.add(product.brand.toLowerCase());
+      }
+    });
+    return Array.from(brands);
+  }, [allProducts]);
+
+  // Check if search query exactly matches a brand name
+  const isBrandSearch = useMemo(() => {
+    if (!searchQuery) return false;
+    const lowerQuery = searchQuery.toLowerCase().trim();
+    return allBrands.includes(lowerQuery);
+  }, [searchQuery, allBrands]);
+
+  // Filter products by exact brand if it's a brand search
+  const brandFilteredProducts = useMemo(() => {
+    if (!isBrandSearch || !allProducts) return [];
+    const lowerQuery = searchQuery.toLowerCase().trim();
+    return (allProducts as any[]).filter((product: any) => 
+      product.brand && product.brand.toLowerCase() === lowerQuery
+    );
+  }, [isBrandSearch, searchQuery, allProducts]);
+
+  // Get the actual brand name (with proper casing) from filtered products
+  const brandName = useMemo(() => {
+    if (!isBrandSearch || brandFilteredProducts.length === 0) return null;
+    return brandFilteredProducts[0]?.brand || searchQuery;
+  }, [isBrandSearch, brandFilteredProducts, searchQuery]);
+
+  const displayProducts = useMemo(() => {
+    if (!searchQuery) {
+      return (featuredProducts as any[])?.slice(0, 4) || [];
+    }
+    
+    // If it's an exact brand match, show all products from that brand
+    if (isBrandSearch) {
+      return brandFilteredProducts;
+    }
+    
+    // Otherwise, use search results
+    return (searchResults as any[]) || [];
+  }, [searchQuery, searchResults, featuredProducts, isBrandSearch, brandFilteredProducts]);
 
   // Memoized helper function to safely filter products by category
   const filterProductsByCategory = useCallback((products: any[], categoryName: string) => {
@@ -334,7 +391,7 @@ const Home = memo(() => {
         <link rel="dns-prefetch" href="//api.shoppadrinks.com" />
         
         {/* LCP Optimization - Preload hero image for mobile */}
-        <link rel="preload" href="/slider/4.webp" as="image" type="image/webp" fetchPriority="high" imagesizes="100vw" />
+        <link rel="preload" href="/slider/4.webp" as="image" type="image/webp" fetchPriority="high" imageSizes="100vw" />
         
         {/* Open Graph Tags */}
         <meta property="og:title" content="Drinks Avenue - Premium Alcohol Delivery Service" />
@@ -749,10 +806,14 @@ const Home = memo(() => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
               <div className="text-center sm:text-left">
                 <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-bold text-wine mb-1 sm:mb-2 md:mb-3">
-                  Featured Products
+                  {isBrandSearch ? `${brandName} Products` : searchQuery ? `Search Results${searchQuery ? ` for "${searchQuery}"` : ''}` : 'Featured Products'}
                 </h2>
                 <p className="text-[10px] sm:text-xs md:text-sm lg:text-sm text-muted-foreground">
-                  Discover our handpicked selection of premium drinks
+                  {isBrandSearch 
+                    ? `All products from ${brandName}`
+                    : searchQuery 
+                      ? `Products matching your search`
+                      : 'Discover our handpicked selection of premium drinks'}
                 </p>
               </div>
               <Link to="/featured" className="mt-2 sm:mt-0">
@@ -912,14 +973,23 @@ const Home = memo(() => {
           ) : (
             <div className="text-center py-8 sm:py-12">
               <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">⭐</div>
-              <h3 className="text-lg sm:text-xl font-semibold text-muted-foreground mb-2 sm:mb-3">No featured products available</h3>
+              <h3 className="text-lg sm:text-xl font-semibold text-muted-foreground mb-2 sm:mb-3">
+                {isBrandSearch ? `No products found for ${brandName}` : searchQuery ? "No products found matching your search." : "No featured products available"}
+              </h3>
               <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6">
-                {searchQuery ? "No products found matching your search." : "Check back soon for our premium selection!"}
+                {isBrandSearch 
+                  ? `We don't have any products from ${brandName} at the moment.`
+                  : searchQuery 
+                    ? "Try searching with different keywords or browse our categories."
+                    : "Check back soon for our premium selection!"}
               </p>
               {searchQuery && (
                 <Button 
                   variant="outline" 
-                  onClick={() => setSearchQuery("")}
+                  onClick={() => {
+                    setSearchQuery("");
+                    navigate('/');
+                  }}
                   className="text-xs sm:text-sm touch-manipulation"
                 >
                   Clear Search

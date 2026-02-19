@@ -23,6 +23,7 @@ const Account = createLazyComponent(() => import("./pages/Account"), "Loading ac
 const Orders = createLazyComponent(() => import("./pages/Orders"), "Loading orders...");
 const Offers = createLazyComponent(() => import("./pages/Offers"), "Loading offers...");
 const Featured = createLazyComponent(() => import("./pages/Featured"), "Loading featured products...");
+const Brands = createLazyComponent(() => import("./pages/Brands"), "Loading brands...");
 const NotFound = createLazyComponent(() => import("./pages/NotFound"), "Loading...");
 
 const queryClient = new QueryClient({
@@ -91,6 +92,8 @@ const App = () => {
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/offers" element={<Offers />} />
                 <Route path="/featured" element={<Featured />} />
+                <Route path="/brands/:brandName" element={<Brands />} />
+                <Route path="/brands" element={<Brands />} />
                 {/* Redirect /login to home page to fix refresh issue */}
                 <Route path="/login" element={<LoginRedirect />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
