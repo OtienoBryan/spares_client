@@ -458,6 +458,7 @@ const Category = () => {
                         product={product}
                         onAddToCart={addToCart}
                         compact
+                        hideAddToCart={true}
                       />
                     </article>
                   ))}

@@ -22,7 +22,7 @@ import {
   ShoppingCart
 } from "lucide-react";
 import { useProducts, useFeaturedProducts, useCategories, useSearchProductsDebounced, useNewArrivals, usePopularWines } from "@/hooks/useApi";
-import { getBrandsByCategory, formatPrice } from "@/data/products";
+import { getBrandsByCategory, formatPrice, getDiscountPercentage } from "@/data/products";
 import { LoadingWave, LoadingWine, LoadingNetworkError } from "@/components/ui/lottie-loader";
 import { useNetworkStatus, isNetworkError } from "@/hooks/useNetworkStatus";
 
@@ -94,13 +94,42 @@ const Home = memo(() => {
     [allProducts]
   );
   
+  // Helper function to check if product has any offers (from SKUs or general price)
+  const hasOffer = useCallback((product: any) => {
+    // Check if product has SKUs with discounts
+    if (product.skus && product.skus.length > 0) {
+      return product.skus.some((sku: any) => 
+        sku.originalPrice && sku.originalPrice > sku.price
+      );
+    }
+    // Check general product discount
+    return product.originalPrice && product.originalPrice > product.price;
+  }, []);
+
+  // Helper function to get best discount percentage from SKUs only
+  const getBestDiscountFromSKU = useCallback((product: any) => {
+    let maxDiscount = 0;
+    
+    // Only check SKU discounts
+    if (product.skus && product.skus.length > 0) {
+      product.skus.forEach((sku: any) => {
+        if (sku.originalPrice && sku.originalPrice > sku.price) {
+          const discount = ((sku.originalPrice - sku.price) / sku.originalPrice) * 100;
+          if (discount > maxDiscount) {
+            maxDiscount = discount;
+          }
+        }
+      });
+    }
+    
+    return maxDiscount;
+  }, []);
+
   const offersOfTheWeek = useMemo(() => 
     (allProducts as any[])?.filter(product => 
-      product && 
-      product.originalPrice && 
-      product.originalPrice > product.price
+      product && hasOffer(product)
     ).slice(0, 8) || [],
-    [allProducts]
+    [allProducts, hasOffer]
   );
   
   const brandsByCategory = useMemo(() => 
@@ -625,10 +654,12 @@ const Home = memo(() => {
                           decoding="async"
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
-                        {/* Discount Badge */}
-                        <div className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold">
-                          {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-                        </div>
+                        {/* Discount Badge - Only show if there's a SKU discount */}
+                        {getBestDiscountFromSKU(product) > 0 && (
+                          <div className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold">
+                            {Math.round(getBestDiscountFromSKU(product))}% OFF
+                          </div>
+                        )}
                       </div>
                       <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
                         <div className="space-y-1 sm:space-y-2">

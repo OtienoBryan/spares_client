@@ -236,15 +236,15 @@ const Product = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
           {/* Product Images */}
           <div className="space-y-2 sm:space-y-3">
-            <div className="aspect-square overflow-hidden rounded-lg border mx-auto max-w-[240px] sm:max-w-[260px] md:max-w-[280px]">
+            <div className="aspect-square overflow-hidden rounded-lg border mx-auto max-w-[360px] sm:max-w-[400px] md:max-w-[450px] lg:max-w-[500px]">
               <img
                 src={product.images?.[selectedImage] || product.image}
                 alt={`${product.name} - ${product.brand} - ${product.category?.name} - Drinks Avenue`}
                 className="h-full w-full object-contain bg-white"
                 loading="eager"
                 decoding="async"
-                width="340"
-                height="340"
+                width="500"
+                height="500"
               />
             </div>
             
@@ -571,12 +571,13 @@ const Product = () => {
         {filteredRelatedProducts.length > 0 && (
           <section className="mt-6 sm:mt-8 md:mt-12" aria-label="Related Products">
             <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4 md:mb-6">You Might Also Like</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
               {filteredRelatedProducts.map((relatedProduct) => (
                 <ProductCard
                   key={relatedProduct.id}
                   product={relatedProduct}
                   onAddToCart={addToCart}
+                  hideAddToCart={true}
                 />
               ))}
             </div>
