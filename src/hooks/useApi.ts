@@ -95,12 +95,44 @@ export function useProduct(id: number) {
   return useApi(() => apiService.getProductById(id), [id]);
 }
 
-export function useProductsByCategory(categoryId: number) {
-  return useApi(() => apiService.getProductsByCategory(categoryId), [categoryId]);
+export function useProductsByCategory(categoryId: number, enabled: boolean = true) {
+  const queryKey = ['products-by-category', categoryId];
+  
+  const { data, isLoading: loading, error } = useQuery({
+    queryKey,
+    queryFn: () => apiService.getProductsByCategory(categoryId),
+    enabled: enabled && categoryId > 0, // Only fetch if enabled and valid ID
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+
+  return { 
+    data: data || null, 
+    loading, 
+    error: error?.message || null 
+  };
 }
 
-export function useProductsByCategoryName(categoryName: string) {
-  return useApi(() => apiService.getProductsByCategoryName(categoryName), [categoryName]);
+export function useProductsByCategoryName(categoryName: string, enabled: boolean = true) {
+  const queryKey = ['products-by-category-name', categoryName];
+  
+  const { data, isLoading: loading, error } = useQuery({
+    queryKey,
+    queryFn: () => apiService.getProductsByCategoryName(categoryName),
+    enabled: enabled && !!categoryName, // Only fetch if enabled and category name exists
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 15 * 60 * 1000, // 15 minutes
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+
+  return { 
+    data: data || null, 
+    loading, 
+    error: error?.message || null 
+  };
 }
 
 export function useSearchProducts(query: string) {

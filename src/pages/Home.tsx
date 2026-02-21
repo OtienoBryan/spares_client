@@ -21,7 +21,7 @@ import {
   MapPin,
   ShoppingCart
 } from "lucide-react";
-import { useProducts, useFeaturedProducts, useCategories, useSearchProductsDebounced, useNewArrivals, usePopularWines } from "@/hooks/useApi";
+import { useProducts, useFeaturedProducts, useCategories, useSearchProductsDebounced, usePopularWines } from "@/hooks/useApi";
 import { getBrandsByCategory, formatPrice, getDiscountPercentage } from "@/data/products";
 import { LoadingWave, LoadingWine, LoadingNetworkError } from "@/components/ui/lottie-loader";
 import { useNetworkStatus, isNetworkError } from "@/hooks/useNetworkStatus";
@@ -88,7 +88,6 @@ const Home = memo(() => {
   
   // Secondary data - load after critical data
   const { data: allProducts, loading: productsLoading, error: productsError } = useProducts();
-  const { data: newArrivals, loading: newArrivalsLoading, error: newArrivalsError } = useNewArrivals();
   const { data: popularWines, loading: popularWinesLoading, error: popularWinesError } = usePopularWines();
   
   // Search only when needed
@@ -428,19 +427,19 @@ const Home = memo(() => {
       <style>{`
         /* Critical styles for hero section */
         .hero-section {
-          min-height: 55vh;
+          min-height: 45vh;
           background-color: #f3f4f6;
         }
         
         @media (min-width: 640px) {
           .hero-section {
-            min-height: 50vh;
+            min-height: 40vh;
           }
         }
         
         @media (min-width: 768px) {
           .hero-section {
-            min-height: 60vh;
+            min-height: 50vh;
           }
         }
         
@@ -459,13 +458,13 @@ const Home = memo(() => {
             object-position: center center;
             min-height: 100%;
             width: 100vw;
-            height: 55vh;
-            max-height: 55vh;
+            height: 45vh;
+            max-height: 45vh;
           }
           
           .hero-image-container {
-            min-height: 55vh;
-            max-height: 55vh;
+            min-height: 45vh;
+            max-height: 45vh;
           }
           
           picture {
@@ -563,7 +562,7 @@ const Home = memo(() => {
       {/* Hero Section - Optimized for LCP and Mobile */}
       <section className="relative bg-gray-100 hero-section" aria-label="Hero Banner">
         <div className="w-full">
-          <div className="relative h-[55vh] sm:h-[50vh] md:h-[60vh] lg:h-[70vh] overflow-hidden shadow-2xl hero-image-container">
+          <div className="relative h-[45vh] sm:h-[40vh] md:h-[50vh] lg:h-[60vh] overflow-hidden shadow-2xl hero-image-container">
             <picture>
               {/* Mobile-first: optimized for mobile devices */}
               <source
@@ -777,6 +776,16 @@ const Home = memo(() => {
                             </>
                           )}
                         </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          {product.origin && (
+                            <div className="text-[10px] sm:text-xs text-muted-foreground">
+                              {product.origin}
+                            </div>
+                          )}
+                          {product.alcoholContent && (
+                            <span className="text-[10px] sm:text-xs text-gold font-medium">Alc. {product.alcoholContent}%</span>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                     </Card>
@@ -798,7 +807,7 @@ const Home = memo(() => {
       <section 
         id="featured-products"
         data-section="featured-products"
-        className="py-3 sm:py-4 md:py-6 lg:py-8 xl:py-12 bg-muted/30" 
+        className="py-3 sm:py-4 md:py-6 bg-gradient-to-br from-wine/5 to-primary/5" 
         aria-label="Featured Products"
       >
         <div className="container mx-auto px-3 sm:px-4">
@@ -854,122 +863,105 @@ const Home = memo(() => {
               </Button>
             </div>
           ) : displayProducts.length > 0 ? (
-            <>
-              {/* Mobile: Static Grid Layout */}
-              <div className="block sm:hidden">
-                <div className="grid grid-cols-2 gap-3">
-                  {displayProducts.slice(0, 4).map((product) => (
-                    <div key={product.id} className="relative group">
-                      <Link to={`/product/${product.id}`} className="block">
-                        <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
-                          <div className="relative overflow-hidden">
-                            <img
-                              src={product.image || '/placeholder-product.jpg'}
-                              alt={product.name}
-                              className="h-44 sm:h-48 md:h-52 lg:h-56 w-full object-contain bg-white"
-                              loading="lazy"
-                              decoding="async"
-                            />
-                            {/* Featured Badge */}
-                            <div className="absolute top-1 left-1 bg-wine text-white px-1.5 py-0.5 rounded-full text-xs font-bold">
-                              FEATURED
-                            </div>
-                            {/* Rating Badge */}
-                            <div className="absolute top-1 right-1 bg-gold text-white px-1.5 py-0.5 rounded-full text-xs font-semibold">
-                              ⭐ {product.rating || 0}
-                            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
+              {displayProducts.map((product) => (
+                <div key={product.id} className="relative group">
+                  <Link to={`/product/${product.id}`} className="block">
+                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
+                      <div className="relative overflow-hidden">
+                        <img
+                          src={product.image || '/placeholder-product.jpg'}
+                          alt={product.name}
+                          className="h-36 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
+                          loading="lazy"
+                          decoding="async"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        />
+                        {/* Discount Badge - Only show if there's a SKU discount */}
+                        {getBestDiscountFromSKU(product) > 0 && (
+                          <div className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold">
+                            {Math.round(getBestDiscountFromSKU(product))}% OFF
                           </div>
-                          <CardContent className="p-2">
-                            <div className="space-y-1">
-                              <h3 className="font-semibold text-xs line-clamp-1 group-hover:text-wine transition-colors">
-                                {product.name}
-                              </h3>
-                            <div className="flex items-center gap-1">
-                              <div className="flex">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-2 w-2 ${
-                                      i < Math.floor(product.rating || 0)
-                                        ? "text-gold fill-gold"
-                                        : "text-muted-foreground"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-xs text-muted-foreground">
-                                ({product.reviewCount || 0})
-                              </span>
+                        )}
+                      </div>
+                      <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
+                        <div className="space-y-1 sm:space-y-2">
+                          <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors">
+                            {product.name}
+                          </h3>
+                          <div className="flex items-center gap-1">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-2 w-2 sm:h-3 sm:w-3 md:h-4 md:w-4 ${
+                                    i < Math.floor(product.rating || 0)
+                                      ? "text-gold fill-gold"
+                                      : "text-muted-foreground"
+                                  }`}
+                                />
+                              ))}
                             </div>
-                            <div className="flex flex-col gap-1">
-                              {product.skus && product.skus.length > 0 ? (
-                                <>
-                                  {product.skus.map((sku, idx) => (
-                                    <div key={idx} className="flex items-center gap-1">
-                                      <span className="text-[10px] font-semibold text-gray-700">{sku.code}:</span>
-                                      <span className="text-xs font-bold text-wine">
-                                        {formatPrice(sku.price)}
+                            <span className="text-xs sm:text-sm text-muted-foreground">
+                              ({product.reviewCount || 0})
+                            </span>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            {product.skus && product.skus.length > 0 ? (
+                              <>
+                                {product.skus.map((sku, idx) => (
+                                  <div key={idx} className="flex items-center gap-1 sm:gap-2">
+                                    <span className="text-[10px] sm:text-xs font-semibold text-gray-700">{sku.code}:</span>
+                                    <span className="text-xs sm:text-xs md:text-sm font-bold text-wine">
+                                      {formatPrice(sku.price)}
+                                    </span>
+                                    {sku.originalPrice && (
+                                      <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
+                                        {formatPrice(sku.originalPrice)}
                                       </span>
-                                      {sku.originalPrice && (
-                                        <span className="text-[10px] text-muted-foreground line-through">
-                                          {formatPrice(sku.originalPrice)}
-                                        </span>
-                                      )}
-                                    </div>
-                                  ))}
-                                </>
-                              ) : (
-                                <>
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1">
-                                      <span className="text-sm font-bold text-wine">
-                                        {formatPrice(product.price || 0)}
-                                      </span>
-                                      {product.originalPrice && product.originalPrice > product.price && (
-                                        <span className="text-xs text-muted-foreground line-through">
-                                          {formatPrice(product.originalPrice)}
-                                        </span>
-                                      )}
-                                    </div>
+                                    )}
                                   </div>
-                                  {product.originalPrice && product.originalPrice > product.price && (
-                                    <div className="text-xs text-green-600 font-medium">
-                                      Save {formatPrice(product.originalPrice - product.price)}
-                                    </div>
-                                  )}
-                                </>
-                              )}
-                            </div>
+                                ))}
+                              </>
+                            ) : (
+                              <>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-1 sm:gap-2">
+                                    <span className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-wine">
+                                      {formatPrice(product.price || 0)}
+                                    </span>
+                                    {product.originalPrice && (
+                                      <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                                        {formatPrice(product.originalPrice)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                {product.originalPrice && product.originalPrice > product.price && (
+                                  <div className="text-xs sm:text-sm text-green-600 font-medium">
+                                    Save {formatPrice(product.originalPrice - product.price)}
+                                  </div>
+                                )}
+                              </>
+                            )}
                           </div>
-                        </CardContent>
-                        </Card>
-                      </Link>
-                    </div>
-                  ))}
+                          <div className="flex items-center gap-2 mt-1">
+                            {product.origin && (
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">
+                                {product.origin}
+                              </div>
+                            )}
+                            {product.alcoholContent && (
+                              <span className="text-[10px] sm:text-xs text-gold font-medium">Alc. {product.alcoholContent}%</span>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 </div>
-              </div>
-
-              {/* Desktop: Grid Layout */}
-              <div className="hidden sm:block">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-                  {displayProducts.map((product, index) => (
-                    <div 
-                      key={product.id} 
-                      className="animate-fade-in-up"
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      <Suspense fallback={<div className="h-64 bg-gray-100 animate-pulse rounded-lg" />}>
-                      <ProductCard
-                        product={product}
-                        onAddToCart={addToCart}
-                        hideAddToCart={true}
-                      />
-                      </Suspense>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8 sm:py-12">
               <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">⭐</div>
@@ -1132,12 +1124,16 @@ const Home = memo(() => {
                                 </>
                               )}
                             </div>
-                            {/* Wine specific details */}
-                            {product.origin && (
-                              <div className="text-xs text-muted-foreground">
-                                Origin: {product.origin}
-                              </div>
-                            )}
+                            <div className="flex items-center gap-2 mt-1">
+                              {product.origin && (
+                                <div className="text-[10px] text-muted-foreground">
+                                  {product.origin}
+                                </div>
+                              )}
+                              {product.alcoholContent && (
+                                <span className="text-[10px] text-gold font-medium">Alc. {product.alcoholContent}%</span>
+                              )}
+                            </div>
                           </div>
                         </CardContent>
                         </Card>
@@ -1211,20 +1207,6 @@ const Home = memo(() => {
                                       )}
                                     </div>
                                   ))}
-                                  {product.stock > 0 && (
-                                    <Button
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        navigate(`/product/${product.id}`);
-                                      }}
-                                      size="sm"
-                                      className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-white text-xs sm:text-xs md:text-sm px-2 py-1 h-6 sm:h-6 md:h-7 touch-manipulation w-full mt-1"
-                                    >
-                                      <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                                      Select SKU
-                                    </Button>
-                                  )}
                                 </>
                               ) : (
                                 <>
@@ -1248,12 +1230,16 @@ const Home = memo(() => {
                                 </>
                               )}
                             </div>
-                            {/* Wine specific details */}
-                            {product.origin && (
-                              <div className="text-xs sm:text-sm text-muted-foreground">
-                                Origin: {product.origin}
-                              </div>
-                            )}
+                            <div className="flex items-center gap-2 mt-1">
+                              {product.origin && (
+                                <div className="text-[10px] sm:text-xs text-muted-foreground">
+                                  {product.origin}
+                                </div>
+                              )}
+                              {product.alcoholContent && (
+                                <span className="text-[10px] sm:text-xs text-gold font-medium">Alc. {product.alcoholContent}%</span>
+                              )}
+                            </div>
                           </div>
                         </CardContent>
                         </Card>
@@ -1342,159 +1328,6 @@ const Home = memo(() => {
               </Card>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* New Arrivals Section */}
-      <section 
-        id="new-arrivals"
-        data-section="new-arrivals"
-        className="py-6 bg-gradient-to-br from-wine/5 to-primary/5" 
-        aria-label="New Arrivals"
-      >
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <div className="flex flex-col md:flex-row items-center justify-between mb-8">
-              <div className="text-center md:text-left">
-                <h2 className="text-xl md:text-2xl font-bold text-wine mb-4">
-                  New Arrivals
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Discover the latest arrivals.
-                </p>
-              </div>
-              <Button variant="outline" className="mt-4 md:mt-0">
-                View all
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          
-          {newArrivalsLoading ? (
-            <div className="flex gap-6">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="w-80 flex-shrink-0">
-                  <Card className="overflow-hidden">
-                    <div className="animate-pulse">
-                      <div className="h-56 sm:h-64 md:h-72 w-full bg-muted"></div>
-                      <div className="p-4 space-y-2">
-                        <div className="h-4 bg-muted rounded w-3/4"></div>
-                        <div className="h-4 bg-muted rounded w-1/2"></div>
-                        <div className="h-8 bg-muted rounded w-full"></div>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              ))}
-            </div>
-          ) : newArrivalsError ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">Failed to load new arrivals</p>
-            </div>
-          ) : newArrivals && (newArrivals as any[])?.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-              {(newArrivals as any[])?.map((product) => (
-                <div key={product.id} className="relative group">
-                  <Link to={`/product/${product.id}`} className="block">
-                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
-                      <div className="relative overflow-hidden">
-                        <img
-                          src={product.image || '/placeholder-product.jpg'}
-                          alt={product.name}
-                          className="h-36 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
-                          loading="lazy"
-                          decoding="async"
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        />
-                        {/* New Arrival Badge */}
-                        <div className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-green-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold">
-                          NEW
-                        </div>
-                        {/* Discount Badge */}
-                        {product.originalPrice && product.originalPrice > product.price && (
-                          <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-red-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-semibold">
-                            {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-                          </div>
-                        )}
-                      </div>
-                      <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
-                        <div className="space-y-1 sm:space-y-2">
-                          <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors">
-                            {product.name}
-                          </h3>
-                        <div className="flex items-center gap-1">
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-2 w-2 sm:h-3 sm:w-3 md:h-4 md:w-4 ${
-                                  i < Math.floor(product.rating || 4.5)
-                                    ? "text-gold fill-gold"
-                                    : "text-muted-foreground"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-xs sm:text-sm text-muted-foreground">
-                            ({product.reviewCount || 0})
-                          </span>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          {product.skus && product.skus.length > 0 ? (
-                            product.skus.map((sku, idx) => (
-                              <div key={idx} className="flex items-center justify-between">
-                                <div className="flex items-center gap-1 sm:gap-2">
-                                  <span className="text-[10px] sm:text-xs font-semibold text-gray-700">{sku.code}:</span>
-                                  <span className="text-xs sm:text-xs md:text-sm font-bold text-wine">
-                                    {formatPrice(sku.price)}
-                                  </span>
-                                  {sku.originalPrice && (
-                                    <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
-                                      {formatPrice(sku.originalPrice)}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            <>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1 sm:gap-2">
-                                  <span className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-wine">
-                                    {formatPrice(product.price)}
-                                  </span>
-                                  {product.originalPrice && product.originalPrice > product.price && (
-                                    <span className="text-xs sm:text-sm text-muted-foreground line-through">
-                                      {formatPrice(product.originalPrice)}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                              {product.originalPrice && product.originalPrice > product.price && (
-                                <div className="text-xs sm:text-sm text-green-600 font-medium">
-                                  Save {formatPrice(product.originalPrice - product.price)}
-                                </div>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                    </Card>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">No new arrivals available</p>
-              {newArrivalsError && (
-                <p className="text-sm text-red-500 mt-2">
-                  Error loading new arrivals: {newArrivalsError}
-                </p>
-              )}
-            </div>
-          )}
         </div>
       </section>
 

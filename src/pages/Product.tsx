@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
@@ -18,8 +17,6 @@ import {
   Share2, 
   Truck, 
   Shield, 
-  Clock,
-  MapPin,
   Minus,
   Plus,
   CheckCircle,
@@ -27,7 +24,6 @@ import {
 } from "lucide-react";
 import type { Product } from "@/services/api";
 import { useProduct, useProductsByCategory } from "@/hooks/useApi";
-import { ProductCard } from "@/components/ui/product-card";
 import { LoadingWine, LoadingWave } from "@/components/ui/lottie-loader";
 import { formatPrice } from "@/data/products";
 
@@ -49,6 +45,25 @@ const Product = () => {
 
   // Filter out the current product from related products
   const filteredRelatedProducts = relatedProducts?.filter(p => p.id !== productId) || [];
+
+  // Helper function to get best discount percentage from SKUs only
+  const getBestDiscountFromSKU = useCallback((product: any) => {
+    let maxDiscount = 0;
+    
+    // Only check SKU discounts
+    if (product.skus && product.skus.length > 0) {
+      product.skus.forEach((sku: any) => {
+        if (sku.originalPrice && sku.originalPrice > sku.price) {
+          const discount = ((sku.originalPrice - sku.price) / sku.originalPrice) * 100;
+          if (discount > maxDiscount) {
+            maxDiscount = discount;
+          }
+        }
+      });
+    }
+    
+    return maxDiscount;
+  }, []);
 
   const handleAddToCart = () => {
     if (!product || product.stock <= 0) return;
@@ -450,10 +465,9 @@ const Product = () => {
         {/* Product Details Tabs (reduced to essentials) */}
         <section className="mt-6 sm:mt-8 md:mt-12" aria-label="Product Details">
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 h-8 sm:h-9" role="tablist">
+            <TabsList className="grid w-full grid-cols-2 h-8 sm:h-9" role="tablist">
               <TabsTrigger value="details" className="text-[11px] sm:text-xs" role="tab">Details</TabsTrigger>
               <TabsTrigger value="reviews" className="text-[11px] sm:text-xs" role="tab">Reviews</TabsTrigger>
-              <TabsTrigger value="shipping" className="text-[11px] sm:text-xs" role="tab">Shipping</TabsTrigger>
             </TabsList>
             
             <TabsContent value="details" className="mt-3 sm:mt-4" role="tabpanel">
@@ -518,68 +532,103 @@ const Product = () => {
                 </CardContent>
               </Card>
             </TabsContent>
-            
-            <TabsContent value="shipping" className="mt-4 sm:mt-6">
-              <Card>
-                <CardHeader className="pb-3 sm:pb-6">
-                  <CardTitle className="text-base sm:text-lg">Shipping & Delivery</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 sm:space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                    <div>
-                      <h4 className="font-semibold mb-2 sm:mb-3 text-xs sm:text-sm">Delivery Options</h4>
-                      <div className="space-y-2 text-[11px] sm:text-xs">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-wine" />
-                          <span>30-minute express delivery - 5.99</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Truck className="h-3 w-3 sm:h-4 sm:w-4 text-wine" />
-                          <span>Same-day delivery - 3.99</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-500" />
-                          <span>Free delivery on orders over 50</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-semibold mb-2 sm:mb-3 text-xs sm:text-sm">Delivery Area</h4>
-                      <div className="flex items-center gap-2 text-[11px] sm:text-xs">
-                        <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-wine" />
-                        <span>Available in select areas within 30 miles</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Separator />
-                  
-                  <div>
-                    <h4 className="font-semibold mb-2 sm:mb-3 text-xs sm:text-sm">Age Verification</h4>
-                    <p className="text-[11px] sm:text-xs text-muted-foreground">
-                      All alcohol deliveries require age verification. Please have a valid ID ready upon delivery.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
           </Tabs>
         </section>
 
         {/* Related Products */}
         {filteredRelatedProducts.length > 0 && (
-          <section className="mt-6 sm:mt-8 md:mt-12" aria-label="Related Products">
-            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4 md:mb-6">You Might Also Like</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
+          <section className="mt-6 sm:mt-8 md:mt-12 py-3 sm:py-4 md:py-6 bg-gradient-to-br from-wine/5 to-primary/5" aria-label="Related Products">
+            <div className="container mx-auto px-3 sm:px-4">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4 md:mb-6">You Might Also Like</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
               {filteredRelatedProducts.map((relatedProduct) => (
-                <ProductCard
-                  key={relatedProduct.id}
-                  product={relatedProduct}
-                  onAddToCart={addToCart}
-                  hideAddToCart={true}
-                />
+                <div key={relatedProduct.id} className="relative group">
+                  <Link to={`/product/${relatedProduct.id}`} className="block">
+                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
+                      <div className="relative overflow-hidden">
+                        <img
+                          src={relatedProduct.image || '/placeholder-product.jpg'}
+                          alt={relatedProduct.name}
+                          className="h-36 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
+                          loading="lazy"
+                          decoding="async"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        />
+                        {/* Discount Badge - Only show if there's a SKU discount */}
+                        {getBestDiscountFromSKU(relatedProduct) > 0 && (
+                          <div className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold">
+                            {Math.round(getBestDiscountFromSKU(relatedProduct))}% OFF
+                          </div>
+                        )}
+                      </div>
+                      <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
+                        <div className="space-y-1 sm:space-y-2">
+                          <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors">
+                            {relatedProduct.name}
+                          </h3>
+                          <div className="flex items-center gap-1">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-2 w-2 sm:h-3 sm:w-3 md:h-4 md:w-4 ${
+                                    i < Math.floor(relatedProduct.rating || 0)
+                                      ? "text-gold fill-gold"
+                                      : "text-muted-foreground"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs sm:text-sm text-muted-foreground">
+                              ({relatedProduct.reviewCount || 0})
+                            </span>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            {relatedProduct.skus && relatedProduct.skus.length > 0 ? (
+                              <>
+                                {relatedProduct.skus.map((sku: any, idx: number) => (
+                                  <div key={idx} className="flex items-center gap-1 sm:gap-2">
+                                    <span className="text-[10px] sm:text-xs font-semibold text-gray-700">{sku.code}:</span>
+                                    <span className="text-xs sm:text-xs md:text-sm font-bold text-wine">
+                                      {formatPrice(sku.price)}
+                                    </span>
+                                    {sku.originalPrice && (
+                                      <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
+                                        {formatPrice(sku.originalPrice)}
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                              </>
+                            ) : (
+                              <>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-1 sm:gap-2">
+                                    <span className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-wine">
+                                      {formatPrice(relatedProduct.price)}
+                                    </span>
+                                    {relatedProduct.originalPrice && (
+                                      <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                                        {formatPrice(relatedProduct.originalPrice)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                {relatedProduct.originalPrice && relatedProduct.originalPrice > relatedProduct.price && (
+                                  <div className="text-xs sm:text-sm text-green-600 font-medium">
+                                    Save {formatPrice(relatedProduct.originalPrice - relatedProduct.price)}
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </div>
               ))}
+              </div>
             </div>
           </section>
         )}

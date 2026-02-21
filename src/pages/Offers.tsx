@@ -1,20 +1,24 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ProductCard } from "@/components/ui/product-card";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import Navigation from "@/components/Navigation";
-import { useCart } from "@/contexts/CartContext";
 import { 
   ArrowLeft,
   Filter,
   SortAsc,
   SortDesc,
   Sparkles,
-  Clock,
-  Star,
-  ShoppingCart
+  Star
 } from "lucide-react";
 import { useProducts } from "@/hooks/useApi";
 import { formatPrice } from "@/data/products";
@@ -24,9 +28,9 @@ import { useNetworkStatus, isNetworkError } from "@/hooks/useNetworkStatus";
 const Offers = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [filterCategory, setFilterCategory] = useState<string>('all');
-  const { addToCart } = useCart();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 24;
   const { isOnline } = useNetworkStatus();
-  const navigate = useNavigate();
 
   // Fetch data from API
   const { data: allProducts, loading: productsLoading, error: productsError } = useProducts();
@@ -43,7 +47,26 @@ const Offers = () => {
     return product.originalPrice && product.originalPrice > product.price;
   };
 
-  // Helper function to get best discount percentage
+  // Helper function to get best discount percentage from SKUs only (matching homepage)
+  const getBestDiscountFromSKU = (product: any) => {
+    let maxDiscount = 0;
+    
+    // Only check SKU discounts
+    if (product.skus && product.skus.length > 0) {
+      product.skus.forEach((sku: any) => {
+        if (sku.originalPrice && sku.originalPrice > sku.price) {
+          const discount = ((sku.originalPrice - sku.price) / sku.originalPrice) * 100;
+          if (discount > maxDiscount) {
+            maxDiscount = discount;
+          }
+        }
+      });
+    }
+    
+    return maxDiscount;
+  };
+
+  // Helper function to get best discount percentage (for sorting)
   const getBestDiscount = (product: any) => {
     let maxDiscount = 0;
     
@@ -71,26 +94,55 @@ const Offers = () => {
   };
 
   // Get all offer products (products with SKU discounts or general price discounts)
-  const offerProducts = allProducts?.filter(product => 
-    product && hasOffer(product)
-  ) || [];
+  const offerProducts = useMemo(() => {
+    return allProducts?.filter(product => 
+      product && hasOffer(product)
+    ) || [];
+  }, [allProducts]);
 
   // Filter products by category
-  const filteredProducts = filterCategory === 'all' 
-    ? offerProducts
-    : offerProducts.filter(product => 
-        product.category?.name.toLowerCase() === filterCategory.toLowerCase()
-      );
+  const filteredProducts = useMemo(() => {
+    return filterCategory === 'all' 
+      ? offerProducts
+      : offerProducts.filter(product => 
+          product.category?.name.toLowerCase() === filterCategory.toLowerCase()
+        );
+  }, [offerProducts, filterCategory]);
 
   // Sort products by discount percentage (using best discount)
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    const discountA = getBestDiscount(a);
-    const discountB = getBestDiscount(b);
-    return sortOrder === 'desc' ? discountB - discountA : discountA - discountB;
-  });
+  const sortedProducts = useMemo(() => {
+    return [...filteredProducts].sort((a, b) => {
+      const discountA = getBestDiscount(a);
+      const discountB = getBestDiscount(b);
+      return sortOrder === 'desc' ? discountB - discountA : discountA - discountB;
+    });
+  }, [filteredProducts, sortOrder]);
+
+  // Calculate pagination
+  const totalPages = useMemo(() => {
+    const pages = Math.ceil(sortedProducts.length / itemsPerPage);
+    return pages > 0 ? pages : 1;
+  }, [sortedProducts, itemsPerPage]);
+  
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedProducts = useMemo(() => {
+    return sortedProducts.slice(startIndex, endIndex);
+  }, [sortedProducts, startIndex, endIndex]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterCategory, sortOrder]);
 
   // Get unique categories from offer products
   const categories = ['all', ...new Set(offerProducts.map(product => product.category?.name).filter(Boolean))];
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Show loading state
   if (productsLoading) {
@@ -135,9 +187,9 @@ const Offers = () => {
       <Navigation />
       
       {/* Header Section */}
-      <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-wine/10 to-primary/10">
+      <section className="py-4 sm:py-5 md:py-6 bg-gradient-to-br from-wine/10 to-primary/10">
         <div className="container mx-auto px-3 sm:px-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
             <Link to="/">
               <Button variant="outline" size="sm" className="w-fit touch-manipulation">
                 <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
@@ -152,10 +204,10 @@ const Offers = () => {
           </div>
           
           <div className="text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-wine mb-2 sm:mb-3">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-wine mb-1 sm:mb-2">
               Special Offers
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Discover amazing deals on premium drinks - limited time only!
             </p>
           </div>
@@ -218,128 +270,176 @@ const Offers = () => {
       </section>
 
       {/* Products Grid */}
-      <section className="py-8 sm:py-12 md:py-16">
+      <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-wine/5 to-primary/5">
         <div className="container mx-auto px-3 sm:px-4">
-          {sortedProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-2 md:gap-3">
-              {sortedProducts.map((product) => (
+          {paginatedProducts.length > 0 ? (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+                {paginatedProducts.map((product) => (
                 <div key={product.id} className="relative group">
-                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-2 border-wine/20 hover:border-wine/40 touch-manipulation flex flex-col">
-                    <Link to={`/product/${product.id}`} className="block">
+                  <Link to={`/product/${product.id}`} className="block">
+                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
                       <div className="relative overflow-hidden">
                         <img
                           src={product.image || '/placeholder-product.jpg'}
                           alt={product.name}
-                          className="h-40 sm:h-44 md:h-48 lg:h-52 w-full object-contain bg-white"
+                          className="h-48 sm:h-52 md:h-56 lg:h-64 xl:h-72 w-full object-contain bg-white"
                           loading="lazy"
                           decoding="async"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                         />
-                        {/* Discount Badge */}
-                        <div className="absolute top-0.5 sm:top-1 left-0.5 sm:left-1 bg-red-500 text-white px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold">
-                          {Math.round(getBestDiscount(product))}% OFF
-                        </div>
-                        {/* Hot Deal Badge */}
-                        <div className="absolute top-0.5 sm:top-1 right-0.5 sm:right-1 bg-wine text-white px-1 sm:px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold">
-                          HOT
-                        </div>
-                        {/* Timer Badge */}
-                        <div className="absolute bottom-0.5 sm:bottom-1 left-0.5 sm:left-1 bg-black/70 text-white px-1 sm:px-1.5 py-0.5 rounded text-[10px]">
-                          <Clock className="h-2 w-2 inline mr-0.5" />
-                          <span>Limited</span>
-                        </div>
+                        {/* Discount Badge - Only show if there's a SKU discount */}
+                        {getBestDiscountFromSKU(product) > 0 && (
+                          <div className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-red-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-bold">
+                            {Math.round(getBestDiscountFromSKU(product))}% OFF
+                          </div>
+                        )}
                       </div>
-                    </Link>
-                    
-                    <CardContent className="p-1.5 sm:p-2">
-                      <div className="space-y-0.5 sm:space-y-1">
-                        <Link to={`/product/${product.id}`}>
-                          <h3 className="font-semibold text-xs sm:text-xs line-clamp-1 group-hover:text-wine transition-colors cursor-pointer">
+                      <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
+                        <div className="space-y-1 sm:space-y-2">
+                          <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors">
                             {product.name}
                           </h3>
-                        </Link>
-                        
-                        <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground">
-                          <div className="flex items-center gap-0.5 sm:gap-1">
-                            <span className="text-gold font-medium">Alc. {product.alcoholContent || 'N/A'}%</span>
-                          </div>
-                          {product.volume && (
-                            <div className="flex items-center gap-0.5">
-                              <span className="font-medium">{product.volume}</span>
+                          <div className="flex items-center gap-1">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-2 w-2 sm:h-3 sm:w-3 md:h-4 md:w-4 ${
+                                    i < Math.floor(product.rating || 0)
+                                      ? "text-gold fill-gold"
+                                      : "text-muted-foreground"
+                                  }`}
+                                />
+                              ))}
                             </div>
-                          )}
-                        </div>
-                        
-                        
-                        <div className="flex flex-col gap-1">
-                          {product.skus && product.skus.length > 0 ? (
-                            product.skus.map((sku, idx) => (
-                              <div key={idx} className="flex flex-col gap-0.5">
-                                <div className="flex items-center gap-0.5 sm:gap-1">
-                                  <span className="text-[10px] sm:text-xs font-semibold text-gray-700">{sku.code}:</span>
-                                  <span className="text-xs sm:text-sm font-bold text-wine">
-                                    {formatPrice(sku.price)}
-                                  </span>
-                                  {sku.originalPrice && (
-                                    <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
-                                      {formatPrice(sku.originalPrice)}
+                            <span className="text-xs sm:text-sm text-muted-foreground">
+                              ({product.reviewCount || 0})
+                            </span>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            {product.skus && product.skus.length > 0 ? (
+                              <>
+                                {product.skus.map((sku, idx) => (
+                                  <div key={idx} className="flex items-center gap-1 sm:gap-2">
+                                    <span className="text-[10px] sm:text-xs font-semibold text-gray-700">{sku.code}:</span>
+                                    <span className="text-xs sm:text-xs md:text-sm font-bold text-wine">
+                                      {formatPrice(sku.price)}
                                     </span>
-                                  )}
+                                    {sku.originalPrice && (
+                                      <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
+                                        {formatPrice(sku.originalPrice)}
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                              </>
+                            ) : (
+                              <>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-1 sm:gap-2">
+                                    <span className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-wine">
+                                      {formatPrice(product.price)}
+                                    </span>
+                                    {product.originalPrice && (
+                                      <span className="text-xs sm:text-sm text-muted-foreground line-through">
+                                        {formatPrice(product.originalPrice)}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
-                                {sku.originalPrice && sku.originalPrice > sku.price && (
-                                  <div className="text-[10px] text-green-600 font-medium">
-                                    Save {formatPrice(sku.originalPrice - sku.price)}
+                                {product.originalPrice && product.originalPrice > product.price && (
+                                  <div className="text-xs sm:text-sm text-green-600 font-medium">
+                                    Save {formatPrice(product.originalPrice - product.price)}
                                   </div>
                                 )}
+                              </>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                            {product.origin && (
+                              <div className="text-[10px] sm:text-xs text-muted-foreground">
+                                {product.origin}
                               </div>
-                            ))
-                          ) : (
-                            <>
-                              <div className="flex items-center gap-0.5 sm:gap-1">
-                                <span className="text-xs sm:text-sm font-bold text-wine">
-                                  {formatPrice(product.price)}
-                                </span>
-                                <span className="text-[10px] sm:text-xs text-muted-foreground line-through">
-                                  {formatPrice(product.originalPrice)}
-                                </span>
-                              </div>
-                              <div className="text-[10px] text-green-600 font-medium">
-                                Save {formatPrice(product.originalPrice - product.price)}
-                              </div>
-                            </>
-                          )}
-                          
-                          {product.stock > 0 ? (
-                            <Button
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                // If product has SKUs, navigate to product page to select SKU
-                                if (product.skus && product.skus.length > 0) {
-                                  navigate(`/product/${product.id}`);
-                                } else {
-                                  addToCart(product);
-                                }
-                              }}
-                              size="sm"
-                              className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-white text-[10px] sm:text-xs w-full touch-manipulation active:scale-95 transition-transform py-1 h-6 sm:h-7"
-                            >
-                              <ShoppingCart className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-0.5" />
-                              <span>
-                                {product.skus && product.skus.length > 0 ? 'Select SKU' : 'Add'}
-                              </span>
-                            </Button>
-                          ) : (
-                            <div className="w-full bg-gray-100 text-gray-500 text-[10px] sm:text-xs py-1 h-6 sm:h-7 rounded-md text-center font-medium flex items-center justify-center">
-                              Out of Stock
-                            </div>
-                          )}
+                            )}
+                            {product.alcoholContent && (
+                              <span className="text-[10px] sm:text-xs text-gold font-medium">Alc. {product.alcoholContent}%</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 </div>
               ))}
-            </div>
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-10 sm:mt-12 pt-6 border-t">
+                  <Pagination>
+                    <PaginationContent className="gap-2">
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (currentPage > 1) handlePageChange(currentPage - 1);
+                          }}
+                          className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer h-10 px-4'}
+                        />
+                      </PaginationItem>
+                      
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                        // Show first page, last page, current page, and pages around current
+                        if (
+                          page === 1 ||
+                          page === totalPages ||
+                          (page >= currentPage - 1 && page <= currentPage + 1)
+                        ) {
+                          return (
+                            <PaginationItem key={page}>
+                              <PaginationLink
+                                href="#"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  handlePageChange(page);
+                                }}
+                                isActive={currentPage === page}
+                                className="cursor-pointer h-10 w-10"
+                              >
+                                {page}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        } else if (
+                          page === currentPage - 2 ||
+                          page === currentPage + 2
+                        ) {
+                          return (
+                            <PaginationItem key={page}>
+                              <PaginationEllipsis className="h-10 w-10" />
+                            </PaginationItem>
+                          );
+                        }
+                        return null;
+                      })}
+                      
+                      <PaginationItem>
+                        <PaginationNext 
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (currentPage < totalPages) handlePageChange(currentPage + 1);
+                          }}
+                          className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer h-10 px-4'}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </>
           ) : (
             <div className="text-center py-12 sm:py-16 md:py-24">
               <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🎉</div>
