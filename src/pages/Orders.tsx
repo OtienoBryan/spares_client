@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
+import { useCart } from '@/contexts/CartContext';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +22,8 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  ChevronRight
+  ChevronRight,
+  ShoppingCart
 } from 'lucide-react';
 import { LoadingWave } from '@/components/ui/lottie-loader';
 import { apiService, OrderResponse } from '@/services/api';
@@ -36,6 +40,9 @@ import {
 
 const Orders = () => {
   const { user, isAuthenticated } = useUser();
+  const { addToCart } = useCart();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<OrderResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,7 +111,7 @@ const Orders = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const userOrders = await apiService.getMyOrders(user!.id);
+      const userOrders = await apiService.getMyOrders(Number(user!.id));
       setOrders(userOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -360,18 +367,17 @@ const Orders = () => {
                               <DialogTitle className="text-base">Order #{order.orderNumber}</DialogTitle>
                             </DialogHeader>
                             
-                            {selectedOrder && (
-                              <div className="space-y-4">
+                            <div className="space-y-4">
                                 {/* Status */}
                                 <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-                                  <Badge className={getStatusColor(selectedOrder.status)}>
+                                  <Badge className={getStatusColor(order.status)}>
                                     <div className="flex items-center gap-1">
-                                      {getStatusIcon(selectedOrder.status)}
-                                      <span>{selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}</span>
+                                      {getStatusIcon(order.status)}
+                                      <span>{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
                                     </div>
                                   </Badge>
                                   <p className="text-base font-bold text-wine">
-                                    {formatPrice(typeof selectedOrder.total === 'number' ? selectedOrder.total : parseFloat(selectedOrder.total) || 0)}
+                                    {formatPrice(typeof order.total === 'number' ? order.total : parseFloat(order.total) || 0)}
                                   </p>
                                 </div>
 
@@ -379,7 +385,7 @@ const Orders = () => {
                                 <div>
                                   <h3 className="text-sm font-semibold mb-2">Items</h3>
                                   <div className="space-y-2">
-                                    {selectedOrder.items.map((item) => (
+                                    {order.items.map((item) => (
                                       <div key={item.id} className="flex items-center gap-3 p-2 border rounded">
                                         <img
                                           src={item.product.image}
@@ -404,20 +410,20 @@ const Orders = () => {
                                 <div className="space-y-2 text-sm border-t pt-3">
                                   <div className="flex justify-between text-xs">
                                     <span>Subtotal:</span>
-                                    <span>{formatPrice(typeof selectedOrder.subtotal === 'number' ? selectedOrder.subtotal : parseFloat(selectedOrder.subtotal) || 0)}</span>
+                                    <span>{formatPrice(typeof order.subtotal === 'number' ? order.subtotal : parseFloat(order.subtotal) || 0)}</span>
                                   </div>
                                   <div className="flex justify-between text-xs">
                                     <span>Tax:</span>
-                                    <span>{formatPrice(typeof selectedOrder.tax === 'number' ? selectedOrder.tax : parseFloat(selectedOrder.tax) || 0)}</span>
+                                    <span>{formatPrice(typeof order.tax === 'number' ? order.tax : parseFloat(order.tax) || 0)}</span>
                                   </div>
                                   <div className="flex justify-between text-xs">
                                     <span>Shipping:</span>
-                                    <span>{formatPrice(typeof selectedOrder.shipping === 'number' ? selectedOrder.shipping : parseFloat(selectedOrder.shipping) || 0)}</span>
+                                    <span>{formatPrice(typeof order.shipping === 'number' ? order.shipping : parseFloat(order.shipping) || 0)}</span>
                                   </div>
                                   <Separator />
                                   <div className="flex justify-between font-semibold">
                                     <span>Total:</span>
-                                    <span>{formatPrice(typeof selectedOrder.total === 'number' ? selectedOrder.total : parseFloat(selectedOrder.total) || 0)}</span>
+                                    <span>{formatPrice(typeof order.total === 'number' ? order.total : parseFloat(order.total) || 0)}</span>
                                   </div>
                                 </div>
 
@@ -427,12 +433,45 @@ const Orders = () => {
                                     <MapPin className="h-3 w-3 mt-0.5 text-muted-foreground" />
                                     <div>
                                       <p className="font-medium mb-1">Shipping Address</p>
-                                      <p className="text-muted-foreground">{selectedOrder.shippingAddress}</p>
+                                      <p className="text-muted-foreground">{order.shippingAddress}</p>
                                     </div>
                                   </div>
                                 </div>
+
+                                {/* Reorder Button */}
+                                <div className="pt-3 border-t">
+                                  <Button
+                                    onClick={() => {
+                                      // Add all items from the order to cart
+                                      let itemsAdded = 0;
+                                      order.items.forEach((item) => {
+                                        // Add each item with its original quantity
+                                        for (let i = 0; i < item.quantity; i++) {
+                                          // Check if item has SKU information stored
+                                          const skuCode = (item as any).skuCode || (item.product as any).skus?.[0]?.code || null;
+                                          addToCart(item.product, skuCode);
+                                          itemsAdded++;
+                                        }
+                                      });
+                                      
+                                      toast({
+                                        title: "Items added to cart",
+                                        description: `${itemsAdded} ${itemsAdded === 1 ? 'item' : 'items'} from order #${order.orderNumber} added to your cart.`,
+                                      });
+                                      
+                                      // Navigate to cart page after a short delay
+                                      setTimeout(() => {
+                                        navigate('/cart');
+                                      }, 500);
+                                    }}
+                                    className="w-full bg-wine hover:bg-wine-light text-white"
+                                    size="sm"
+                                  >
+                                    <ShoppingCart className="h-4 w-4 mr-2" />
+                                    Reorder Items
+                                  </Button>
+                                </div>
                               </div>
-                            )}
                           </DialogContent>
                         </Dialog>
                       </div>
