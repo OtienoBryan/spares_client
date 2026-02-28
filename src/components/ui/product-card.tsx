@@ -73,7 +73,7 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
           <img
             src={product.image || '/placeholder-product.jpg'}
             alt={product.name}
-            className={`${compact ? 'h-52 sm:h-40 md:h-48 lg:h-64 xl:h-72' : 'h-56 sm:h-44 md:h-52 lg:h-72 xl:h-80'} w-full object-contain bg-white transition-transform duration-300 group-hover:scale-105`}
+            className={`${compact ? 'h-64 sm:h-40 md:h-48 lg:h-64 xl:h-72' : 'h-72 sm:h-44 md:h-52 lg:h-72 xl:h-80'} w-full object-contain bg-white transition-transform duration-300 group-hover:scale-105`}
             loading="lazy"
             decoding="async"
           />

@@ -705,7 +705,7 @@ const Home = memo(() => {
                         <img
                           src={product.image || '/placeholder-product.jpg'}
                           alt={product.name}
-                          className="h-36 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
+                          className="h-48 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
                           loading="lazy"
                           decoding="async"
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -872,7 +872,7 @@ const Home = memo(() => {
                         <img
                           src={product.image || '/placeholder-product.jpg'}
                           alt={product.name}
-                          className="h-36 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
+                          className="h-48 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
                           loading="lazy"
                           decoding="async"
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -1154,7 +1154,7 @@ const Home = memo(() => {
                             <img
                               src={product.image || '/placeholder-product.jpg'}
                               alt={product.name}
-                              className="h-36 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
+                              className="h-48 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
                               loading="lazy"
                               decoding="async"
                             />

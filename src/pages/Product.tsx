@@ -251,7 +251,7 @@ const Product = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
           {/* Product Images */}
           <div className="space-y-2 sm:space-y-3">
-            <div className="aspect-square overflow-hidden rounded-lg border mx-auto max-w-[360px] sm:max-w-[400px] md:max-w-[450px] lg:max-w-[500px]">
+            <div className="aspect-square overflow-hidden rounded-lg border mx-auto max-w-[400px] sm:max-w-[400px] md:max-w-[450px] lg:max-w-[500px]">
               <img
                 src={product.images?.[selectedImage] || product.image}
                 alt={`${product.name} - ${product.brand} - ${product.category?.name} - Drinks Avenue`}
