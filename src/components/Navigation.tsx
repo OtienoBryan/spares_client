@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CartSidebar } from "@/components/ui/cart-sidebar";
 import { useCart } from "@/contexts/CartContext";
 import { useUser } from "@/contexts/UserContext";
-import { useCategories, useSearchProductsDebounced } from "@/hooks/useApi";
+import { useCategories, useSearchProductsDebounced, useSubCategories } from "@/hooks/useApi";
 import { LoadingWine } from "@/components/ui/lottie-loader";
 import { formatPrice } from "@/data/products";
 import { LoginModal } from "@/components/auth/LoginModal";
@@ -42,53 +42,87 @@ const Navigation = () => {
   
   const { data: apiCategories = [], loading: categoriesLoading, error: categoriesError } = useCategories();
   
+  // Fetch all subcategories
+  const { data: allSubcategories = [] } = useSubCategories();
+  
   // Get search suggestions
   const { data: searchSuggestions = [], loading: suggestionsLoading } = useSearchProductsDebounced(searchQuery, 200);
 
-  // Create categories array with API data and fallback to static data - Chupa Chap Style
-  const categories = [
-    { name: "Home", path: "/", icon: "🏠" },
-    { name: "Beer", path: "/category/beer", icon: "🍺" },
-    { 
-      name: "Wine", 
-      path: "/category/wine", 
-      icon: "🍷",
-      subcategories: [
+  // Helper function to get subcategories for a category
+  const getSubcategoriesForCategory = (categoryName: string, categoryId?: number) => {
+    // First check if it's a hardcoded category with static subcategories
+    const staticSubcategories: Record<string, Array<{ name: string; path: string }>> = {
+      "Wine": [
         { name: "Red Wine", path: "/category/red-wine" },
         { name: "Champagne", path: "/category/champagne" },
         { name: "White Wine", path: "/category/white-wine" },
         { name: "Rose", path: "/category/rose" },
         { name: "Sparkling", path: "/category/sparkling" }
-      ]
-    },
-    { 
-      name: "Spirits", 
-      path: "/category/spirits", 
-      icon: "🥃",
-      subcategories: [
-        { name: "Whisky", path: "/category/whisky" },
-        { name: "Vodka", path: "/category/vodka" },
-        { name: "Gin", path: "/category/gin" },
-        { name: "Brandy & Cognac", path: "/category/brandy-cognac" },
-        { name: "Rum", path: "/category/rum" },
-        { name: "Tequila", path: "/category/tequila" }
-      ]
-    },
-    { 
-      name: "More", 
-      path: "/category/more", 
-      icon: "🍹",
-      subcategories: [
+      ],
+      "More": [
         { name: "Mixers", path: "/category/mixers" },
         { name: "Convenience Store", path: "/category/convenience" }
       ]
-    },
-    ...(apiCategories?.filter(cat => !['beer', 'wine', 'spirits', 'more'].includes(cat.name.toLowerCase())).map(category => ({
-      name: category.name,
-      path: `/category/${category.name.toLowerCase()}`,
-      icon: getCategoryIcon(category.name)
-    })) || [])
-  ];
+    };
+
+    if (staticSubcategories[categoryName]) {
+      return staticSubcategories[categoryName];
+    }
+
+    // For API categories, get subcategories from API
+    if (categoryId && allSubcategories) {
+      const apiSubcategories = allSubcategories
+        .filter((sub: any) => sub.categoryId === categoryId && sub.isActive)
+        .map((sub: any) => ({
+          name: sub.name,
+          path: `/category/${sub.name.toLowerCase().replace(/\s+/g, '-')}`
+        }));
+      
+      if (apiSubcategories.length > 0) {
+        return apiSubcategories;
+      }
+    }
+
+    return null;
+  };
+
+  // Create categories array with API data and fallback to static data - Chupa Chap Style
+  const categories = useMemo(() => {
+    const baseCategories = [
+      { name: "Home", path: "/", icon: "🏠", id: undefined },
+      { name: "Beer", path: "/category/beer", icon: "🍺", id: undefined },
+      { 
+        name: "Wine", 
+        path: "/category/wine", 
+        icon: "🍷",
+        id: undefined,
+        subcategories: getSubcategoriesForCategory("Wine")
+      },
+      { 
+        name: "More", 
+        path: "/category/more", 
+        icon: "🍹",
+        id: undefined,
+        subcategories: getSubcategoriesForCategory("More")
+      }
+    ];
+
+    // Add API categories with their subcategories
+    const apiCategoriesList = apiCategories
+      ?.filter(cat => !['beer', 'wine', 'spirits', 'more'].includes(cat.name.toLowerCase()))
+      .map(category => {
+        const subcategories = getSubcategoriesForCategory(category.name, category.id);
+        return {
+          name: category.name,
+          path: `/category/${category.name.toLowerCase()}`,
+          icon: getCategoryIcon(category.name),
+          id: category.id,
+          subcategories: subcategories || undefined
+        };
+      }) || [];
+
+    return [...baseCategories, ...apiCategoriesList];
+  }, [apiCategories, allSubcategories]);
 
   // Helper function to get appropriate icon for category
   function getCategoryIcon(categoryName: string): string {
@@ -289,8 +323,8 @@ const Navigation = () => {
                       }`}
                     >
                       {category.name}
-                      {category.subcategories && (
-                        <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      {category.subcategories && category.subcategories.length > 0 && (
+                        <svg className="w-3 h-3 ml-1 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       )}
@@ -302,14 +336,14 @@ const Navigation = () => {
                     )}
                     
                     {/* Dropdown for subcategories */}
-                    {category.subcategories && (
-                      <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    {category.subcategories && category.subcategories.length > 0 && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out z-50 pointer-events-none group-hover:pointer-events-auto">
                         <div className="py-2">
                           {category.subcategories.map((subcategory) => (
                             <Link
                               key={subcategory.path}
                               to={subcategory.path}
-                              className="block px-4 py-2 text-sm text-gray-600 hover:text-primary hover:bg-gray-50 transition-colors"
+                              className="block px-4 py-2.5 text-sm text-gray-700 hover:text-primary hover:bg-primary/5 transition-colors duration-150"
                             >
                               {subcategory.name}
                             </Link>

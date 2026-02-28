@@ -1,6 +1,6 @@
-const CACHE_NAME = 'dalali-v2';
-const STATIC_CACHE = 'dalali-static-v2';
-const DYNAMIC_CACHE = 'dalali-dynamic-v2';
+const CACHE_NAME = 'dalali-v3';
+const STATIC_CACHE = 'dalali-static-v3';
+const DYNAMIC_CACHE = 'dalali-dynamic-v3';
 
 // Critical resources to cache immediately
 const CRITICAL_RESOURCES = [
@@ -41,7 +41,18 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - serve from cache, fallback to network
+// Helper function to check if request is for HTML or JS
+function isHTMLOrJS(request) {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+  return request.mode === 'navigate' || 
+         pathname.endsWith('.html') || 
+         pathname.endsWith('.js') ||
+         pathname.match(/\/js\/.*\.js$/) ||
+         pathname.match(/\/css\/.*\.css$/);
+}
+
+// Fetch event - Network First for HTML/JS/CSS, Cache First for assets
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -56,10 +67,46 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip API requests - let them go to network directly
+  if (url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // Network First strategy for HTML, JS, and CSS files (ensures updates are fetched)
+  if (isHTMLOrJS(request)) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Cache successful responses
+          if (response && response.status === 200 && response.type === 'basic') {
+            const responseToCache = response.clone();
+            caches.open(DYNAMIC_CACHE)
+              .then((cache) => {
+                cache.put(request, responseToCache);
+              });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache if network fails
+          return caches.match(request).then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            // Fallback to index.html for navigation requests
+            if (request.mode === 'navigate') {
+              return caches.match('/index.html');
+            }
+          });
+        })
+    );
+    return;
+  }
+
+  // Cache First strategy for static assets (images, fonts, etc.)
   event.respondWith(
     caches.match(request)
       .then((cachedResponse) => {
-        // Return cached version if available
         if (cachedResponse) {
           return cachedResponse;
         }
