@@ -36,13 +36,11 @@ const Navigation = () => {
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const { cartItems, updateQuantity, removeItem } = useCart();
   
-  console.log('Navigation component rendering, attempting to use useUser hook');
   const { user, isAuthenticated, logout, getLoyaltyPoints } = useUser();
-  console.log('Navigation useUser result:', { user, isAuthenticated });
   
   const { data: apiCategories = [], loading: categoriesLoading, error: categoriesError } = useCategories();
   
-  // Fetch all subcategories
+  // Fetch all subcategories - only when needed (not blocking)
   const { data: allSubcategories = [] } = useSubCategories();
   
   // Get search suggestions

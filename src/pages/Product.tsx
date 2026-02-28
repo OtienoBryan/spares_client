@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ import {
 import type { Product } from "@/services/api";
 import { useProduct, useProductsByCategory } from "@/hooks/useApi";
 import { LoadingWine, LoadingWave } from "@/components/ui/lottie-loader";
+import { ProductPageSkeleton } from "@/components/ui/loading-skeleton";
 import { formatPrice } from "@/data/products";
 
 const Product = () => {
@@ -41,27 +42,30 @@ const Product = () => {
   // Use API hooks to fetch product data
   const productId = id ? parseInt(id, 10) : 0;
   const { data: product, loading: productLoading, error: productError } = useProduct(productId);
-  const { data: relatedProducts = [] } = useProductsByCategory(product?.categoryId || 0);
+  
+  // Only fetch related products after main product loads and has categoryId
+  const shouldFetchRelated = !productLoading && product?.categoryId && product.categoryId > 0;
+  const { data: relatedProducts = [] } = useProductsByCategory(product?.categoryId || 0, shouldFetchRelated);
 
-  // Filter out the current product from related products
-  const filteredRelatedProducts = relatedProducts?.filter(p => p.id !== productId) || [];
+  // Memoize filtered related products to avoid recalculation
+  const filteredRelatedProducts = useMemo(() => {
+    if (!relatedProducts || relatedProducts.length === 0) return [];
+    return relatedProducts.filter(p => p.id !== productId);
+  }, [relatedProducts, productId]);
 
-  // Helper function to get best discount percentage from SKUs only
+  // Memoized helper function to get best discount percentage from SKUs only
   const getBestDiscountFromSKU = useCallback((product: any) => {
+    if (!product?.skus || product.skus.length === 0) return 0;
+    
     let maxDiscount = 0;
-    
-    // Only check SKU discounts
-    if (product.skus && product.skus.length > 0) {
-      product.skus.forEach((sku: any) => {
-        if (sku.originalPrice && sku.originalPrice > sku.price) {
-          const discount = ((sku.originalPrice - sku.price) / sku.originalPrice) * 100;
-          if (discount > maxDiscount) {
-            maxDiscount = discount;
-          }
+    for (const sku of product.skus) {
+      if (sku.originalPrice && sku.originalPrice > sku.price) {
+        const discount = ((sku.originalPrice - sku.price) / sku.originalPrice) * 100;
+        if (discount > maxDiscount) {
+          maxDiscount = discount;
         }
-      });
+      }
     }
-    
     return maxDiscount;
   }, []);
 
@@ -100,6 +104,19 @@ const Product = () => {
     }
   }, [product, selectedSku]);
 
+  // Prefetch product images for faster switching
+  useEffect(() => {
+    if (product?.images && product.images.length > 1) {
+      product.images.forEach((imageUrl) => {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.as = 'image';
+        link.href = imageUrl;
+        document.head.appendChild(link);
+      });
+    }
+  }, [product?.images]);
+
   const handleQuantityChange = (change: number) => {
     const newQuantity = quantity + change;
     if (newQuantity >= 1 && newQuantity <= (product?.stock || 0)) {
@@ -108,41 +125,16 @@ const Product = () => {
   };
 
 
-  const discountPercentage = product?.originalPrice 
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-    : 0;
+  // Memoize discount percentage calculation
+  const discountPercentage = useMemo(() => {
+    if (!product?.originalPrice || product.originalPrice <= product.price) return 0;
+    return Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+  }, [product?.originalPrice, product?.price]);
 
-  // Handle loading state
-  if (productLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <div className="text-center">
-          <LoadingWine size="xl" className="mx-auto mb-3 sm:mb-4" />
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-2 sm:mb-4">Loading Product...</h1>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle error state
-  if (productError || !product) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <div className="text-center">
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4">Product Not Found</h1>
-          <p className="text-muted-foreground mb-3 sm:mb-4 text-sm sm:text-base">
-            {productError || "The product you're looking for doesn't exist."}
-          </p>
-          <Link to="/">
-            <Button className="text-xs sm:text-sm touch-manipulation">Return to Home</Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // Generate structured data for the product
-  const structuredData = {
+  // Memoize structured data for SEO - MUST be before early returns to follow Rules of Hooks
+  const structuredData = useMemo(() => {
+    if (!product) return null;
+    return {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": product.name,
@@ -186,6 +178,35 @@ const Product = () => {
       }
     ]
   };
+  }, [product]);
+
+  // Show skeleton immediately while loading - better perceived performance
+  if (productLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <ProductPageSkeleton />
+        <Footer />
+      </div>
+    );
+  }
+
+  // Handle error state
+  if (productError || !product) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-center">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4">Product Not Found</h1>
+          <p className="text-muted-foreground mb-3 sm:mb-4 text-sm sm:text-base">
+            {productError || "The product you're looking for doesn't exist."}
+          </p>
+          <Link to="/">
+            <Button className="text-xs sm:text-sm touch-manipulation">Return to Home</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -218,9 +239,11 @@ const Product = () => {
         <meta name="twitter:image" content={product.image} />
         
         {/* Structured Data */}
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
+        {structuredData && (
+          <script type="application/ld+json">
+            {JSON.stringify(structuredData)}
+          </script>
+        )}
       </Helmet>
 
       {/* Navigation */}
@@ -260,6 +283,7 @@ const Product = () => {
                 decoding="async"
                 width="500"
                 height="500"
+                fetchPriority="high"
               />
             </div>
             
@@ -267,17 +291,18 @@ const Product = () => {
               <div className="grid grid-cols-4 sm:grid-cols-3 gap-1 sm:gap-2 max-w-[280px] md:max-w-[320px] mx-auto">
                 {product.images.map((image, index) => (
                   <button
-                    key={index}
+                    key={`${image}-${index}`}
                     onClick={() => setSelectedImage(index)}
                     className={`aspect-square overflow-hidden rounded-lg border-2 transition-colors touch-manipulation ${
                       selectedImage === index ? 'border-wine' : 'border-muted'
                     }`}
+                    aria-label={`View image ${index + 1} of ${product.images.length}`}
                   >
                     <img
                       src={image}
                       alt={`${product.name} - ${product.brand} - View ${index + 1}`}
                       className="h-full w-full object-contain bg-white"
-                      loading="lazy"
+                      loading={index === 0 ? "eager" : "lazy"}
                       decoding="async"
                       width="90"
                       height="90"
@@ -462,9 +487,9 @@ const Product = () => {
           </div>
         </div>
 
-        {/* Product Details Tabs (reduced to essentials) */}
+        {/* Product Details Tabs (reduced to essentials) - Deferred rendering */}
         <section className="mt-6 sm:mt-8 md:mt-12" aria-label="Product Details">
-          <Tabs defaultValue="details" className="w-full">
+          <Tabs defaultValue="details" className="w-full" lazyMount>
             <TabsList className="grid w-full grid-cols-2 h-8 sm:h-9" role="tablist">
               <TabsTrigger value="details" className="text-[11px] sm:text-xs" role="tab">Details</TabsTrigger>
               <TabsTrigger value="reviews" className="text-[11px] sm:text-xs" role="tab">Reviews</TabsTrigger>
@@ -535,13 +560,16 @@ const Product = () => {
           </Tabs>
         </section>
 
-        {/* Related Products */}
+        {/* Related Products - Lazy loaded after main content */}
         {filteredRelatedProducts.length > 0 && (
-          <section className="mt-6 sm:mt-8 md:mt-12 py-3 sm:py-4 md:py-6 bg-gradient-to-br from-wine/5 to-primary/5" aria-label="Related Products">
+          <section 
+            className="mt-6 sm:mt-8 md:mt-12 py-3 sm:py-4 md:py-6 bg-gradient-to-br from-wine/5 to-primary/5" 
+            aria-label="Related Products"
+          >
             <div className="container mx-auto px-3 sm:px-4">
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4 md:mb-6">You Might Also Like</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-              {filteredRelatedProducts.map((relatedProduct) => (
+              {filteredRelatedProducts.slice(0, 6).map((relatedProduct) => (
                 <div key={relatedProduct.id} className="relative group">
                   <Link to={`/product/${relatedProduct.id}`} className="block">
                     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">

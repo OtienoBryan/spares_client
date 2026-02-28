@@ -70,4 +70,63 @@ export const HomePageSkeleton = () => (
   </div>
 );
 
+export const ProductPageSkeleton = () => (
+  <div className="min-h-screen bg-background">
+    <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 md:py-6 lg:py-8">
+      {/* Breadcrumb Skeleton */}
+      <div className="mb-3 sm:mb-4 md:mb-6 flex items-center gap-2">
+        <Skeleton className="h-4 w-16" />
+        <span>/</span>
+        <Skeleton className="h-4 w-24" />
+        <span>/</span>
+        <Skeleton className="h-4 w-32" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
+        {/* Image Skeleton */}
+        <div className="space-y-2 sm:space-y-3">
+          <Skeleton className="aspect-square w-full max-w-[400px] mx-auto rounded-lg" />
+          <div className="grid grid-cols-4 sm:grid-cols-3 gap-1 sm:gap-2 max-w-[280px] md:max-w-[320px] mx-auto">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-square rounded-lg" />
+            ))}
+          </div>
+        </div>
+
+        {/* Details Skeleton */}
+        <div className="space-y-2 sm:space-y-3 md:space-y-4">
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <Skeleton className="h-6 w-20" />
+              <Skeleton className="h-6 w-16" />
+            </div>
+            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+
+          <div className="space-y-3">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs Skeleton */}
+      <div className="mt-6 sm:mt-8 md:mt-12 space-y-4">
+        <div className="flex gap-2">
+          <Skeleton className="h-8 w-24" />
+          <Skeleton className="h-8 w-24" />
+        </div>
+        <Skeleton className="h-48 w-full" />
+      </div>
+    </div>
+  </div>
+);
+
 export default Skeleton;

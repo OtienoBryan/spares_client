@@ -92,7 +92,25 @@ export function usePopularWines() {
 }
 
 export function useProduct(id: number) {
-  return useApi(() => apiService.getProductById(id), [id]);
+  const { data, isLoading: loading, error } = useQuery({
+    queryKey: ['product', id],
+    queryFn: () => apiService.getProductById(id),
+    enabled: id > 0, // Only fetch if valid ID
+    staleTime: 10 * 60 * 1000, // 10 minutes - products don't change often
+    cacheTime: 30 * 60 * 1000, // 30 minutes - keep in cache longer
+    retry: 1, // Reduce retries for faster failure
+    retryDelay: 500, // Faster retry
+    refetchOnWindowFocus: false,
+    refetchOnMount: false, // Use cache if available
+    refetchOnReconnect: false, // Don't refetch on reconnect
+    networkMode: 'online', // Only fetch when online
+  });
+
+  return { 
+    data: data || null, 
+    loading, 
+    error: error?.message || null 
+  };
 }
 
 export function useProductsByCategory(categoryId: number, enabled: boolean = true) {
