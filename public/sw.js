@@ -1,6 +1,6 @@
-const CACHE_NAME = 'dalali-v3';
-const STATIC_CACHE = 'dalali-static-v3';
-const DYNAMIC_CACHE = 'dalali-dynamic-v3';
+const CACHE_NAME = 'dalali-v4';
+const STATIC_CACHE = 'dalali-static-v4';
+const DYNAMIC_CACHE = 'dalali-dynamic-v4';
 
 // Critical resources to cache immediately
 const CRITICAL_RESOURCES = [
@@ -69,6 +69,11 @@ self.addEventListener('fetch', (event) => {
 
   // Skip API requests - let them go to network directly
   if (url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // Skip external/cross-origin URLs (CDN images, etc.) - let browser handle them directly
+  if (url.origin !== self.location.origin) {
     return;
   }
 
