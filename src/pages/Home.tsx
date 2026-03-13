@@ -282,42 +282,7 @@ const Home = memo(() => {
     }
   }, [featuredProducts, offersOfTheWeek, popularWines]);
 
-  // Optimized loading state - only show if critical data is loading
-  if (categoriesLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <LoadingWave size="xl" className="mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-wine mb-4">Loading...</h1>
-          <p>Loading products...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Check for network errors
-  const hasNetworkError = !isOnline || 
-    isNetworkError(productsError) || 
-    isNetworkError(featuredError) || 
-    isNetworkError(categoriesError);
-
-  // Show network error state
-  if (hasNetworkError) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <LoadingNetworkError size="xl" className="mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-wine mb-4">Connection Error</h1>
-          <p className="text-muted-foreground mb-4">Unable to connect to our servers</p>
-          <Button onClick={() => window.location.reload()}>
-            Try Again
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Generate enhanced structured data for the website
+  // Generate enhanced structured data for the website - MUST be before early returns
   const structuredData = useMemo(() => {
     const baseUrl = window.location.origin;
     return {
@@ -515,6 +480,41 @@ const Home = memo(() => {
       ]
     };
   }, []);
+
+  // Optimized loading state - only show if critical data is loading
+  if (categoriesLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <LoadingWave size="xl" className="mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-wine mb-4">Loading...</h1>
+          <p>Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Check for network errors
+  const hasNetworkError = !isOnline || 
+    isNetworkError(productsError) || 
+    isNetworkError(featuredError) || 
+    isNetworkError(categoriesError);
+
+  // Show network error state
+  if (hasNetworkError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <LoadingNetworkError size="xl" className="mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-wine mb-4">Connection Error</h1>
+          <p className="text-muted-foreground mb-4">Unable to connect to our servers</p>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
