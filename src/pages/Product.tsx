@@ -165,17 +165,17 @@ const Product = () => {
     
     // Build product schema
     const productSchema: any = {
-      "@context": "https://schema.org",
-      "@type": "Product",
-      "name": product.name,
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
       "description": product.description || `${product.name} by ${product.brand}${product.origin ? ` from ${product.origin}` : ''} - Premium ${product.category?.name || 'drink'} available at Drinks Avenue Kenya. ${product.alcoholContent ? `Alcohol content: ${product.alcoholContent}% ABV.` : ''} ${product.volume ? `Volume: ${product.volume}.` : ''} Fast 30-minute delivery in Nairobi and across Kenya.`,
       "image": product.images && product.images.length > 0 
         ? (Array.isArray(product.images) ? product.images : [product.image])
         : (product.image ? [product.image] : []),
-      "brand": {
-        "@type": "Brand",
+    "brand": {
+      "@type": "Brand",
         "name": product.brand || "Drinks Avenue"
-      },
+    },
       "category": product.category?.name || "Drinks",
       "sku": product.id?.toString() || "",
       "mpn": product.id?.toString() || "",
@@ -185,18 +185,18 @@ const Product = () => {
         "@type": "Organization",
         "name": product.brand
       } : undefined,
-      "offers": {
-        "@type": "Offer",
-        "price": product.price,
-        "priceCurrency": "KES",
-        "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    "offers": {
+      "@type": "Offer",
+      "price": product.price,
+      "priceCurrency": "KES",
+      "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
         "url": productUrl,
         "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        "seller": {
-          "@type": "Organization",
+      "seller": {
+        "@type": "Organization",
           "name": "Drinks Avenue",
           "url": baseUrl
-        },
+    },
         "shippingDetails": {
           "@type": "OfferShippingDetails",
           "shippingRate": {
@@ -235,8 +235,8 @@ const Product = () => {
     // Add aggregateRating only if rating exists
     if (product.rating) {
       productSchema.aggregateRating = {
-        "@type": "AggregateRating",
-        "ratingValue": product.rating,
+      "@type": "AggregateRating",
+      "ratingValue": product.rating,
         "reviewCount": product.reviewCount || 1,
         "bestRating": "5",
         "worstRating": "1"
@@ -327,9 +327,9 @@ const Product = () => {
           "position": 3,
           "name": product.name,
           "item": `${window.location.origin}/product/${product.id}`
-        }
-      ]
-    };
+      }
+    ]
+  };
   }, [product]);
 
   // FAQ structured data for SEO
@@ -511,7 +511,7 @@ const Product = () => {
             <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
               <Link to={`/category/${product.category?.name?.toLowerCase() || 'products'}`} className="text-muted-foreground hover:text-wine transition-colors" itemProp="item">
                 <span itemProp="name">{product.category?.name?.charAt(0).toUpperCase() + product.category?.name?.slice(1) || 'Products'}</span>
-              </Link>
+          </Link>
               <meta itemProp="position" content="2" />
             </li>
             <li className="text-muted-foreground" aria-hidden="true">/</li>
@@ -578,9 +578,9 @@ const Product = () => {
                   </Link>
                 )}
                 {!product.category?.name && (
-                  <Badge className="bg-wine text-white capitalize text-xs px-2 py-1">
+                <Badge className="bg-wine text-white capitalize text-xs px-2 py-1">
                     Unknown
-                  </Badge>
+                </Badge>
                 )}
                 {discountPercentage > 0 && (
                   <Badge className="bg-destructive text-destructive-foreground text-xs px-2 py-1">
@@ -780,15 +780,15 @@ const Product = () => {
 
               {product.stock > 0 ? (
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <Button
-                    onClick={handleAddToCart}
-                    disabled={isLoading}
-                    size="default"
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={isLoading}
+                  size="default"
                     className="w-auto max-w-xs bg-wine hover:bg-wine-light text-white text-xs sm:text-sm md:text-base py-2 sm:py-3 md:py-3 px-4 sm:px-6 md:px-8 touch-manipulation active:scale-95 transition-transform"
-                  >
-                    <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                    {isLoading ? "Adding..." : "Add to Cart"}
-                  </Button>
+                >
+                  <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  {isLoading ? "Adding..." : "Add to Cart"}
+                </Button>
                   <Button
                     onClick={handleWhatsAppOrder}
                     size="default"

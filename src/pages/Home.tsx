@@ -520,9 +520,9 @@ const Home = memo(() => {
     <div className="min-h-screen bg-background">
       {/* SEO Meta Tags - Enhanced */}
       <Helmet>
-        <title>Drinks Avenue - Premium Alcohol Delivery Service | Wine, Beer, Whiskey & More | Kenya</title>
-        <meta name="description" content="Order premium drinks online with fast 30-minute delivery across Kenya. Wide selection of wine, beer, whiskey, gin, rum, tequila, vodka, and spirits. Shop online at Drinks Avenue - Nairobi's trusted alcohol delivery service. Free delivery available." />
-        <meta name="keywords" content="alcohol delivery Kenya, wine delivery Nairobi, beer delivery Kenya, whiskey delivery, gin delivery, spirits delivery Kenya, online alcohol store, premium drinks delivery, alcohol delivery service, wine shop Nairobi, beer shop Kenya, spirits shop, alcohol online Kenya, drinks delivery Nairobi, buy alcohol online Kenya, alcohol delivery app, wine delivery app, beer delivery app" />
+        <title>24 Hour Drinks Delivery Kenya | Dial a Drink | Chupa Chup | Drinks Avenue</title>
+        <meta name="description" content="24 hour drinks delivery Kenya - Dial a drink and get premium alcoholic beverages delivered fast. Order wine, beer, whiskey, gin, rum, tequila, vodka, Chupa Chup, and spirits with same-day delivery across Nairobi and Kenya. Drinks Avenue - Your trusted 24/7 alcohol delivery service." />
+        <meta name="keywords" content="drinks delivery kenya, dial a drink, chupa chup, 24 hour drinks delivery, 24/7 drinks delivery, alcohol delivery Kenya, wine delivery Nairobi, beer delivery Kenya, whiskey delivery, gin delivery, spirits delivery Kenya, online alcohol store, premium drinks delivery, alcohol delivery service, wine shop Nairobi, beer shop Kenya, spirits shop, alcohol online Kenya, drinks delivery Nairobi, buy alcohol online Kenya, alcohol delivery app, wine delivery app, beer delivery app, same day alcohol delivery Kenya, fast drinks delivery Nairobi, instant drinks delivery Kenya" />
         <meta name="author" content="Drinks Avenue" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <meta name="googlebot" content="index, follow" />
@@ -541,8 +541,8 @@ const Home = memo(() => {
         <link rel="preload" href="/slider/4.webp" as="image" type="image/webp" fetchPriority="high" imageSizes="100vw" />
         
         {/* Open Graph Tags - Enhanced */}
-        <meta property="og:title" content="Drinks Avenue - Premium Alcohol Delivery Service | Kenya" />
-        <meta property="og:description" content="Order premium drinks online with fast 30-minute delivery across Kenya. Wide selection of wine, beer, whiskey, gin, rum, tequila, vodka, and spirits. Shop online at Drinks Avenue." />
+        <meta property="og:title" content="24 Hour Drinks Delivery Kenya | Dial a Drink | Chupa Chup | Drinks Avenue" />
+        <meta property="og:description" content="24 hour drinks delivery Kenya - Dial a drink and get premium alcoholic beverages delivered fast. Order wine, beer, whiskey, gin, rum, tequila, vodka, Chupa Chup, and spirits with same-day delivery across Nairobi and Kenya." />
         <meta property="og:image" content={`${window.location.origin}/logo.png`} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
