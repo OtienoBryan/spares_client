@@ -20,7 +20,8 @@ import {
   Minus,
   Plus,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  MessageCircle
 } from "lucide-react";
 import type { Product } from "@/services/api";
 import { useProduct, useProductsByCategory } from "@/hooks/useApi";
@@ -124,6 +125,30 @@ const Product = () => {
     }
   };
 
+  const handleWhatsAppOrder = () => {
+    if (!product) return;
+    
+    const selectedSkuData = product.skus && selectedSku 
+      ? product.skus.find(sku => sku.code === selectedSku)
+      : null;
+    
+    const price = selectedSkuData?.price || product.price;
+    const skuText = selectedSkuData ? ` (${selectedSkuData.code})` : '';
+    
+    const message = `Hello! I would like to order:\n\n` +
+      `*${product.name}*${skuText}\n` +
+      `Brand: ${product.brand}\n` +
+      `Quantity: ${quantity}\n` +
+      `Price: KES ${formatPrice(price)}\n` +
+      `Total: KES ${formatPrice(price * quantity)}\n\n` +
+      `Product Link: ${window.location.href}`;
+    
+    const whatsappNumber = '254712345678'; // Replace with your WhatsApp business number
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    
+    window.open(whatsappUrl, '_blank');
+  };
+
 
   // Memoize discount percentage calculation
   const discountPercentage = useMemo(() => {
@@ -143,7 +168,7 @@ const Product = () => {
       "@context": "https://schema.org",
       "@type": "Product",
       "name": product.name,
-      "description": product.description || `${product.name} by ${product.brand} - Premium ${product.category?.name || 'drink'} available at Drinks Avenue. Fast delivery across Kenya.`,
+      "description": product.description || `${product.name} by ${product.brand}${product.origin ? ` from ${product.origin}` : ''} - Premium ${product.category?.name || 'drink'} available at Drinks Avenue Kenya. ${product.alcoholContent ? `Alcohol content: ${product.alcoholContent}% ABV.` : ''} ${product.volume ? `Volume: ${product.volume}.` : ''} Fast 30-minute delivery in Nairobi and across Kenya.`,
       "image": product.images && product.images.length > 0 
         ? (Array.isArray(product.images) ? product.images : [product.image])
         : (product.image ? [product.image] : []),
@@ -154,7 +179,12 @@ const Product = () => {
       "category": product.category?.name || "Drinks",
       "sku": product.id?.toString() || "",
       "mpn": product.id?.toString() || "",
+      "gtin": product.id?.toString() || "",
       "url": productUrl,
+      "manufacturer": product.brand ? {
+        "@type": "Organization",
+        "name": product.brand
+      } : undefined,
       "offers": {
         "@type": "Offer",
         "price": product.price,
@@ -302,6 +332,57 @@ const Product = () => {
     };
   }, [product]);
 
+  // FAQ structured data for SEO
+  const faqStructuredData = useMemo(() => {
+    if (!product) return null;
+    
+    const faqs = [
+      {
+        "@type": "Question",
+        "name": `What is the price of ${product.name}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `The price of ${product.name} by ${product.brand} is KES ${formatPrice(product.price)}${product.volume ? ` for ${product.volume}` : ''}. ${product.originalPrice && product.originalPrice > product.price ? `Original price was KES ${formatPrice(product.originalPrice)}.` : ''}`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": `Is ${product.name} available for delivery in Kenya?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `Yes, ${product.name} is available for delivery across Kenya. We offer fast 30-minute delivery in Nairobi and delivery to other cities in Kenya. ${product.stock > 0 ? 'The product is currently in stock.' : 'Please check availability before ordering.'}`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": `What is the alcohol content of ${product.name}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": product.alcoholContent 
+            ? `${product.name} has an alcohol content of ${product.alcoholContent}% ABV.`
+            : `Alcohol content information is not available for ${product.name}. Please contact us for more details.`
+        }
+      }
+    ];
+
+    if (product.origin) {
+      faqs.push({
+        "@type": "Question",
+        "name": `Where is ${product.name} from?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `${product.name} by ${product.brand} is from ${product.origin}.`
+        }
+      });
+    }
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqs
+    };
+  }, [product]);
+
   // Show skeleton immediately while loading - better perceived performance
   if (productLoading) {
     return (
@@ -334,24 +415,32 @@ const Product = () => {
     <div className="min-h-screen bg-background">
       {/* SEO Meta Tags - Enhanced */}
       <Helmet>
-        <title>{`${product.name} - ${product.brand} | Buy Online | Drinks Avenue Kenya`}</title>
-        <meta name="description" content={`Buy ${product.name} by ${product.brand} online at Drinks Avenue. ${product.description || `Premium ${product.category?.name || 'drink'} with fast delivery across Kenya.`} ${product.alcoholContent ? `Alcohol content: ${product.alcoholContent}.` : ''} ${product.volume ? `Volume: ${product.volume}.` : ''} Order now for fast 30-minute delivery in Nairobi.`} />
-        <meta name="keywords" content={`${product.name}, ${product.brand}, ${product.category?.name}, buy ${product.name} online, ${product.name} Kenya, ${product.name} Nairobi, ${product.name} delivery, ${product.brand} ${product.category?.name}, alcohol delivery Kenya, ${product.alcoholContent ? `${product.name} ${product.alcoholContent}` : ''}, ${product.volume ? `${product.name} ${product.volume}` : ''}, premium ${product.category?.name}, drinks delivery Kenya`} />
+        <title>{`${product.name} - ${product.brand} | Buy Online | KES ${formatPrice(product.price)} | Drinks Avenue Kenya`}</title>
+        <meta name="description" content={`Buy ${product.name} by ${product.brand} online at Drinks Avenue Kenya. ${product.description || `Premium ${product.category?.name || 'drink'}`} ${product.origin ? `from ${product.origin}` : ''} ${product.alcoholContent ? `(${product.alcoholContent}% ABV)` : ''} ${product.volume ? `- ${product.volume}` : ''}. Fast 30-minute delivery in Nairobi & Kenya. Free delivery available. Order now!`} />
+        <meta name="keywords" content={`${product.name}, ${product.brand}, ${product.category?.name}, buy ${product.name} online Kenya, ${product.name} Nairobi, ${product.name} delivery Kenya, ${product.brand} ${product.category?.name}, ${product.name} price Kenya, ${product.name} ${product.origin || ''}, alcohol delivery Kenya, ${product.alcoholContent ? `${product.name} ${product.alcoholContent}%` : ''}, ${product.volume ? `${product.name} ${product.volume}` : ''}, premium ${product.category?.name} Kenya, drinks delivery Nairobi, buy ${product.brand} online, ${product.category?.name} delivery Kenya, online alcohol store Kenya, wine delivery Nairobi, spirits delivery Kenya`} />
         <meta name="author" content="Drinks Avenue" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         <meta name="googlebot" content="index, follow" />
         <meta name="language" content="English" />
         <meta name="geo.region" content="KE" />
         <meta name="geo.placename" content="Nairobi" />
+        <meta name="geo.position" content="-1.2921;36.8219" />
         <link rel="canonical" href={`${window.location.origin}/product/${product.id}`} />
         
+        {/* Performance optimizations */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {product.images?.[0] && (
+          <link rel="preload" href={product.images[0]} as="image" fetchPriority="high" />
+        )}
+        
         {/* Open Graph Tags - Enhanced */}
-        <meta property="og:title" content={`${product.name} - ${product.brand} | Drinks Avenue`} />
-        <meta property="og:description" content={`Buy ${product.name} by ${product.brand} online. ${product.description || `Premium ${product.category?.name || 'drink'} with fast delivery across Kenya.`} Order now for fast 30-minute delivery.`} />
+        <meta property="og:title" content={`${product.name} - ${product.brand} | KES ${formatPrice(product.price)} | Drinks Avenue`} />
+        <meta property="og:description" content={`Buy ${product.name} by ${product.brand} online in Kenya. ${product.description || `Premium ${product.category?.name || 'drink'}`} ${product.origin ? `from ${product.origin}` : ''} ${product.alcoholContent ? `(${product.alcoholContent}% ABV)` : ''}. Fast 30-minute delivery in Nairobi. Order now!`} />
         <meta property="og:image" content={product.images?.[0] || product.image} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content={`${product.name} - ${product.brand} - Drinks Avenue`} />
+        <meta property="og:image:alt" content={`${product.name} by ${product.brand} - Premium ${product.category?.name || 'drink'} ${product.origin ? `from ${product.origin}` : ''} - Drinks Avenue Kenya`} />
         <meta property="og:url" content={`${window.location.origin}/product/${product.id}`} />
         <meta property="og:type" content="product" />
         <meta property="og:site_name" content="Drinks Avenue" />
@@ -361,6 +450,9 @@ const Product = () => {
         <meta property="product:availability" content={product.stock > 0 ? "in stock" : "out of stock"} />
         <meta property="product:brand" content={product.brand || "Drinks Avenue"} />
         <meta property="product:category" content={product.category?.name || "Drinks"} />
+        {product.origin && (
+          <meta property="product:retailer_item_id" content={product.id.toString()} />
+        )}
         {product.rating && (
           <meta property="product:rating:value" content={product.rating.toString()} />
         )}
@@ -370,10 +462,10 @@ const Product = () => {
         
         {/* Twitter Card Tags - Enhanced */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${product.name} - ${product.brand} | Drinks Avenue`} />
-        <meta name="twitter:description" content={`Buy ${product.name} by ${product.brand} online. ${product.description?.substring(0, 200) || `Premium ${product.category?.name || 'drink'} with fast delivery across Kenya.`}`} />
+        <meta name="twitter:title" content={`${product.name} - ${product.brand} | KES ${formatPrice(product.price)} | Drinks Avenue`} />
+        <meta name="twitter:description" content={`Buy ${product.name} by ${product.brand} online in Kenya. ${product.description?.substring(0, 200) || `Premium ${product.category?.name || 'drink'}`} ${product.origin ? `from ${product.origin}` : ''}. Fast delivery in Nairobi.`} />
         <meta name="twitter:image" content={product.images?.[0] || product.image} />
-        <meta name="twitter:image:alt" content={`${product.name} - ${product.brand}`} />
+        <meta name="twitter:image:alt" content={`${product.name} by ${product.brand} - Premium ${product.category?.name || 'drink'} - Drinks Avenue Kenya`} />
         
         {/* Additional SEO Tags */}
         <meta name="theme-color" content="#8B1538" />
@@ -391,6 +483,13 @@ const Product = () => {
         {breadcrumbStructuredData && (
           <script type="application/ld+json">
             {JSON.stringify(breadcrumbStructuredData)}
+          </script>
+        )}
+        
+        {/* Structured Data - FAQPage */}
+        {faqStructuredData && (
+          <script type="application/ld+json">
+            {JSON.stringify(faqStructuredData)}
           </script>
         )}
       </Helmet>
@@ -471,9 +570,18 @@ const Product = () => {
             {/* Header */}
             <div>
               <div className="flex items-center gap-1 sm:gap-2 mb-2 flex-wrap">
-                <Badge className="bg-wine text-white capitalize text-xs px-2 py-1">
-                  {product.category?.name || 'Unknown'}
-                </Badge>
+                {product.category?.name && (
+                  <Link to={`/category/${product.category.name.toLowerCase()}`}>
+                    <Badge className="bg-wine text-white capitalize text-xs px-2 py-1 hover:bg-wine/90 transition-colors cursor-pointer">
+                      {product.category.name}
+                    </Badge>
+                  </Link>
+                )}
+                {!product.category?.name && (
+                  <Badge className="bg-wine text-white capitalize text-xs px-2 py-1">
+                    Unknown
+                  </Badge>
+                )}
                 {discountPercentage > 0 && (
                   <Badge className="bg-destructive text-destructive-foreground text-xs px-2 py-1">
                     -{discountPercentage}% OFF
@@ -484,10 +592,21 @@ const Product = () => {
                 )}
               </div>
               
-              <h1 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-wine mb-2 leading-tight" itemProp="name">{product.name}</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-2" itemProp="brand" itemScope itemType="https://schema.org/Brand">
-                <span itemProp="name">{product.brand}</span>
-              </p>
+              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-wine mb-2 leading-tight" itemProp="name">
+                {product.name}
+                {product.origin && <span className="text-muted-foreground font-normal text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl"> from {product.origin}</span>}
+              </h1>
+              {product.brand && (
+                <p className="text-[10px] sm:text-xs text-muted-foreground mb-2" itemProp="brand" itemScope itemType="https://schema.org/Brand">
+                  <Link 
+                    to={`/brands/${encodeURIComponent(product.brand)}`}
+                    className="hover:text-wine transition-colors underline-offset-2 hover:underline"
+                    itemProp="name"
+                  >
+                    {product.brand}
+                  </Link>
+                </p>
+              )}
               
               <div className="flex items-center gap-2 sm:gap-4 mb-2">
                 <div className="flex items-center gap-1">
@@ -507,6 +626,47 @@ const Product = () => {
                     {product.rating} ({product.reviewCount} reviews)
                   </span>
                 </div>
+              </div>
+            </div>
+
+            {/* Product Details - Top Section */}
+            <div className="space-y-2 sm:space-y-3 mb-4 p-3 sm:p-4 bg-muted/30 rounded-lg border border-border" itemScope itemType="https://schema.org/Product">
+              <h2 className="font-semibold text-xs sm:text-sm text-wine mb-2 sm:mb-3">Product Details</h2>
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm">
+                {product.brand && (
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground mb-0.5">Brand</span>
+                    <Link 
+                      to={`/brands/${encodeURIComponent(product.brand)}`}
+                      className="font-medium text-foreground hover:text-wine transition-colors underline-offset-2 hover:underline"
+                    >
+                      {product.brand}
+                    </Link>
+                  </div>
+                )}
+                {product.origin && (
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground mb-0.5">Origin</span>
+                    <Link 
+                      to={`/origin/${encodeURIComponent(product.origin)}`}
+                      className="font-medium text-foreground hover:text-wine transition-colors underline-offset-2 hover:underline"
+                    >
+                      {product.origin}
+                    </Link>
+                  </div>
+                )}
+                {product.volume && (
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground mb-0.5">Volume</span>
+                    <span className="font-medium text-foreground">{product.volume}</span>
+                  </div>
+                )}
+                {product.alcoholContent && (
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground mb-0.5">Alcohol Content</span>
+                    <span className="font-medium text-foreground">{product.alcoholContent}% ABV</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -619,17 +779,28 @@ const Product = () => {
               </div>
 
               {product.stock > 0 ? (
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={isLoading}
-                  size="default"
-                  className="w-full bg-wine hover:bg-wine-light text-white text-xs sm:text-sm md:text-base py-2 sm:py-3 md:py-3 touch-manipulation active:scale-95 transition-transform"
-                >
-                  <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                  {isLoading ? "Adding..." : "Add to Cart"}
-                </Button>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Button
+                    onClick={handleAddToCart}
+                    disabled={isLoading}
+                    size="default"
+                    className="w-auto max-w-xs bg-wine hover:bg-wine-light text-white text-xs sm:text-sm md:text-base py-2 sm:py-3 md:py-3 px-4 sm:px-6 md:px-8 touch-manipulation active:scale-95 transition-transform"
+                  >
+                    <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                    {isLoading ? "Adding..." : "Add to Cart"}
+                  </Button>
+                  <Button
+                    onClick={handleWhatsAppOrder}
+                    size="default"
+                    variant="outline"
+                    className="w-auto bg-green-600 hover:bg-green-700 text-white border-green-600 hover:border-green-700 text-xs sm:text-sm md:text-base py-2 sm:py-3 md:py-3 px-4 sm:px-6 md:px-8 touch-manipulation active:scale-95 transition-transform"
+                  >
+                    <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                    Order via WhatsApp
+                  </Button>
+                </div>
               ) : (
-                <div className="w-full bg-gray-100 text-gray-500 text-xs sm:text-sm md:text-base py-2 sm:py-3 md:py-3 rounded-md text-center font-medium">
+                <div className="w-auto max-w-xs bg-gray-100 text-gray-500 text-xs sm:text-sm md:text-base py-2 sm:py-3 md:py-3 px-4 sm:px-6 md:px-8 rounded-md text-center font-medium">
                   Out of Stock
                 </div>
               )}
@@ -646,7 +817,7 @@ const Product = () => {
 
         {/* Product Details Tabs (reduced to essentials) - Deferred rendering */}
         <section className="mt-6 sm:mt-8 md:mt-12" aria-label="Product Details">
-          <Tabs defaultValue="details" className="w-full" lazyMount>
+          <Tabs defaultValue="details" className="w-full">
             <TabsList className="grid w-full grid-cols-2 h-8 sm:h-9" role="tablist">
               <TabsTrigger value="details" className="text-[11px] sm:text-xs" role="tab">Details</TabsTrigger>
               <TabsTrigger value="reviews" className="text-[11px] sm:text-xs" role="tab">Reviews</TabsTrigger>
@@ -655,32 +826,27 @@ const Product = () => {
             <TabsContent value="details" className="mt-3 sm:mt-4" role="tabpanel">
               <Card>
                 <CardHeader className="pb-2 sm:pb-3">
-                  <CardTitle className="text-sm sm:text-base">Product Details</CardTitle>
+                  <h2 className="text-sm sm:text-base font-semibold">Product Description</h2>
                 </CardHeader>
                 <CardContent className="space-y-2 sm:space-y-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                    <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Brand:</span>
-                        <span>{product.brand}</span>
+                  <div itemProp="description">
+                    <p className="text-muted-foreground leading-relaxed text-xs sm:text-sm">
+                      {product.description || `Discover ${product.name} by ${product.brand}${product.origin ? ` from ${product.origin}` : ''}${product.category?.name ? `, a premium ${product.category.name.toLowerCase()}` : ''} available at Drinks Avenue. ${product.alcoholContent ? `With ${product.alcoholContent}% ABV, ` : ''}this product offers exceptional quality and taste. Order now for fast delivery across Kenya.`}
+                    </p>
+                    {product.description && (
+                      <div className="mt-3 space-y-2 text-xs sm:text-sm text-muted-foreground">
+                        {product.origin && (
+                          <p><strong>Origin:</strong> {product.origin}</p>
+                        )}
+                        {product.alcoholContent && (
+                          <p><strong>Alcohol Content:</strong> {product.alcoholContent}% ABV</p>
+                        )}
+                        {product.volume && (
+                          <p><strong>Volume:</strong> {product.volume}</p>
+                        )}
+                        <p><strong>Delivery:</strong> Fast 30-minute delivery available in Nairobi. Free delivery on orders above KES 2,000.</p>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Origin:</span>
-                        <span>{product.origin}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Volume:</span>
-                        <span>{product.volume}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Alcohol Content:</span>
-                        <span>{product.alcoholContent}</span>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold mb-2 text-[11px] sm:text-xs">Description</h4>
-                      <p className="text-muted-foreground leading-relaxed text-[11px] sm:text-xs">{product.description}</p>
-                    </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -689,7 +855,7 @@ const Product = () => {
             <TabsContent value="reviews" className="mt-4 sm:mt-6">
               <Card>
                 <CardHeader className="pb-3 sm:pb-6">
-                  <CardTitle className="text-base sm:text-lg">Customer Reviews</CardTitle>
+                  <h2 className="text-base sm:text-lg font-semibold">Customer Reviews</h2>
                 </CardHeader>
                 <CardContent className="space-y-4 sm:space-y-6">
                   <div className="text-center py-6 sm:py-8">
@@ -722,12 +888,16 @@ const Product = () => {
           <section 
             className="mt-6 sm:mt-8 md:mt-12 py-3 sm:py-4 md:py-6 bg-gradient-to-br from-wine/5 to-primary/5" 
             aria-label="Related Products"
+            itemScope
+            itemType="https://schema.org/ItemList"
           >
             <div className="container mx-auto px-3 sm:px-4">
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4 md:mb-6">You Might Also Like</h2>
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4 md:mb-6" itemProp="name">You Might Also Like</h2>
+              <meta itemProp="numberOfItems" content={filteredRelatedProducts.slice(0, 6).length.toString()} />
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6 items-stretch">
-              {filteredRelatedProducts.slice(0, 6).map((relatedProduct) => (
-                <div key={relatedProduct.id} className="relative group flex flex-col h-full">
+              {filteredRelatedProducts.slice(0, 6).map((relatedProduct, index) => (
+                <div key={relatedProduct.id} className="relative group flex flex-col h-full" itemScope itemType="https://schema.org/ListItem">
+                  <meta itemProp="position" content={(index + 1).toString()} />
                   <Link to={`/product/${relatedProduct.id}`} className="block flex-1 flex flex-col">
                     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer flex flex-col h-full">
                       <div className="relative overflow-hidden flex-shrink-0" style={{ minHeight: '144px' }}>

@@ -56,6 +56,7 @@ const Footer = () => {
               <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-xs">Delivery Info</a></li>
               <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-xs">Returns</a></li>
               <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-xs">FAQ</a></li>
+              <li><a href="/sitemap.xml" className="text-gray-300 hover:text-white transition-colors text-xs">Sitemap</a></li>
             </ul>
           </div>
 
@@ -94,6 +95,7 @@ const Footer = () => {
               <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs">Privacy</a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs">Terms</a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors text-xs">Cookies</a>
+              <a href="/sitemap.xml" className="text-gray-400 hover:text-white transition-colors text-xs">Sitemap</a>
             </div>
           </div>
         </div>

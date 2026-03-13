@@ -24,6 +24,8 @@ const Orders = createLazyComponent(() => import("./pages/Orders"), "Loading orde
 const Offers = createLazyComponent(() => import("./pages/Offers"), "Loading offers...");
 const Featured = createLazyComponent(() => import("./pages/Featured"), "Loading featured products...");
 const Brands = createLazyComponent(() => import("./pages/Brands"), "Loading brands...");
+const Origin = createLazyComponent(() => import("./pages/Origin"), "Loading origins...");
+const Sitemap = createLazyComponent(() => import("./pages/Sitemap"), "Loading...");
 const NotFound = createLazyComponent(() => import("./pages/NotFound"), "Loading...");
 
 const queryClient = new QueryClient({
@@ -94,6 +96,9 @@ const App = () => {
                 <Route path="/featured" element={<Featured />} />
                 <Route path="/brands/:brandName" element={<Brands />} />
                 <Route path="/brands" element={<Brands />} />
+                <Route path="/origin/:country" element={<Origin />} />
+                <Route path="/origin" element={<Origin />} />
+                <Route path="/sitemap.xml" element={<Sitemap />} />
                 {/* Redirect /login to home page to fix refresh issue */}
                 <Route path="/login" element={<LoginRedirect />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

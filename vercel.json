@@ -5,6 +5,10 @@
         "destination": "http://139.59.2.43:5000/api/:path*"
       },
       {
+        "source": "/sitemap.xml",
+        "destination": "/api/sitemap.xml"
+      },
+      {
         "source": "/(.*)",
         "destination": "/index.html"
       }
