@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { productSlug } from "@/lib/utils";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
@@ -209,7 +210,7 @@ const Category = () => {
           "price": product.price,
           "priceCurrency": "KES",
           "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-          "url": `${baseUrl}/product/${product.id}`,
+          "url": `${baseUrl}/product/${productSlug(product)}`,
           "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           "seller": {
             "@type": "Organization",

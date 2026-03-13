@@ -7,6 +7,7 @@ import { LazyImage } from "@/components/ui/lazy-image";
 import { ShoppingCart, Heart } from "lucide-react";
 import { formatPrice } from "@/data/products";
 import type { Product as ApiProduct } from "@/services/api";
+import { slugify } from "@/lib/utils";
 
 interface Product {
   id: string;
@@ -46,7 +47,7 @@ const OptimizedProductCard = memo<OptimizedProductCardProps>(({
     <Card className={`group hover:shadow-lg transition-all duration-300 ${className}`}>
       <CardContent className="p-0">
         <div className="relative overflow-hidden">
-          <Link to={`/product/${product.id}`}>
+          <Link to={`/product/${slugify(product.name)}-${product.id}`}>
             <LazyImage
               src={product.image}
               alt={product.name}
@@ -96,7 +97,7 @@ const OptimizedProductCard = memo<OptimizedProductCardProps>(({
             {product.brand && (
               <p className="text-xs text-muted-foreground mb-1">{product.brand}</p>
             )}
-            <Link to={`/product/${product.id}`}>
+            <Link to={`/product/${slugify(product.name)}-${product.id}`}>
               <h3 className="font-medium text-sm line-clamp-2 hover:text-primary transition-colors">
                 {product.name}
               </h3>

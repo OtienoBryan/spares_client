@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { Product } from "@/services/api";
 import { formatPrice, getDiscountPercentage, isProductInStock } from "@/data/products";
+import { productSlug } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Product;
@@ -29,7 +30,7 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
     
     // If product has SKUs, navigate to product page to select SKU
     if (product.skus && product.skus.length > 0) {
-      navigate(`/product/${product.id}`);
+      navigate(`/product/${productSlug(product)}`);
       return;
     }
     
@@ -54,7 +55,7 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
 
   return (
     <Link 
-      to={`/product/${product.id}`} 
+      to={`/product/${productSlug(product)}`} 
       className="block"
       onClick={handleLinkClick}
     >

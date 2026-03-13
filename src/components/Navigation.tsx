@@ -8,6 +8,7 @@ import { useUser } from "@/contexts/UserContext";
 import { useCategories, useSearchProductsDebounced, useSubCategories } from "@/hooks/useApi";
 import { LoadingWine } from "@/components/ui/lottie-loader";
 import { formatPrice } from "@/data/products";
+import { productSlug } from "@/lib/utils";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { RegisterModal } from "@/components/auth/RegisterModal";
 import { 
@@ -161,7 +162,7 @@ const Navigation = () => {
   };
 
   const handleSuggestionClick = (product: any) => {
-    navigate(`/product/${product.id}`);
+    navigate(`/product/${productSlug(product)}`);
     setSearchQuery("");
     setShowSuggestions(false);
   };

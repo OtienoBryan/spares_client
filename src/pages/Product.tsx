@@ -28,9 +28,10 @@ import { useProduct, useProductsByCategory } from "@/hooks/useApi";
 import { LoadingWine, LoadingWave } from "@/components/ui/lottie-loader";
 import { ProductPageSkeleton } from "@/components/ui/loading-skeleton";
 import { formatPrice } from "@/data/products";
+import { slugToProductId, productSlug } from "@/lib/utils";
 
 const Product = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
@@ -40,8 +41,8 @@ const Product = () => {
   const [selectedSku, setSelectedSku] = useState<string | null>(null);
   const { addToCart } = useCart();
 
-  // Use API hooks to fetch product data
-  const productId = id ? parseInt(id, 10) : 0;
+  // Extract the numeric ID from the slug (e.g. "johnnie-walker-42" → 42)
+  const productId = slug ? slugToProductId(slug) : 0;
   const { data: product, loading: productLoading, error: productError } = useProduct(productId);
   
   // Only fetch related products after main product loads and has categoryId
@@ -161,7 +162,7 @@ const Product = () => {
     if (!product) return null;
     
     const baseUrl = window.location.origin;
-    const productUrl = `${baseUrl}/product/${product.id}`;
+    const productUrl = `${baseUrl}/product/${productSlug(product)}`;
     
     // Build product schema
     const productSchema: any = {
@@ -326,7 +327,7 @@ const Product = () => {
           "@type": "ListItem",
           "position": 3,
           "name": product.name,
-          "item": `${window.location.origin}/product/${product.id}`
+          "item": `${window.location.origin}/product/${productSlug(product)}`
       }
     ]
   };
@@ -425,7 +426,7 @@ const Product = () => {
         <meta name="geo.region" content="KE" />
         <meta name="geo.placename" content="Nairobi" />
         <meta name="geo.position" content="-1.2921;36.8219" />
-        <link rel="canonical" href={`${window.location.origin}/product/${product.id}`} />
+        <link rel="canonical" href={`${window.location.origin}/product/${productSlug(product)}`} />
         
         {/* Performance optimizations */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -441,7 +442,7 @@ const Product = () => {
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={`${product.name} by ${product.brand} - Premium ${product.category?.name || 'drink'} ${product.origin ? `from ${product.origin}` : ''} - Drinks Avenue Kenya`} />
-        <meta property="og:url" content={`${window.location.origin}/product/${product.id}`} />
+        <meta property="og:url" content={`${window.location.origin}/product/${productSlug(product)}`} />
         <meta property="og:type" content="product" />
         <meta property="og:site_name" content="Drinks Avenue" />
         <meta property="og:locale" content="en_KE" />
@@ -898,7 +899,7 @@ const Product = () => {
               {filteredRelatedProducts.slice(0, 6).map((relatedProduct, index) => (
                 <div key={relatedProduct.id} className="relative group flex flex-col h-full" itemScope itemType="https://schema.org/ListItem">
                   <meta itemProp="position" content={(index + 1).toString()} />
-                  <Link to={`/product/${relatedProduct.id}`} className="block flex-1 flex flex-col">
+                  <Link to={`/product/${productSlug(relatedProduct)}`} className="block flex-1 flex flex-col">
                     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer flex flex-col h-full">
                       <div className="relative overflow-hidden flex-shrink-0" style={{ minHeight: '144px' }}>
                         <img

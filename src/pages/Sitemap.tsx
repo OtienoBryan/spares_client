@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { apiService } from '@/services/api';
+import { productSlug } from '@/lib/utils';
 
 const Sitemap = () => {
   useEffect(() => {
@@ -109,7 +110,7 @@ const Sitemap = () => {
         (products || []).forEach((product: any) => {
           if (product.id && product.isActive !== false) {
             urls.push(`  <url>
-    <loc>${baseUrl}/product/${product.id}</loc>
+    <loc>${baseUrl}/product/${productSlug(product)}</loc>
     <lastmod>${product.updatedAt ? new Date(product.updatedAt).toISOString().split('T')[0] : currentDate}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>

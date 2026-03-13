@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { productSlug } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -277,7 +278,7 @@ const Offers = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
                 {paginatedProducts.map((product) => (
                 <div key={product.id} className="relative group">
-                  <Link to={`/product/${product.id}`} className="block">
+                  <Link to={`/product/${productSlug(product)}`} className="block">
                     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
                       <div className="relative overflow-hidden">
                         <img
