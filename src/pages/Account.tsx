@@ -32,7 +32,7 @@ const Account = () => {
         <Navigation />
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-wine mb-4">Please log in</h1>
+            <h1 className="text-2xl font-bold text-wine mb-4">Please login</h1>
             <p className="text-muted-foreground">You need to be logged in to view your account.</p>
           </div>
         </div>
