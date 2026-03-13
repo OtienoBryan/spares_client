@@ -1,6 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CartSidebar } from "@/components/ui/cart-sidebar";
+import { CategoriesSidebar } from "@/components/ui/categories-sidebar";
+import { CategoriesSidebarPermanent } from "@/components/ui/categories-sidebar-permanent";
 import { useCart } from "@/contexts/CartContext";
 import { useUser } from "@/contexts/UserContext";
 import { useCategories, useSearchProductsDebounced, useSubCategories } from "@/hooks/useApi";
@@ -279,7 +281,7 @@ const Navigation = () => {
           <div className="flex items-center justify-between">
             {/* Logo - Far Left */}
             <Link to="/" className="flex items-center gap-1 sm:gap-2">
-              <div className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 rounded-xl overflow-hidden">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 rounded-full overflow-hidden bg-white p-1">
                 <img 
                   src={`/logo3.png?t=${Date.now()}`} 
                   alt="Drinks Avenue" 
@@ -292,70 +294,115 @@ const Navigation = () => {
                 />
               </div>
               <span className="text-xs sm:text-sm md:text-lg font-extrabold tracking-tight text-white drop-shadow-sm">
-                Drinks Avenue
+                Drinks Avenue Kenya
               </span>
               {/* Fallback text if logo fails to load */}
               {/* <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight">Dalali v2</span> */}
             </Link>
             
-            {/* Categories - Center */}
-            <div className="hidden md:flex items-center gap-1 flex-1 justify-center">
-              {categoriesLoading ? (
-                <div className="flex items-center gap-2 px-3 py-1 text-xs text-white/80">
-                  <LoadingWine size="sm" />
-                  Loading categories...
-                </div>
-              ) : categoriesError ? (
-                <div className="flex items-center gap-2 px-3 py-1 text-xs text-white/80">
-                  Error loading categories
-                </div>
-              ) : (
-                categories.map((category, index) => (
-                  <div key={category.path} className="relative group flex items-center">
-                    <Link
-                      to={category.path}
-                      className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 ${
-                        isActiveCategory(category.path)
-                          ? "bg-white text-primary shadow-md"
-                          : "text-white/90 hover:text-white hover:bg-white/10"
-                      }`}
-                    >
-                      {category.name}
-                      {category.subcategories && category.subcategories.length > 0 && (
-                        <svg className="w-3 h-3 ml-1 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                      )}
-                    </Link>
-                    
-                    {/* Divider after each category (except the last one) */}
-                    {index < categories.length - 1 && (
-                      <div className="w-0.5 h-4 bg-white/30 mx-1"></div>
-                    )}
-                    
-                    {/* Dropdown for subcategories */}
-                    {category.subcategories && category.subcategories.length > 0 && (
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out z-50 pointer-events-none group-hover:pointer-events-auto">
-                        <div className="py-2">
-                          {category.subcategories.map((subcategory) => (
-                            <Link
-                              key={subcategory.path}
-                              to={subcategory.path}
-                              className="block px-4 py-2.5 text-sm text-gray-700 hover:text-primary hover:bg-primary/5 transition-colors duration-150"
-                            >
-                              {subcategory.name}
-                            </Link>
-                          ))}
-                        </div>
+            {/* Search Bar - Center */}
+            <div className="hidden md:flex flex-1 justify-center px-4">
+              <div className="relative w-full max-w-xl">
+                <form onSubmit={handleSearch} className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search for drinks..."
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                    onKeyDown={handleKeyDown}
+                    className="w-full pl-10 pr-4 py-1.5 border border-gray-200 rounded-full bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                  />
+                </form>
+                
+                {/* Search Suggestions Dropdown */}
+                {showSuggestions && searchQuery.length > 0 && (
+                  <div 
+                    ref={suggestionsRef}
+                    className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
+                  >
+                    {suggestionsLoading ? (
+                      <div className="p-4 text-center text-gray-500">
+                        <LoadingWine size="sm" />
+                        <span className="ml-2">Searching...</span>
+                      </div>
+                    ) : (uniqueBrands.length > 0 || searchSuggestions.length > 0) ? (
+                      <div className="py-2">
+                        {/* Brands Section - Upper */}
+                        {uniqueBrands.length > 0 && (
+                          <>
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">
+                              Brands
+                            </div>
+                            {uniqueBrands.map((brand, index) => (
+                              <button
+                                key={brand}
+                                onClick={() => handleBrandClick(brand)}
+                                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3"
+                              >
+                                <div className="w-10 h-10 rounded-full bg-wine/10 flex items-center justify-center">
+                                  <span className="text-wine font-semibold text-sm">
+                                    {brand.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-gray-900 truncate">
+                                    {brand}
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    View all {brand} products
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                            <div className="border-t my-1"></div>
+                          </>
+                        )}
+                        
+                        {/* Products Section - Lower */}
+                        {searchSuggestions.length > 0 && (
+                          <>
+                            {uniqueBrands.length > 0 && (
+                              <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                Products
+                              </div>
+                            )}
+                            {searchSuggestions.slice(0, 8).map((product, index) => (
+                              <button
+                                key={product.id}
+                                onClick={() => handleSuggestionClick(product)}
+                                className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 ${
+                                  index === selectedSuggestionIndex ? 'bg-gray-100' : ''
+                                }`}
+                              >
+                                <img
+                                  src={product.image || '/placeholder-product.jpg'}
+                                  alt={product.name}
+                                  className="w-12 h-12 object-cover rounded"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-medium text-gray-900 truncate">
+                                    {product.name}
+                                  </div>
+                                  <div className="text-sm text-primary font-semibold">
+                                    {formatPrice(product.price)}
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="p-4 text-center text-gray-500 text-sm">
+                        No results found
                       </div>
                     )}
                   </div>
-                ))
-              )}
+                )}
+              </div>
             </div>
-            
-            {/* Vertical Divider Line */}
-            <div className="hidden md:block w-0.5 h-6 bg-white mx-3"></div>
             
             {/* User Actions - Right */}
             <div className="hidden md:flex items-center gap-3">
@@ -475,6 +522,14 @@ const Navigation = () => {
                 <span className="text-sm font-medium">Call</span>
               </a> */}
               
+              {/* Categories Sidebar Button - Mobile */}
+              <div className="block md:hidden">
+                <CategoriesSidebar 
+                  categories={categories}
+                  isLoading={categoriesLoading}
+                />
+              </div>
+              
               <div className="block md:hidden">
                 <CartSidebar 
                   items={cartItems}
@@ -493,118 +548,116 @@ const Navigation = () => {
               </Button>
             </div>
           </div>
-
-          {/* Search Bar - Centered */}
-          <div className="border-t border-white/20 pt-3 sm:pt-4">
-            <div className="flex justify-center">
-              <div className="relative w-full max-w-2xl">
-                <form onSubmit={handleSearch} className="relative">
-                  <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="Search for drinks..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    onKeyDown={handleKeyDown}
-                    className="w-full pl-10 sm:pl-12 pr-4 py-1 sm:py-2 border border-gray-200 rounded-full bg-gray-50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white transition-all text-xs sm:text-sm"
-                  />
-                </form>
-                
-                {/* Search Suggestions Dropdown */}
-                {showSuggestions && searchQuery.length > 0 && (
-                  <div 
-                    ref={suggestionsRef}
-                    className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
-                  >
-                    {suggestionsLoading ? (
-                      <div className="p-4 text-center text-gray-500">
-                        <LoadingWine size="sm" />
-                        <span className="ml-2">Searching...</span>
-                      </div>
-                    ) : (uniqueBrands.length > 0 || searchSuggestions.length > 0) ? (
-                      <div className="py-2">
-                        {/* Brands Section - Upper */}
-                        {uniqueBrands.length > 0 && (
-                          <>
-                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">
-                              Brands
+          
+          {/* Mobile Search Bar */}
+          <div className="md:hidden border-t border-white/20 pt-3 px-3">
+            <div className="relative w-full">
+              <form onSubmit={handleSearch} className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search for drinks..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onKeyDown={handleKeyDown}
+                  className="w-full pl-10 pr-4 py-1.5 border border-gray-200 rounded-full bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                />
+              </form>
+              
+              {/* Mobile Search Suggestions Dropdown */}
+              {showSuggestions && searchQuery.length > 0 && (
+                <div 
+                  ref={suggestionsRef}
+                  className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
+                >
+                  {suggestionsLoading ? (
+                    <div className="p-4 text-center text-gray-500">
+                      <LoadingWine size="sm" />
+                      <span className="ml-2">Searching...</span>
+                    </div>
+                  ) : (uniqueBrands.length > 0 || searchSuggestions.length > 0) ? (
+                    <div className="py-2">
+                      {/* Brands Section - Upper */}
+                      {uniqueBrands.length > 0 && (
+                        <>
+                          <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b">
+                            Brands
+                          </div>
+                          {uniqueBrands.map((brand, index) => (
+                            <button
+                              key={brand}
+                              onClick={() => handleBrandClick(brand)}
+                              className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3"
+                            >
+                              <div className="w-10 h-10 rounded-full bg-wine/10 flex items-center justify-center">
+                                <span className="text-wine font-semibold text-sm">
+                                  {brand.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-gray-900 truncate">
+                                  {brand}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  View all {brand} products
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                          <div className="border-t my-1"></div>
+                        </>
+                      )}
+                      
+                      {/* Products Section - Lower */}
+                      {searchSuggestions.length > 0 && (
+                        <>
+                          {uniqueBrands.length > 0 && (
+                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                              Products
                             </div>
-                            {uniqueBrands.map((brand, index) => (
-                              <button
-                                key={brand}
-                                onClick={() => handleBrandClick(brand)}
-                                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3"
-                              >
-                                <div className="w-10 h-10 rounded-full bg-wine/10 flex items-center justify-center">
-                                  <span className="text-wine font-semibold text-sm">
-                                    {brand.charAt(0).toUpperCase()}
-                                  </span>
+                          )}
+                          {searchSuggestions.slice(0, 8).map((product, index) => (
+                            <button
+                              key={product.id}
+                              onClick={() => handleSuggestionClick(product)}
+                              className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 ${
+                                index === selectedSuggestionIndex ? 'bg-gray-100' : ''
+                              }`}
+                            >
+                              <img
+                                src={product.image || '/placeholder-product.jpg'}
+                                alt={product.name}
+                                className="w-10 h-10 object-contain rounded"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-gray-900 truncate">
+                                  {product.name}
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-medium text-gray-900 truncate">
-                                    {brand}
-                                  </div>
-                                  <div className="text-xs text-gray-500">
-                                    View all {brand} products
-                                  </div>
+                                <div className="text-sm text-gray-500 truncate">
+                                  {product.brand}
                                 </div>
-                              </button>
-                            ))}
-                            <div className="border-t my-1"></div>
-                          </>
-                        )}
-                        
-                        {/* Products Section - Lower */}
-                        {searchSuggestions.length > 0 && (
-                          <>
-                            {uniqueBrands.length > 0 && (
-                              <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                Products
+                                <div className="text-sm font-semibold text-wine">
+                                  KES {formatPrice(product.price)}
+                                </div>
                               </div>
-                            )}
-                            {searchSuggestions.slice(0, 8).map((product, index) => (
-                              <button
-                                key={product.id}
-                                onClick={() => handleSuggestionClick(product)}
-                                className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 ${
-                                  index === selectedSuggestionIndex ? 'bg-gray-100' : ''
-                                }`}
-                              >
-                                <img
-                                  src={product.image || '/placeholder-product.jpg'}
-                                  alt={product.name}
-                                  className="w-10 h-10 object-contain rounded"
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-medium text-gray-900 truncate">
-                                    {product.name}
-                                  </div>
-                                  <div className="text-sm text-gray-500 truncate">
-                                    {product.brand}
-                                  </div>
-                                  <div className="text-sm font-semibold text-wine">
-                                    KES {formatPrice(product.price)}
-                                  </div>
-                                </div>
-                              </button>
-                            ))}
-                            {searchSuggestions.length > 8 && (
-                              <div className="px-4 py-2 text-sm text-gray-500 border-t">
-                                And {searchSuggestions.length - 8} more results...
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="p-4 text-center text-gray-500">
-                        No products found for "{searchQuery}"
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                            </button>
+                          ))}
+                          {searchSuggestions.length > 8 && (
+                            <div className="px-4 py-2 text-sm text-gray-500 border-t">
+                              And {searchSuggestions.length - 8} more results...
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-gray-500">
+                      No products found for "{searchQuery}"
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -846,6 +899,13 @@ const Navigation = () => {
           setIsLoginModalOpen(true);
         }}
       />
+      
+      {/* Permanent Categories Sidebar - Desktop Only */}
+      <CategoriesSidebarPermanent 
+        categories={categories}
+        isLoading={categoriesLoading}
+      />
+      
     </>
   );
 };

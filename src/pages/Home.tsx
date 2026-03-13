@@ -317,71 +317,219 @@ const Home = memo(() => {
     );
   }
 
-  // Generate structured data for the website
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Drinks Avenue",
-    "description": "Premium drinks and spirits delivery service. Order wine, beer, whiskey, gin, and more with fast delivery.",
-    "url": window.location.origin,
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": `${window.location.origin}/search?q={search_term_string}`
+  // Generate enhanced structured data for the website
+  const structuredData = useMemo(() => {
+    const baseUrl = window.location.origin;
+    return {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Drinks Avenue - Premium Alcohol Delivery Service",
+      "alternateName": "Drinks Avenue",
+      "description": "Premium drinks and spirits delivery service in Kenya. Order wine, beer, whiskey, gin, rum, tequila, and more with fast 30-minute delivery across Nairobi and Kenya.",
+      "url": baseUrl,
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": `${baseUrl}/search?q={search_term_string}`
+        },
+        "query-input": "required name=search_term_string"
       },
-      "query-input": "required name=search_term_string"
-    },
-    "publisher": {
+      "publisher": {
+        "@type": "Organization",
+        "name": "Drinks Avenue",
+        "url": baseUrl,
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${baseUrl}/logo.png`,
+          "width": 512,
+          "height": 512
+        }
+      },
+      "inLanguage": "en-KE",
+      "isAccessibleForFree": true
+    };
+  }, []);
+
+  const organizationData = useMemo(() => {
+    const baseUrl = window.location.origin;
+    return {
+      "@context": "https://schema.org",
       "@type": "Organization",
       "name": "Drinks Avenue",
-      "url": window.location.origin,
+      "legalName": "Drinks Avenue",
+      "description": "Premium drinks and spirits delivery service in Kenya. Fast delivery of wine, beer, whiskey, gin, rum, tequila, vodka, and spirits across Nairobi and Kenya.",
+      "url": baseUrl,
       "logo": {
         "@type": "ImageObject",
-        "url": `${window.location.origin}/logo.png`
+        "url": `${baseUrl}/logo.png`,
+        "width": 512,
+        "height": 512
       },
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+254-712-345678",
-        "contactType": "customer service"
-      }
-    }
-  };
+      "image": `${baseUrl}/logo.png`,
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "telephone": "+254-712-345678",
+          "contactType": "customer service",
+          "availableLanguage": ["English", "Swahili"],
+          "areaServed": "KE",
+          "hoursAvailable": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+              "Sunday"
+            ],
+            "opens": "09:00",
+            "closes": "23:00"
+          }
+        }
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "KE",
+        "addressLocality": "Nairobi",
+        "addressRegion": "Nairobi County"
+      },
+      "sameAs": [
+        "https://www.facebook.com/dalalidrinks",
+        "https://www.instagram.com/dalalidrinks",
+        "https://www.twitter.com/dalalidrinks"
+      ],
+      "areaServed": {
+        "@type": "Country",
+        "name": "Kenya"
+      },
+      "knowsAbout": [
+        "Alcohol Delivery",
+        "Wine Delivery",
+        "Beer Delivery",
+        "Spirits Delivery",
+        "Online Alcohol Store"
+      ]
+    };
+  }, []);
 
-  const organizationData = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Drinks Avenue",
-    "description": "Premium drinks and spirits delivery service in Kenya",
-    "url": window.location.origin,
-    "logo": `${window.location.origin}/logo.png`,
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": "+254-712-345678",
-      "contactType": "customer service",
-      "availableLanguage": ["English", "Swahili"]
-    },
-    "address": {
-      "@type": "PostalAddress",
-      "addressCountry": "KE",
-      "addressLocality": "Nairobi"
-    },
-    "sameAs": [
-      "https://www.facebook.com/dalalidrinks",
-      "https://www.instagram.com/dalalidrinks",
-      "https://www.twitter.com/dalalidrinks"
-    ]
-  };
+  // Enhanced ItemList structured data for featured products
+  const featuredProductsStructuredData = useMemo(() => {
+    if (!featuredProducts || (featuredProducts as any[]).length === 0) return null;
+    
+    const baseUrl = window.location.origin;
+    const products = (featuredProducts as any[]).slice(0, 12);
+    
+    return {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Featured Products - Drinks Avenue",
+      "description": "Handpicked selection of premium drinks and spirits available at Drinks Avenue",
+      "numberOfItems": products.length,
+      "itemListElement": products.map((product, index) => {
+        const productSchema: any = {
+          "@type": "Product",
+          "name": product.name,
+          "description": product.description || `${product.name} - Premium ${product.category || 'drink'} available at Drinks Avenue`,
+          "image": product.image ? (Array.isArray(product.image) ? product.image : [product.image]) : [],
+          "brand": {
+            "@type": "Brand",
+            "name": product.brand || "Drinks Avenue"
+          },
+          "category": product.category || "Drinks",
+          "sku": product.id?.toString() || "",
+          "offers": {
+            "@type": "Offer",
+            "price": product.price,
+            "priceCurrency": "KES",
+            "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            "url": `${baseUrl}/product/${product.id}`,
+            "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            "seller": {
+              "@type": "Organization",
+              "name": "Drinks Avenue"
+            }
+          }
+        };
+
+        // Add aggregateRating only if rating exists
+        if (product.rating) {
+          productSchema.aggregateRating = {
+            "@type": "AggregateRating",
+            "ratingValue": product.rating,
+            "reviewCount": product.reviews?.length || product.reviewCount || 1,
+            "bestRating": "5",
+            "worstRating": "1"
+          };
+        }
+
+        return {
+          "@type": "ListItem",
+          "position": index + 1,
+          "item": productSchema
+        };
+      })
+    };
+  }, [featuredProducts]);
+
+  // FAQ structured data for common questions
+  const faqStructuredData = useMemo(() => {
+    return {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How fast is your alcohol delivery service?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We offer fast 30-minute delivery service across Nairobi and Kenya. Orders are processed quickly and delivered fresh to your doorstep."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What types of drinks do you deliver?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We deliver a wide selection of premium drinks including wine, beer, whiskey, gin, rum, tequila, vodka, spirits, and more. Browse our extensive collection online."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you deliver alcohol outside Nairobi?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, we deliver premium drinks and spirits across Kenya. Delivery times may vary depending on your location."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What payment methods do you accept?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "We accept various payment methods including mobile money, credit/debit cards, and cash on delivery for your convenience."
+          }
+        }
+      ]
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* SEO Meta Tags */}
+      {/* SEO Meta Tags - Enhanced */}
       <Helmet>
-        <title>Drinks Avenue - Premium Alcohol Delivery Service | Wine, Beer, Whiskey & More</title>
-        <meta name="description" content="Order premium drinks online with fast delivery. Wide selection of wine, beer, whiskey, gin, rum, and spirits. 30-minute delivery available in Kenya." />
-        <meta name="keywords" content="alcohol delivery, wine delivery, beer delivery, whiskey delivery, gin delivery, spirits delivery, Kenya, Nairobi, premium drinks, online alcohol store" />
+        <title>Drinks Avenue - Premium Alcohol Delivery Service | Wine, Beer, Whiskey & More | Kenya</title>
+        <meta name="description" content="Order premium drinks online with fast 30-minute delivery across Kenya. Wide selection of wine, beer, whiskey, gin, rum, tequila, vodka, and spirits. Shop online at Drinks Avenue - Nairobi's trusted alcohol delivery service. Free delivery available." />
+        <meta name="keywords" content="alcohol delivery Kenya, wine delivery Nairobi, beer delivery Kenya, whiskey delivery, gin delivery, spirits delivery Kenya, online alcohol store, premium drinks delivery, alcohol delivery service, wine shop Nairobi, beer shop Kenya, spirits shop, alcohol online Kenya, drinks delivery Nairobi, buy alcohol online Kenya, alcohol delivery app, wine delivery app, beer delivery app" />
         <meta name="author" content="Drinks Avenue" />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="googlebot" content="index, follow" />
+        <meta name="language" content="English" />
+        <meta name="geo.region" content="KE" />
+        <meta name="geo.placename" content="Nairobi" />
+        <meta name="geo.position" content="-1.2921;36.8219" />
         <link rel="canonical" href={window.location.origin} />
         
         {/* Performance optimizations */}
@@ -392,34 +540,55 @@ const Home = memo(() => {
         {/* LCP Optimization - Preload hero image for mobile */}
         <link rel="preload" href="/slider/4.webp" as="image" type="image/webp" fetchPriority="high" imageSizes="100vw" />
         
-        {/* Open Graph Tags */}
-        <meta property="og:title" content="Drinks Avenue - Premium Alcohol Delivery Service" />
-        <meta property="og:description" content="Order premium drinks online with fast delivery. Wide selection of wine, beer, whiskey, gin, rum, and spirits. 30-minute delivery available in Kenya." />
+        {/* Open Graph Tags - Enhanced */}
+        <meta property="og:title" content="Drinks Avenue - Premium Alcohol Delivery Service | Kenya" />
+        <meta property="og:description" content="Order premium drinks online with fast 30-minute delivery across Kenya. Wide selection of wine, beer, whiskey, gin, rum, tequila, vodka, and spirits. Shop online at Drinks Avenue." />
         <meta property="og:image" content={`${window.location.origin}/logo.png`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Drinks Avenue - Premium Alcohol Delivery Service" />
         <meta property="og:url" content={window.location.origin} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Drinks Avenue" />
         <meta property="og:locale" content="en_KE" />
+        <meta property="og:locale:alternate" content="sw_KE" />
         
-        {/* Twitter Card Tags */}
+        {/* Twitter Card Tags - Enhanced */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Drinks Avenue - Premium Alcohol Delivery Service" />
-        <meta name="twitter:description" content="Order premium drinks online with fast delivery. Wide selection of wine, beer, whiskey, gin, rum, and spirits. 30-minute delivery available in Kenya." />
+        <meta name="twitter:title" content="Drinks Avenue - Premium Alcohol Delivery Service | Kenya" />
+        <meta name="twitter:description" content="Order premium drinks online with fast 30-minute delivery across Kenya. Wide selection of wine, beer, whiskey, gin, rum, and spirits." />
         <meta name="twitter:image" content={`${window.location.origin}/logo.png`} />
+        <meta name="twitter:image:alt" content="Drinks Avenue - Premium Alcohol Delivery Service" />
         
         {/* Additional SEO Tags */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="theme-color" content="#013328" />
+        <meta name="theme-color" content="#8B1538" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Drinks Avenue" />
+        <meta name="application-name" content="Drinks Avenue" />
+        <meta name="msapplication-TileColor" content="#8B1538" />
         
-        {/* Structured Data */}
+        {/* Structured Data - WebSite */}
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
         </script>
+        
+        {/* Structured Data - Organization */}
         <script type="application/ld+json">
           {JSON.stringify(organizationData)}
+        </script>
+        
+        {/* Structured Data - Featured Products ItemList */}
+        {featuredProductsStructuredData && (
+          <script type="application/ld+json">
+            {JSON.stringify(featuredProductsStructuredData)}
+          </script>
+        )}
+        
+        {/* Structured Data - FAQ */}
+        <script type="application/ld+json">
+          {JSON.stringify(faqStructuredData)}
         </script>
       </Helmet>
 
@@ -559,8 +728,8 @@ const Home = memo(() => {
       {/* Navigation */}
       <Navigation />
 
-      {/* Hero Section - Optimized for LCP and Mobile */}
-      <section className="relative bg-gray-100 hero-section" aria-label="Hero Banner">
+      {/* Hero Section - Optimized for LCP and Mobile with SEO */}
+      <section className="relative bg-gray-100 hero-section" aria-label="Hero Banner" itemScope itemType="https://schema.org/WebPageElement">
         <div className="w-full">
           <div className="relative h-[45vh] sm:h-[40vh] md:h-[50vh] lg:h-[60vh] overflow-hidden shadow-2xl hero-image-container">
             <picture>
@@ -585,10 +754,10 @@ const Home = memo(() => {
                 type="image/webp"
                 sizes="100vw"
               />
-              {/* Fallback img element with optimized attributes */}
+              {/* Fallback img element with optimized attributes and SEO */}
               <img
                 src="/slider/4.webp"
-                alt="Premium Drinks Delivery - Fast and Reliable"
+                alt="Premium Drinks Delivery Kenya - Fast 30-minute alcohol delivery service in Nairobi and across Kenya. Order wine, beer, whiskey, gin, rum, and spirits online."
                 className="hero-image"
                 loading="eager"
                 decoding="async"
@@ -596,6 +765,7 @@ const Home = memo(() => {
                 width="1920"
                 height="1080"
                 sizes="100vw"
+                itemProp="image"
                 style={{
                   width: '100%',
                   height: '100%',
@@ -612,6 +782,17 @@ const Home = memo(() => {
             </picture>
             {/* Gradient overlay - optimized for mobile visibility */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-black/5 sm:from-black/40 sm:via-transparent sm:to-black/10 pointer-events-none" />
+            {/* Hero Content for SEO */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="text-center px-4">
+                <h1 className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4 drop-shadow-lg" itemProp="headline">
+                  Premium Alcohol Delivery in Kenya
+                </h1>
+                <p className="text-white text-sm sm:text-base md:text-lg lg:text-xl drop-shadow-md max-w-2xl mx-auto" itemProp="description">
+                  Fast 30-minute delivery of wine, beer, whiskey, gin, rum, and spirits across Nairobi and Kenya
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -669,12 +850,14 @@ const Home = memo(() => {
         </div>
       </section>
 
-      {/* Offers of the Week Section */}
+      {/* Offers of the Week Section - Enhanced SEO */}
       <section 
         id="offers-week"
         data-section="offers-week"
         className="py-3 sm:py-4 md:py-6 bg-gradient-to-br from-wine/5 to-primary/5" 
         aria-label="Special Offers"
+        itemScope
+        itemType="https://schema.org/ItemList"
       >
         <div className="container mx-auto px-3 sm:px-4">
           <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-12">
@@ -803,12 +986,14 @@ const Home = memo(() => {
         </div>
       </section>
 
-      {/* Featured Products Section */}
+      {/* Featured Products Section - Enhanced SEO */}
       <section 
         id="featured-products"
         data-section="featured-products"
         className="py-3 sm:py-4 md:py-6 bg-gradient-to-br from-wine/5 to-primary/5" 
         aria-label="Featured Products"
+        itemScope
+        itemType="https://schema.org/ItemList"
       >
         <div className="container mx-auto px-3 sm:px-4">
           <div className="text-center mb-3 sm:mb-4 md:mb-6 lg:mb-8">
@@ -863,9 +1048,9 @@ const Home = memo(() => {
               </Button>
             </div>
           ) : displayProducts.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-              {displayProducts.map((product) => (
-                <div key={product.id} className="relative group">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+              {displayProducts.map((product, index) => (
+                <div key={product.id} className="relative group" itemProp="item" itemScope itemType="https://schema.org/Product">
                   <Link to={`/product/${product.id}`} className="block">
                     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
                       <div className="relative overflow-hidden">

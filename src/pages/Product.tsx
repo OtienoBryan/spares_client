@@ -131,53 +131,175 @@ const Product = () => {
     return Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
   }, [product?.originalPrice, product?.price]);
 
-  // Memoize structured data for SEO - MUST be before early returns to follow Rules of Hooks
+  // Memoize enhanced structured data for SEO - MUST be before early returns to follow Rules of Hooks
   const structuredData = useMemo(() => {
     if (!product) return null;
-    return {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "name": product.name,
-    "description": product.description,
-    "image": product.images || [product.image],
-    "brand": {
-      "@type": "Brand",
-      "name": product.brand
-    },
-    "category": product.category?.name,
-    "offers": {
-      "@type": "Offer",
-      "price": product.price,
-      "priceCurrency": "KES",
-      "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      "seller": {
-        "@type": "Organization",
-        "name": "Drinks Avenue"
+    
+    const baseUrl = window.location.origin;
+    const productUrl = `${baseUrl}/product/${product.id}`;
+    
+    // Build product schema
+    const productSchema: any = {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": product.name,
+      "description": product.description || `${product.name} by ${product.brand} - Premium ${product.category?.name || 'drink'} available at Drinks Avenue. Fast delivery across Kenya.`,
+      "image": product.images && product.images.length > 0 
+        ? (Array.isArray(product.images) ? product.images : [product.image])
+        : (product.image ? [product.image] : []),
+      "brand": {
+        "@type": "Brand",
+        "name": product.brand || "Drinks Avenue"
+      },
+      "category": product.category?.name || "Drinks",
+      "sku": product.id?.toString() || "",
+      "mpn": product.id?.toString() || "",
+      "url": productUrl,
+      "offers": {
+        "@type": "Offer",
+        "price": product.price,
+        "priceCurrency": "KES",
+        "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        "url": productUrl,
+        "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        "seller": {
+          "@type": "Organization",
+          "name": "Drinks Avenue",
+          "url": baseUrl
+        },
+        "shippingDetails": {
+          "@type": "OfferShippingDetails",
+          "shippingRate": {
+            "@type": "MonetaryAmount",
+            "value": "0",
+            "currency": "KES"
+          },
+          "shippingDestination": {
+            "@type": "DefinedRegion",
+            "addressCountry": "KE"
+          },
+          "deliveryTime": {
+            "@type": "ShippingDeliveryTime",
+            "businessDays": {
+              "@type": "OpeningHoursSpecification",
+              "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+            },
+            "cutoffTime": "23:00",
+            "handlingTime": {
+              "@type": "QuantitativeValue",
+              "minValue": 0,
+              "maxValue": 1,
+              "unitCode": "DAY"
+            },
+            "transitTime": {
+              "@type": "QuantitativeValue",
+              "minValue": 0,
+              "maxValue": 1,
+              "unitCode": "DAY"
+            }
+          }
+        }
       }
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": product.rating,
-      "reviewCount": product.reviewCount
-    },
-    "additionalProperty": [
-      {
+    };
+
+    // Add aggregateRating only if rating exists
+    if (product.rating) {
+      productSchema.aggregateRating = {
+        "@type": "AggregateRating",
+        "ratingValue": product.rating,
+        "reviewCount": product.reviewCount || 1,
+        "bestRating": "5",
+        "worstRating": "1"
+      };
+    }
+
+    // Add additional properties
+    const additionalProperties = [];
+    if (product.alcoholContent) {
+      additionalProperties.push({
         "@type": "PropertyValue",
         "name": "Alcohol Content",
         "value": product.alcoholContent
-      },
-      {
+      });
+    }
+    if (product.volume) {
+      additionalProperties.push({
         "@type": "PropertyValue",
         "name": "Volume",
         "value": product.volume
-      },
-      {
+      });
+    }
+    if (product.origin) {
+      additionalProperties.push({
         "@type": "PropertyValue",
         "name": "Origin",
         "value": product.origin
-      }
-    ]
-  };
+      });
+    }
+    if (product.stock !== undefined) {
+      additionalProperties.push({
+        "@type": "PropertyValue",
+        "name": "Stock",
+        "value": product.stock > 0 ? "In Stock" : "Out of Stock"
+      });
+    }
+
+    if (additionalProperties.length > 0) {
+      productSchema.additionalProperty = additionalProperties;
+    }
+
+    // Add SKU offers if available
+    if (product.skus && product.skus.length > 0) {
+      productSchema.hasVariant = product.skus.map((sku: any) => ({
+        "@type": "ProductModel",
+        "name": `${product.name} - ${sku.code}`,
+        "sku": sku.code,
+        "offers": {
+          "@type": "Offer",
+          "price": sku.price,
+          "priceCurrency": "KES",
+          "availability": "https://schema.org/InStock",
+          "url": productUrl,
+          "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          "seller": {
+            "@type": "Organization",
+            "name": "Drinks Avenue"
+          }
+        }
+      }));
+    }
+
+    return productSchema;
+  }, [product]);
+
+  // Breadcrumb structured data
+  const breadcrumbStructuredData = useMemo(() => {
+    if (!product) return null;
+    
+    return {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": window.location.origin
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": product.category?.name || "Products",
+          "item": `${window.location.origin}/category/${product.category?.name?.toLowerCase() || 'products'}`
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": product.name,
+          "item": `${window.location.origin}/product/${product.id}`
+        }
+      ]
+    };
   }, [product]);
 
   // Show skeleton immediately while loading - better perceived performance
@@ -210,38 +332,65 @@ const Product = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* SEO Meta Tags */}
+      {/* SEO Meta Tags - Enhanced */}
       <Helmet>
-        <title>{`${product.name} - ${product.brand} | Drinks Avenue`}</title>
-        <meta name="description" content={`Buy ${product.name} by ${product.brand}. ${product.description?.substring(0, 160)}...`} />
-        <meta name="keywords" content={`${product.name}, ${product.brand}, ${product.category?.name}, alcohol, drinks, ${product.alcoholContent}, ${product.volume}`} />
+        <title>{`${product.name} - ${product.brand} | Buy Online | Drinks Avenue Kenya`}</title>
+        <meta name="description" content={`Buy ${product.name} by ${product.brand} online at Drinks Avenue. ${product.description || `Premium ${product.category?.name || 'drink'} with fast delivery across Kenya.`} ${product.alcoholContent ? `Alcohol content: ${product.alcoholContent}.` : ''} ${product.volume ? `Volume: ${product.volume}.` : ''} Order now for fast 30-minute delivery in Nairobi.`} />
+        <meta name="keywords" content={`${product.name}, ${product.brand}, ${product.category?.name}, buy ${product.name} online, ${product.name} Kenya, ${product.name} Nairobi, ${product.name} delivery, ${product.brand} ${product.category?.name}, alcohol delivery Kenya, ${product.alcoholContent ? `${product.name} ${product.alcoholContent}` : ''}, ${product.volume ? `${product.name} ${product.volume}` : ''}, premium ${product.category?.name}, drinks delivery Kenya`} />
         <meta name="author" content="Drinks Avenue" />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="googlebot" content="index, follow" />
+        <meta name="language" content="English" />
+        <meta name="geo.region" content="KE" />
+        <meta name="geo.placename" content="Nairobi" />
         <link rel="canonical" href={`${window.location.origin}/product/${product.id}`} />
         
-        {/* Open Graph Tags */}
+        {/* Open Graph Tags - Enhanced */}
         <meta property="og:title" content={`${product.name} - ${product.brand} | Drinks Avenue`} />
-        <meta property="og:description" content={`Buy ${product.name} by ${product.brand}. ${product.description?.substring(0, 160)}...`} />
-        <meta property="og:image" content={product.image} />
+        <meta property="og:description" content={`Buy ${product.name} by ${product.brand} online. ${product.description || `Premium ${product.category?.name || 'drink'} with fast delivery across Kenya.`} Order now for fast 30-minute delivery.`} />
+        <meta property="og:image" content={product.images?.[0] || product.image} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={`${product.name} - ${product.brand} - Drinks Avenue`} />
         <meta property="og:url" content={`${window.location.origin}/product/${product.id}`} />
         <meta property="og:type" content="product" />
         <meta property="og:site_name" content="Drinks Avenue" />
-        <meta property="product:price:amount" content={product.price} />
+        <meta property="og:locale" content="en_KE" />
+        <meta property="product:price:amount" content={product.price?.toString() || "0"} />
         <meta property="product:price:currency" content="KES" />
         <meta property="product:availability" content={product.stock > 0 ? "in stock" : "out of stock"} />
-        <meta property="product:brand" content={product.brand} />
-        <meta property="product:category" content={product.category?.name} />
+        <meta property="product:brand" content={product.brand || "Drinks Avenue"} />
+        <meta property="product:category" content={product.category?.name || "Drinks"} />
+        {product.rating && (
+          <meta property="product:rating:value" content={product.rating.toString()} />
+        )}
+        {product.reviewCount && (
+          <meta property="product:rating:count" content={product.reviewCount.toString()} />
+        )}
         
-        {/* Twitter Card Tags */}
+        {/* Twitter Card Tags - Enhanced */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${product.name} - ${product.brand} | Drinks Avenue`} />
-        <meta name="twitter:description" content={`Buy ${product.name} by ${product.brand}. ${product.description?.substring(0, 160)}...`} />
-        <meta name="twitter:image" content={product.image} />
+        <meta name="twitter:description" content={`Buy ${product.name} by ${product.brand} online. ${product.description?.substring(0, 200) || `Premium ${product.category?.name || 'drink'} with fast delivery across Kenya.`}`} />
+        <meta name="twitter:image" content={product.images?.[0] || product.image} />
+        <meta name="twitter:image:alt" content={`${product.name} - ${product.brand}`} />
         
-        {/* Structured Data */}
+        {/* Additional SEO Tags */}
+        <meta name="theme-color" content="#8B1538" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        
+        {/* Structured Data - Product */}
         {structuredData && (
           <script type="application/ld+json">
             {JSON.stringify(structuredData)}
+          </script>
+        )}
+        
+        {/* Structured Data - BreadcrumbList */}
+        {breadcrumbStructuredData && (
+          <script type="application/ld+json">
+            {JSON.stringify(breadcrumbStructuredData)}
           </script>
         )}
       </Helmet>
@@ -250,40 +399,44 @@ const Product = () => {
       <Navigation />
 
       <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 md:py-6 lg:py-8">
-        {/* Breadcrumb Navigation */}
-        <nav className="mb-3 sm:mb-4 md:mb-6" aria-label="Breadcrumb">
+        {/* Breadcrumb Navigation - Enhanced for SEO */}
+        <nav className="mb-3 sm:mb-4 md:mb-6" aria-label="Breadcrumb" itemScope itemType="https://schema.org/BreadcrumbList">
           <ol className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm">
-            <li>
-              <Link to="/" className="text-muted-foreground hover:text-wine transition-colors">
-                Home
+            <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+              <Link to="/" className="text-muted-foreground hover:text-wine transition-colors" itemProp="item">
+                <span itemProp="name">Home</span>
               </Link>
+              <meta itemProp="position" content="1" />
             </li>
-            <li className="text-muted-foreground">/</li>
-            <li>
-              <Link to={`/category/${product.category?.name || 'products'}`} className="text-muted-foreground hover:text-wine transition-colors">
-                {product.category?.name?.charAt(0).toUpperCase() + product.category?.name?.slice(1) || 'Products'}
-          </Link>
+            <li className="text-muted-foreground" aria-hidden="true">/</li>
+            <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+              <Link to={`/category/${product.category?.name?.toLowerCase() || 'products'}`} className="text-muted-foreground hover:text-wine transition-colors" itemProp="item">
+                <span itemProp="name">{product.category?.name?.charAt(0).toUpperCase() + product.category?.name?.slice(1) || 'Products'}</span>
+              </Link>
+              <meta itemProp="position" content="2" />
             </li>
-            <li className="text-muted-foreground">/</li>
-            <li className="text-wine font-medium truncate max-w-[200px] sm:max-w-none">
-              {product.name}
+            <li className="text-muted-foreground" aria-hidden="true">/</li>
+            <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem" className="text-wine font-medium truncate max-w-[200px] sm:max-w-none">
+              <span itemProp="name">{product.name}</span>
+              <meta itemProp="position" content="3" />
             </li>
           </ol>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:gap-8" itemScope itemType="https://schema.org/Product">
           {/* Product Images */}
           <div className="space-y-2 sm:space-y-3">
             <div className="aspect-square overflow-hidden rounded-lg border mx-auto max-w-[400px] sm:max-w-[400px] md:max-w-[450px] lg:max-w-[500px]">
               <img
                 src={product.images?.[selectedImage] || product.image}
-                alt={`${product.name} - ${product.brand} - ${product.category?.name} - Drinks Avenue`}
+                alt={`${product.name} by ${product.brand} - Premium ${product.category?.name || 'drink'} available at Drinks Avenue. ${product.alcoholContent ? `Alcohol content: ${product.alcoholContent}.` : ''} ${product.volume ? `Volume: ${product.volume}.` : ''} Fast delivery across Kenya.`}
                 className="h-full w-full object-contain bg-white"
                 loading="eager"
                 decoding="async"
                 width="500"
                 height="500"
                 fetchPriority="high"
+                itemProp="image"
               />
             </div>
             
@@ -331,8 +484,10 @@ const Product = () => {
                 )}
               </div>
               
-              <h1 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-wine mb-2 leading-tight">{product.name}</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mb-2">{product.brand}</p>
+              <h1 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-wine mb-2 leading-tight" itemProp="name">{product.name}</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mb-2" itemProp="brand" itemScope itemType="https://schema.org/Brand">
+                <span itemProp="name">{product.brand}</span>
+              </p>
               
               <div className="flex items-center gap-2 sm:gap-4 mb-2">
                 <div className="flex items-center gap-1">
@@ -397,10 +552,12 @@ const Product = () => {
 
             {/* Price (fallback if no SKUs) */}
             {(!product.skus || product.skus.length === 0) && (
-              <div className="flex items-center gap-2 sm:gap-3">
-                <span className="text-base sm:text-lg md:text-xl font-bold text-wine">
+              <div className="flex items-center gap-2 sm:gap-3" itemProp="offers" itemScope itemType="https://schema.org/Offer">
+                <span className="text-base sm:text-lg md:text-xl font-bold text-wine" itemProp="price" content={product.price?.toString()}>
                   {formatPrice(product.price)}
                 </span>
+                <meta itemProp="priceCurrency" content="KES" />
+                <meta itemProp="availability" content={product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"} />
                 {product.originalPrice && (
                   <span className="text-xs sm:text-sm md:text-base text-muted-foreground line-through">
                     {formatPrice(product.originalPrice)}
@@ -568,12 +725,12 @@ const Product = () => {
           >
             <div className="container mx-auto px-3 sm:px-4">
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4 md:mb-6">You Might Also Like</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6 items-stretch">
               {filteredRelatedProducts.slice(0, 6).map((relatedProduct) => (
-                <div key={relatedProduct.id} className="relative group">
-                  <Link to={`/product/${relatedProduct.id}`} className="block">
-                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
-                      <div className="relative overflow-hidden">
+                <div key={relatedProduct.id} className="relative group flex flex-col h-full">
+                  <Link to={`/product/${relatedProduct.id}`} className="block flex-1 flex flex-col">
+                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer flex flex-col h-full">
+                      <div className="relative overflow-hidden flex-shrink-0" style={{ minHeight: '144px' }}>
                         <img
                           src={relatedProduct.image || '/placeholder-product.jpg'}
                           alt={relatedProduct.name}
@@ -589,12 +746,12 @@ const Product = () => {
                           </div>
                         )}
                       </div>
-                      <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
-                        <div className="space-y-1 sm:space-y-2">
-                          <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors">
+                      <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3 flex flex-col flex-1">
+                        <div className="space-y-1 sm:space-y-2 flex flex-col flex-1">
+                          <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-2 min-h-[2em] group-hover:text-wine transition-colors">
                             {relatedProduct.name}
                           </h3>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 flex-shrink-0">
                             <div className="flex">
                               {[...Array(5)].map((_, i) => (
                                 <Star
@@ -611,10 +768,10 @@ const Product = () => {
                               ({relatedProduct.reviewCount || 0})
                             </span>
                           </div>
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col gap-1 flex-shrink-0">
                             {relatedProduct.skus && relatedProduct.skus.length > 0 ? (
                               <>
-                                {relatedProduct.skus.map((sku: any, idx: number) => (
+                                {relatedProduct.skus.slice(0, 2).map((sku: any, idx: number) => (
                                   <div key={idx} className="flex items-center gap-1 sm:gap-2">
                                     <span className="text-[10px] sm:text-xs font-semibold text-gray-700">{sku.code}:</span>
                                     <span className="text-xs sm:text-xs md:text-sm font-bold text-wine">
@@ -627,6 +784,11 @@ const Product = () => {
                                     )}
                                   </div>
                                 ))}
+                                {relatedProduct.skus.length > 2 && (
+                                  <div className="text-[10px] sm:text-xs text-muted-foreground">
+                                    +{relatedProduct.skus.length - 2} more
+                                  </div>
+                                )}
                               </>
                             ) : (
                               <>
@@ -648,6 +810,16 @@ const Product = () => {
                                   </div>
                                 )}
                               </>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-auto pt-1 flex-shrink-0">
+                            {relatedProduct.origin && (
+                              <div className="text-[10px] sm:text-xs text-muted-foreground line-clamp-1">
+                                {relatedProduct.origin}
+                              </div>
+                            )}
+                            {relatedProduct.alcoholContent && (
+                              <span className="text-[10px] sm:text-xs text-gold font-medium">Alc. {relatedProduct.alcoholContent}%</span>
                             )}
                           </div>
                         </div>

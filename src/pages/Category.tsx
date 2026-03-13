@@ -188,57 +188,150 @@ const Category = () => {
 
   // Memoize structured data for SEO (must be before early returns to follow Rules of Hooks)
   const categoryStructuredData = useMemo(() => {
+    const baseUrl = window.location.origin;
+    const categoryUrl = `${baseUrl}/category/${category?.toLowerCase()}`;
+    
+    // Enhanced Product schema with more details
+    const productSchemas = sortedProducts.slice(0, 20).map((product, index) => {
+      const productSchema: any = {
+        "@type": "Product",
+        "name": product.name,
+        "description": product.description || `${product.name} - Premium ${categoryDisplayName.toLowerCase()} available at Drinks Avenue`,
+        "image": product.image ? (Array.isArray(product.image) ? product.image : [product.image]) : [],
+        "brand": {
+          "@type": "Brand",
+          "name": product.brand || "Drinks Avenue"
+        },
+        "sku": product.id?.toString() || "",
+        "mpn": product.id?.toString() || "",
+        "offers": {
+          "@type": "Offer",
+          "price": product.price,
+          "priceCurrency": "KES",
+          "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          "url": `${baseUrl}/product/${product.id}`,
+          "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          "seller": {
+            "@type": "Organization",
+            "name": "Drinks Avenue"
+          }
+        },
+        "category": categoryDisplayName
+      };
+
+      // Add aggregateRating only if rating exists
+      if (product.rating) {
+        productSchema.aggregateRating = {
+          "@type": "AggregateRating",
+          "ratingValue": product.rating,
+          "reviewCount": product.reviews?.length || 1,
+          "bestRating": "5",
+          "worstRating": "1"
+        };
+      }
+
+      // Add additional properties if they exist
+      const additionalProperties = [
+        ...(product.volume ? [{
+          "@type": "PropertyValue",
+          "name": "Volume",
+          "value": product.volume
+        }] : []),
+        ...(product.origin ? [{
+          "@type": "PropertyValue",
+          "name": "Origin",
+          "value": product.origin
+        }] : []),
+        ...(product.alcoholContent ? [{
+          "@type": "PropertyValue",
+          "name": "Alcohol Content",
+          "value": product.alcoholContent
+        }] : [])
+      ].filter(Boolean);
+
+      if (additionalProperties.length > 0) {
+        productSchema.additionalProperty = additionalProperties;
+      }
+
+      return productSchema;
+    });
+
     return {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      "name": `${categoryDisplayName} - Drinks Avenue`,
-      "description": `Browse our collection of ${categoryDisplayName.toLowerCase()} products. Premium quality drinks with fast delivery.`,
-      "url": `${window.location.origin}/category/${category?.toLowerCase()}`,
+      "name": `${categoryDisplayName} - Premium Drinks & Spirits | Drinks Avenue`,
+      "description": `Browse our extensive collection of ${categoryDisplayName.toLowerCase()} products. ${sortedProducts.length} premium quality drinks available with fast delivery across Kenya. Shop ${categoryDisplayName.toLowerCase()} online at Drinks Avenue.`,
+      "url": categoryUrl,
       "mainEntity": {
         "@type": "ItemList",
-        "name": `${categoryDisplayName} Products`,
-        "description": `Collection of ${categoryDisplayName.toLowerCase()} products`,
+        "name": `${categoryDisplayName} Products Collection`,
+        "description": `Complete collection of premium ${categoryDisplayName.toLowerCase()} products including wine, spirits, beer, and more. Fast delivery in Nairobi and across Kenya.`,
         "numberOfItems": sortedProducts.length,
-        "itemListElement": sortedProducts.slice(0, 10).map((product, index) => ({
+        "itemListElement": productSchemas.map((product, index) => ({
           "@type": "ListItem",
           "position": index + 1,
-          "item": {
-            "@type": "Product",
-            "name": product.name,
-            "description": product.description,
-            "image": product.image,
-            "brand": {
-              "@type": "Brand",
-              "name": product.brand
-            },
-            "offers": {
-              "@type": "Offer",
-              "price": product.price,
-              "priceCurrency": "KES",
-              "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
-            }
-          }
+          "item": product
         }))
       },
-      "breadcrumb": {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": window.location.origin
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": categoryDisplayName,
-            "item": `${window.location.origin}/category/${category?.toLowerCase()}`
-          }
-        ]
+      "publisher": {
+        "@type": "Organization",
+        "name": "Drinks Avenue",
+        "url": baseUrl,
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${baseUrl}/logo.png`
+        }
       }
     };
   }, [categoryDisplayName, sortedProducts, category]);
+
+  // Separate BreadcrumbList schema for better SEO
+  const breadcrumbStructuredData = useMemo(() => {
+    return {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": window.location.origin
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": categoryDisplayName,
+          "item": `${window.location.origin}/category/${category?.toLowerCase()}`
+        }
+      ]
+    };
+  }, [categoryDisplayName, category]);
+
+  // Organization schema for better brand recognition
+  const organizationStructuredData = useMemo(() => {
+    return {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Drinks Avenue",
+      "url": window.location.origin,
+      "logo": `${window.location.origin}/logo.png`,
+      "description": "Premium drinks and spirits delivery service in Kenya. Fast delivery of wine, beer, spirits, and more across Nairobi and Kenya.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "KE",
+        "addressLocality": "Nairobi"
+      },
+      "sameAs": [
+        // Add social media links if available
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Service",
+        "areaServed": "KE",
+        "availableLanguage": ["en"]
+      }
+    };
+  }, []);
 
   // Determine loading state - only show loading if critical data is missing
   // Categories can load in background, subcategories are optional
@@ -285,60 +378,86 @@ const Category = () => {
       {/* SEO Meta Tags */}
       <Helmet>
         <title>{`${categoryDisplayName} - Premium Drinks & Spirits | Drinks Avenue`}</title>
-        <meta name="description" content={`Browse our collection of ${categoryDisplayName.toLowerCase()} products. Premium quality drinks with fast delivery in Kenya. ${sortedProducts.length} products available.`} />
-        <meta name="keywords" content={`${categoryDisplayName.toLowerCase()}, alcohol delivery, premium drinks, ${categoryDisplayName.toLowerCase()} delivery, Kenya, Nairobi, spirits, wine, beer`} />
+        <meta name="description" content={`Browse our extensive collection of ${categoryDisplayName.toLowerCase()} products. ${sortedProducts.length} premium quality drinks available with fast delivery across Kenya. Shop ${categoryDisplayName.toLowerCase()} online at Drinks Avenue - Nairobi's trusted alcohol delivery service.`} />
+        <meta name="keywords" content={`${categoryDisplayName.toLowerCase()}, ${categoryDisplayName.toLowerCase()} delivery Kenya, alcohol delivery Nairobi, premium ${categoryDisplayName.toLowerCase()}, buy ${categoryDisplayName.toLowerCase()} online, wine delivery, spirits delivery, beer delivery, drinks delivery Kenya, alcohol online Kenya, ${categoryDisplayName.toLowerCase()} shop Nairobi`} />
         <meta name="author" content="Drinks Avenue" />
-        <meta name="robots" content="index, follow" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="googlebot" content="index, follow" />
+        <meta name="language" content="English" />
+        <meta name="geo.region" content="KE" />
+        <meta name="geo.placename" content="Nairobi" />
         <link rel="canonical" href={`${window.location.origin}/category/${category?.toLowerCase()}`} />
         
-        {/* Open Graph Tags */}
+        {/* Open Graph Tags - Enhanced */}
         <meta property="og:title" content={`${categoryDisplayName} - Premium Drinks & Spirits | Drinks Avenue`} />
-        <meta property="og:description" content={`Browse our collection of ${categoryDisplayName.toLowerCase()} products. Premium quality drinks with fast delivery in Kenya.`} />
+        <meta property="og:description" content={`Browse our extensive collection of ${categoryDisplayName.toLowerCase()} products. ${sortedProducts.length} premium quality drinks available with fast delivery across Kenya.`} />
         <meta property="og:image" content={`${window.location.origin}/logo.png`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={`${categoryDisplayName} - Drinks Avenue`} />
         <meta property="og:url" content={`${window.location.origin}/category/${category?.toLowerCase()}`} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Drinks Avenue" />
+        <meta property="og:locale" content="en_KE" />
         
-        {/* Twitter Card Tags */}
+        {/* Twitter Card Tags - Enhanced */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${categoryDisplayName} - Premium Drinks & Spirits`} />
-        <meta name="twitter:description" content={`Browse our collection of ${categoryDisplayName.toLowerCase()} products. Premium quality drinks with fast delivery.`} />
+        <meta name="twitter:title" content={`${categoryDisplayName} - Premium Drinks & Spirits | Drinks Avenue`} />
+        <meta name="twitter:description" content={`Browse our extensive collection of ${categoryDisplayName.toLowerCase()} products. ${sortedProducts.length} premium quality drinks available with fast delivery across Kenya.`} />
         <meta name="twitter:image" content={`${window.location.origin}/logo.png`} />
+        <meta name="twitter:image:alt" content={`${categoryDisplayName} - Drinks Avenue`} />
         
-        {/* Structured Data */}
+        {/* Additional SEO Meta Tags */}
+        <meta name="theme-color" content="#8B1538" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        
+        {/* Structured Data - CollectionPage */}
         <script type="application/ld+json">
           {JSON.stringify(categoryStructuredData)}
+        </script>
+        
+        {/* Structured Data - BreadcrumbList */}
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbStructuredData)}
+        </script>
+        
+        {/* Structured Data - Organization */}
+        <script type="application/ld+json">
+          {JSON.stringify(organizationStructuredData)}
         </script>
       </Helmet>
 
       {/* Navigation */}
       <Navigation />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-8 lg:py-6">
-        {/* Breadcrumb Navigation */}
-        <nav className="mb-3 sm:mb-4" aria-label="Breadcrumb">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4 lg:py-4">
+        {/* Breadcrumb Navigation - Enhanced for SEO */}
+        <nav className="mb-2 sm:mb-3" aria-label="Breadcrumb" itemScope itemType="https://schema.org/BreadcrumbList">
           <ol className="flex items-center space-x-2 text-sm">
-            <li>
-              <Link to="/" className="text-muted-foreground hover:text-wine transition-colors">
-                Home
+            <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
+              <Link to="/" className="text-muted-foreground hover:text-wine transition-colors" itemProp="item">
+                <span itemProp="name">Home</span>
               </Link>
+              <meta itemProp="position" content="1" />
             </li>
-            <li className="text-muted-foreground">/</li>
-            <li className="text-wine font-semibold">
-              {categoryDisplayName}
+            <li className="text-muted-foreground" aria-hidden="true">/</li>
+            <li itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem" className="text-wine font-semibold">
+              <span itemProp="name">{categoryDisplayName}</span>
+              <meta itemProp="position" content="2" />
             </li>
           </ol>
         </nav>
 
-        {/* Header Section - Redesigned */}
-        <header className="mb-4 sm:mb-5 lg:mb-6">
+        {/* Header Section - Redesigned with Enhanced SEO */}
+        <header className="mb-3 sm:mb-4 lg:mb-4">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 pb-4 border-b border-border">
             <div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-wine mb-1.5">
                 {categoryDisplayName}
               </h1>
               <p className="text-sm sm:text-base text-muted-foreground">
-                Discover {sortedProducts.length} premium {categoryDisplayName.toLowerCase()} products with fast delivery
+                Discover {sortedProducts.length} premium {categoryDisplayName.toLowerCase()} products with fast delivery across Kenya. Shop online for the best selection of {categoryDisplayName.toLowerCase()} including wine, spirits, beer, and more. Free delivery available in Nairobi.
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -365,36 +484,36 @@ const Category = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-1 lg:gap-2">
           {/* Filters Sidebar - Redesigned */}
           <aside className={`lg:col-span-3 ${showMobileFilters ? 'block' : 'hidden lg:block'}`} aria-label="Product Filters">
             <Card className="lg:sticky lg:top-24 shadow-md border-2">
-              <CardHeader className="border-b bg-gradient-to-r from-wine/5 to-wine/10 pb-4">
-                <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                  <SlidersHorizontal className="h-5 w-5 text-wine" />
+              <CardHeader className="border-b bg-gradient-to-r from-wine/5 to-wine/10 pb-2">
+                <CardTitle className="flex items-center gap-2 text-sm font-bold">
+                  <SlidersHorizontal className="h-3.5 w-3.5 text-wine" />
                   Filters & Sort
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-5 p-5 max-h-[calc(100vh-8rem)] overflow-y-auto">
+              <CardContent className="space-y-2.5 p-3 max-h-[calc(100vh-8rem)] overflow-y-auto">
                 {/* Search - Redesigned */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold">Search Products</label>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold">Search Products</label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                    <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-muted-foreground h-3.5 w-3.5" />
                     <Input
                       placeholder="Search drinks..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 h-10 text-sm"
+                      className="pl-8 h-8 text-xs"
                     />
                   </div>
                 </div>
 
                 {/* Subcategory Filter - Redesigned */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold">Subcategory</label>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold">Subcategory</label>
                   <Select value={selectedSubCategory} onValueChange={setSelectedSubCategory}>
-                    <SelectTrigger className="h-10 text-sm">
+                    <SelectTrigger className="h-8 text-xs">
                       <SelectValue placeholder="All Subcategories" />
                     </SelectTrigger>
                     <SelectContent className="max-h-56">
@@ -409,10 +528,10 @@ const Category = () => {
                 </div>
 
                 {/* Sort By - Redesigned */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold">Sort By</label>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold">Sort By</label>
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="h-10 text-sm">
+                    <SelectTrigger className="h-8 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="max-h-56">
@@ -425,10 +544,10 @@ const Category = () => {
                 </div>
 
                 {/* Price Range - Redesigned */}
-                <div className="space-y-3 p-3 bg-muted/50 rounded-lg">
-                  <label className="text-sm font-semibold flex items-center justify-between">
+                <div className="space-y-2 p-2 bg-muted/50 rounded-lg">
+                  <label className="text-xs font-semibold flex items-center justify-between">
                     <span>Price Range</span>
-                    <Badge variant="secondary" className="text-xs font-semibold">
+                    <Badge variant="secondary" className="text-[10px] font-semibold px-1.5 py-0.5">
                       KES {priceRange[0].toLocaleString()} - {priceRange[1].toLocaleString()}
                     </Badge>
                   </label>
@@ -442,13 +561,13 @@ const Category = () => {
                 </div>
 
                 {/* Alcohol Content - Redesigned */}
-                <div className="space-y-3 p-3 bg-muted/50 rounded-lg">
-                  <label className="text-sm font-semibold flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Percent className="h-4 w-4" />
+                <div className="space-y-2 p-2 bg-muted/50 rounded-lg">
+                  <label className="text-xs font-semibold flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Percent className="h-3.5 w-3.5" />
                       Alcohol Content
                     </span>
-                    <Badge variant="secondary" className="text-xs font-semibold">
+                    <Badge variant="secondary" className="text-[10px] font-semibold px-1.5 py-0.5">
                       {alcoholRange[0]}% - {alcoholRange[1]}%
                     </Badge>
                   </label>
@@ -462,13 +581,13 @@ const Category = () => {
                 </div>
 
                 {/* Minimum Rating - Redesigned */}
-                <div className="space-y-3 p-3 bg-muted/50 rounded-lg">
-                  <label className="text-sm font-semibold flex items-center justify-between">
-                    <span className="flex items-center gap-2">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <div className="space-y-2 p-2 bg-muted/50 rounded-lg">
+                  <label className="text-xs font-semibold flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
                       Minimum Rating
                     </span>
-                    <Badge variant="secondary" className="text-xs font-semibold">
+                    <Badge variant="secondary" className="text-[10px] font-semibold px-1.5 py-0.5">
                       {minRating.toFixed(1)}+ stars
                     </Badge>
                   </label>
@@ -482,24 +601,24 @@ const Category = () => {
                 </div>
 
                 {/* In Stock Only - Redesigned */}
-                <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center space-x-2 p-2 bg-muted/50 rounded-lg">
                   <input
                     type="checkbox"
                     id="inStock"
                     checked={inStock}
                     onChange={(e) => setInStock(e.target.checked)}
-                    className="rounded border-input h-4 w-4 cursor-pointer"
+                    className="rounded border-input h-3.5 w-3.5 cursor-pointer"
                   />
-                  <label htmlFor="inStock" className="text-sm font-medium cursor-pointer">
+                  <label htmlFor="inStock" className="text-xs font-medium cursor-pointer">
                     In stock only
                   </label>
                 </div>
 
                 {/* Volume Filter - Redesigned */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold">Volume</label>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold">Volume</label>
                   <Select value={selectedSize} onValueChange={setSelectedSize}>
-                    <SelectTrigger className="h-10 text-sm">
+                    <SelectTrigger className="h-8 text-xs">
                       <SelectValue placeholder="All Volumes" />
                     </SelectTrigger>
                     <SelectContent className="max-h-56">
@@ -514,10 +633,10 @@ const Category = () => {
                 </div>
 
                 {/* Origin Filter - Redesigned */}
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold">Origin</label>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold">Origin</label>
                   <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                    <SelectTrigger className="h-10 text-sm">
+                    <SelectTrigger className="h-8 text-xs">
                       <SelectValue placeholder="All Origins" />
                     </SelectTrigger>
                     <SelectContent className="max-h-56">
@@ -535,7 +654,7 @@ const Category = () => {
                 <Button 
                   variant="outline" 
                   onClick={resetFilters} 
-                  className="w-full h-11 text-sm font-semibold border-2 hover:bg-wine hover:text-white hover:border-wine transition-colors"
+                  className="w-full h-8 text-xs font-semibold border-2 hover:bg-wine hover:text-white hover:border-wine transition-colors"
                 >
                   Reset All Filters
                 </Button>
@@ -544,7 +663,7 @@ const Category = () => {
           </aside>
 
           {/* Products Grid - Redesigned */}
-          <main className="lg:col-span-9" aria-label="Product List">
+          <main className="lg:col-span-9 -ml-2 lg:ml-0" aria-label="Product List">
             {sortedProducts.length === 0 ? (
               <div className="text-center py-16 sm:py-20">
                 <div className="text-6xl sm:text-7xl mb-4">🔍</div>
@@ -560,11 +679,11 @@ const Category = () => {
               <>
                 <section 
                   aria-label={`${categoryDisplayName} Products`}
-                  className="py-3 sm:py-4 md:py-6 bg-gradient-to-br from-wine/5 to-primary/5 rounded-lg"
+                  className="bg-gradient-to-br from-wine/5 to-primary/5 rounded-lg"
                 >
-                  <div className="px-3 sm:px-4">
+                  <div className="px-1 sm:px-2">
                     {/* Results count - Redesigned */}
-                    <div className="mb-4 sm:mb-6 flex items-center justify-between pb-3 sm:pb-4 border-b border-border/50">
+                    <div className="mb-3 sm:mb-4 flex items-center justify-between pb-2 sm:pb-3 border-b border-border/50">
                       <div className="text-sm text-muted-foreground">
                         Showing <span className="font-semibold text-foreground">{startIndex + 1}-{Math.min(endIndex, sortedProducts.length)}</span> of <span className="font-semibold text-foreground">{sortedProducts.length}</span> products
                       </div>
@@ -573,10 +692,16 @@ const Category = () => {
                       </div>
                     </div>
                     
-                    {/* Products Grid - Matching offers section design */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-                      {paginatedProducts.map((product) => (
-                        <article key={product.id} className="relative group">
+                    {/* Products Grid - Improved spacing with SEO attributes */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4" itemScope itemType="https://schema.org/ItemList">
+                      {paginatedProducts.map((product, index) => (
+                        <article 
+                          key={product.id} 
+                          className="relative group"
+                          itemScope 
+                          itemType="https://schema.org/Product"
+                          itemProp="itemListElement"
+                        >
                           <ProductCard
                             product={product}
                             onAddToCart={addToCart}
@@ -591,7 +716,7 @@ const Category = () => {
 
                 {/* Pagination - Redesigned */}
                 {totalPages > 1 && (
-                  <div className="mt-10 sm:mt-12 pt-6 border-t">
+                  <div className="mt-6 sm:mt-8 pt-4 border-t">
                     <Pagination>
                       <PaginationContent className="gap-2">
                         <PaginationItem>
