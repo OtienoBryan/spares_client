@@ -1,7 +1,10 @@
 // API service for fetching data from the backend
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  (typeof window !== 'undefined' && window.location.hostname.endsWith('vercel.app')
+  (typeof window !== 'undefined' && (
+    window.location.hostname.endsWith('vercel.app') ||
+    window.location.hostname.includes('drinksavenue.co.ke')
+  )
     ? '/api'
     : 'http://localhost:3001/api');
 
