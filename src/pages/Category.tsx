@@ -194,11 +194,21 @@ const Category = () => {
     
     // Enhanced Product schema with more details
     const productSchemas = sortedProducts.slice(0, 20).map((product, index) => {
+      // Build clean image array - filter out null/undefined
+      const productImages = product.images && product.images.length > 0
+        ? product.images.filter(Boolean)
+        : (product.image ? [product.image] : []);
+
+      const productUrl = `${baseUrl}/product/${productSlug(product)}`;
       const productSchema: any = {
         "@type": "Product",
+        "@id": productUrl,
         "name": product.name,
-        "description": product.description || `${product.name} - Premium ${categoryDisplayName.toLowerCase()} available at Drinks Avenue`,
-        "image": product.image ? (Array.isArray(product.image) ? product.image : [product.image]) : [],
+        "url": productUrl,
+        "description": product.description
+          ? product.description
+          : `${product.name} - Premium ${categoryDisplayName.toLowerCase()} available at Drinks Avenue Kenya. Fast delivery in Nairobi and across Kenya.`,
+        ...(productImages.length > 0 && { "image": productImages }),
         "brand": {
           "@type": "Brand",
           "name": product.brand || "Drinks Avenue"
@@ -207,10 +217,10 @@ const Category = () => {
         "mpn": product.id?.toString() || "",
         "offers": {
           "@type": "Offer",
-          "price": product.price,
+          "price": (product.price ?? 0).toString(),
           "priceCurrency": "KES",
-          "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-          "url": `${baseUrl}/product/${productSlug(product)}`,
+          "availability": (product.stock ?? 0) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          "url": productUrl,
           "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           "seller": {
             "@type": "Organization",

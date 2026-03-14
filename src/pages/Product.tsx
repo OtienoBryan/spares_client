@@ -165,22 +165,32 @@ const Product = () => {
     const productUrl = `${baseUrl}/product/${productSlug(product)}`;
     
     // Build product schema
+    // Safely extract category name - may be an object or string
+    const categoryName = typeof product.category === 'object'
+      ? (product.category?.name || 'Drinks')
+      : (product.category || 'Drinks');
+
+    // Build clean image array - filter out null/undefined
+    const productImages = product.images && product.images.length > 0
+      ? product.images.filter(Boolean)
+      : (product.image ? [product.image] : []);
+
     const productSchema: any = {
     "@context": "https://schema.org",
     "@type": "Product",
+    "@id": productUrl,
     "name": product.name,
-      "description": product.description || `${product.name} by ${product.brand}${product.origin ? ` from ${product.origin}` : ''} - Premium ${product.category?.name || 'drink'} available at Drinks Avenue Kenya. ${product.alcoholContent ? `Alcohol content: ${product.alcoholContent}% ABV.` : ''} ${product.volume ? `Volume: ${product.volume}.` : ''} Fast 30-minute delivery in Nairobi and across Kenya.`,
-      "image": product.images && product.images.length > 0 
-        ? (Array.isArray(product.images) ? product.images : [product.image])
-        : (product.image ? [product.image] : []),
+      "description": product.description
+        ? product.description
+        : `${product.name}${product.brand ? ` by ${product.brand}` : ''}${product.origin ? ` from ${product.origin}` : ''} - Premium ${categoryName} available at Drinks Avenue Kenya.${product.alcoholContent ? ` Alcohol content: ${product.alcoholContent}% ABV.` : ''}${product.volume ? ` Volume: ${product.volume}.` : ''} Fast 30-minute delivery in Nairobi and across Kenya.`,
+      ...(productImages.length > 0 && { "image": productImages }),
     "brand": {
       "@type": "Brand",
         "name": product.brand || "Drinks Avenue"
     },
-      "category": product.category?.name || "Drinks",
+      "category": categoryName,
       "sku": product.id?.toString() || "",
       "mpn": product.id?.toString() || "",
-      "gtin": product.id?.toString() || "",
       "url": productUrl,
       "manufacturer": product.brand ? {
         "@type": "Organization",
@@ -188,9 +198,9 @@ const Product = () => {
       } : undefined,
     "offers": {
       "@type": "Offer",
-      "price": product.price,
+      "price": (product.price ?? 0).toString(),
       "priceCurrency": "KES",
-      "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "availability": (product.stock ?? 0) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
         "url": productUrl,
         "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       "seller": {

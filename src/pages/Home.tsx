@@ -395,23 +395,38 @@ const Home = memo(() => {
       "description": "Handpicked selection of premium drinks and spirits available at Drinks Avenue",
       "numberOfItems": products.length,
       "itemListElement": products.map((product, index) => {
+        // Safely extract category name - category may be an object or a string
+        const categoryName = typeof product.category === 'object'
+          ? (product.category?.name || 'Drinks')
+          : (product.category || 'Drinks');
+
+        // Build clean image array - filter out null/undefined
+        const images = product.images && product.images.length > 0
+          ? product.images.filter(Boolean)
+          : (product.image ? [product.image] : []);
+
+        const productUrl = `${baseUrl}/product/${productSlug(product)}`;
         const productSchema: any = {
           "@type": "Product",
+          "@id": productUrl,
           "name": product.name,
-          "description": product.description || `${product.name} - Premium ${product.category || 'drink'} available at Drinks Avenue`,
-          "image": product.image ? (Array.isArray(product.image) ? product.image : [product.image]) : [],
+          "url": productUrl,
+          "description": product.description
+            ? product.description
+            : `${product.name} - Premium ${categoryName} available at Drinks Avenue Kenya. Fast delivery in Nairobi and across Kenya.`,
+          ...(images.length > 0 && { "image": images }),
           "brand": {
             "@type": "Brand",
             "name": product.brand || "Drinks Avenue"
           },
-          "category": product.category || "Drinks",
+          "category": categoryName,
           "sku": product.id?.toString() || "",
           "offers": {
             "@type": "Offer",
-            "price": product.price,
+            "price": (product.price ?? 0).toString(),
             "priceCurrency": "KES",
-            "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-            "url": `${baseUrl}/product/${productSlug(product)}`,
+            "availability": (product.stock ?? 0) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            "url": productUrl,
             "priceValidUntil": new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             "seller": {
               "@type": "Organization",
