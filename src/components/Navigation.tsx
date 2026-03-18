@@ -284,14 +284,13 @@ const Navigation = () => {
             <Link to="/" className="flex items-center gap-1 sm:gap-2">
               <div className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 rounded-full overflow-hidden bg-white p-1">
                 <img 
-                  src={`/logo3.png?t=${Date.now()}`} 
+                  src="/logo3.png"
                   alt="Drinks Avenue" 
                   className="h-full w-full object-contain block" 
                   onError={(e) => {
                     console.error('Logo failed to load:', e);
                     e.currentTarget.style.display = 'none';
                   }}
-                  onLoad={() => console.log('Logo loaded successfully')}
                 />
               </div>
               <span className="text-xs sm:text-sm md:text-lg font-extrabold tracking-tight text-white drop-shadow-sm">
@@ -703,14 +702,13 @@ const Navigation = () => {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <img 
-                    src={`/logo2.png?t=${Date.now()}`} 
+                    src="/logo2.png"
                     alt="Drinks Avenue" 
                     className="h-10 w-14 object-contain"
                     onError={(e) => {
                       console.error('Mobile logo failed to load:', e);
                       e.currentTarget.style.display = 'none';
                     }}
-                    onLoad={() => console.log('Mobile logo loaded successfully')}
                   />
                   <span className="text-xl font-bold text-wine">Drinks Avenue</span>
                 </div>

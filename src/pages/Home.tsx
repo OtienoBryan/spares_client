@@ -5,33 +5,18 @@ import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { ProductCard } from "@/components/ui/product-card";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useCart } from "@/contexts/CartContext";
-import { 
-  Clock, 
-  Truck, 
-  Shield,
-  Star,
-  Search,
-  Loader2,
-  ArrowRight,
-  Crown,
-  Phone,
-  MapPin,
-  ShoppingCart
-} from "lucide-react";
+import { Star, ArrowRight, Phone, MapPin } from "lucide-react";
 import { useProducts, useFeaturedProducts, useCategories, useSearchProductsDebounced, usePopularWines } from "@/hooks/useApi";
-import { getBrandsByCategory, formatPrice, getDiscountPercentage } from "@/data/products";
+import { formatPrice } from "@/data/products";
 import { LoadingWave, LoadingWine, LoadingNetworkError } from "@/components/ui/lottie-loader";
 import { useNetworkStatus, isNetworkError } from "@/hooks/useNetworkStatus";
 
 // Lazy load heavy components
 const LazyProductCard = lazy(() => import("@/components/ui/product-card").then(module => ({ default: module.ProductCard })));
 
-// Optimized image imports with lazy loading
-const heroImage = "/hero-drinks.jpg";
 const wineImage = "/wine-bottle.jpg";
 const beerImage = "/beer-bottles.jpg";
 const whiskeyImage = "/whiskey-bottle.jpg";
@@ -39,14 +24,20 @@ const whiskeyImage = "/whiskey-bottle.jpg";
 const Home = memo(() => {
   const location = useLocation();
   const navigate = useNavigate();
+  const siteUrl = useMemo(() => {
+    const configuredUrl = import.meta.env.VITE_SITE_URL?.trim();
+    if (configuredUrl) {
+      return configuredUrl.replace(/\/+$/, '');
+    }
+    return window.location.origin.replace(/\/+$/, '');
+  }, []);
+  const canonicalUrl = `${siteUrl}/`;
   
   // Read search query from URL parameters
   const urlSearchParams = new URLSearchParams(location.search);
   const urlSearchQuery = urlSearchParams.get('search') || '';
   
   const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
-  const [imagesPreloaded, setImagesPreloaded] = useState(false);
-  const [visibleSections, setVisibleSections] = useState(new Set(['hero']));
   const { addToCart } = useCart();
   const { isOnline } = useNetworkStatus();
   
@@ -88,26 +79,15 @@ const Home = memo(() => {
   const { data: featuredProducts, loading: featuredLoading, error: featuredError } = useFeaturedProducts();
   
   // Secondary data - load after critical data
-  const { data: allProducts, loading: productsLoading, error: productsError } = useProducts();
+  const { data: allProducts, error: productsError } = useProducts();
   const { data: popularWines, loading: popularWinesLoading, error: popularWinesError } = usePopularWines();
   
   // Search only when needed
-  const { data: searchResults, loading: searchLoading } = useSearchProductsDebounced(
+  const { data: searchResults } = useSearchProductsDebounced(
     searchQuery.length > 2 ? searchQuery : '', 
     300
   );
 
-  // Memoized data processing for better performance
-  const popularProducts = useMemo(() => 
-    (allProducts as any[])?.filter(product => product && product.rating >= 4.5).slice(0, 4) || [],
-    [allProducts]
-  );
-  
-  const dealProducts = useMemo(() => 
-    (allProducts as any[])?.filter(product => product && product.originalPrice && product.originalPrice > product.price).slice(0, 4) || [],
-    [allProducts]
-  );
-  
   // Helper function to check if product has any offers (from SKUs or general price)
   const hasOffer = useCallback((product: any) => {
     // Check if product has SKUs with discounts
@@ -146,11 +126,6 @@ const Home = memo(() => {
     [allProducts, hasOffer]
   );
   
-  const brandsByCategory = useMemo(() => 
-    allProducts ? getBrandsByCategory(allProducts as any[]) : [],
-    [allProducts]
-  );
-
   // Get all unique brands from products
   const allBrands = useMemo(() => {
     if (!allProducts || !Array.isArray(allProducts)) return [];
@@ -210,104 +185,30 @@ const Home = memo(() => {
     );
   }, []);
 
-  // Intersection Observer for lazy loading sections
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisibleSections(prev => new Set([...prev, entry.target.id]));
-          }
-        });
-      },
-      { 
-        rootMargin: '50px 0px',
-        threshold: 0.1 
-      }
-    );
-
-    // Observe all sections
-    const sections = document.querySelectorAll('[data-section]');
-    sections.forEach(section => observer.observe(section));
-
-    return () => observer.disconnect();
-  }, []);
-
-
-
-
-
-  // Image preloading effect
-  useEffect(() => {
-    const preloadImages = async () => {
-      const imageUrls = [
-        // Banner images
-        ...bannerImages.map(banner => banner.image),
-        // Category images
-        '/cat/wine.png',
-        '/cat/beer.png',
-        '/cat/gin.png',
-        '/cat/liq.png',
-        '/cat/rum.png',
-        '/cat/tequila.png',
-        '/cat/vodka.png',
-        '/cat/whiskey.png',
-        // Product images from featured products
-        ...((featuredProducts as any[])?.slice(0, 8).map(product => product.image).filter(Boolean) || []),
-        // Product images from offers
-        ...((offersOfTheWeek as any[])?.slice(0, 8).map(product => product.image).filter(Boolean) || []),
-        // Product images from popular wines
-        ...((popularWines as any[])?.slice(0, 8).map(product => product.image).filter(Boolean) || []),
-      ];
-
-      const preloadPromises = imageUrls.map(url => {
-        return new Promise((resolve, reject) => {
-          const img = new Image();
-          img.onload = resolve;
-          img.onerror = reject;
-          img.src = url;
-        });
-      });
-
-      try {
-        await Promise.allSettled(preloadPromises);
-        setImagesPreloaded(true);
-      } catch (error) {
-        console.warn('Some images failed to preload:', error);
-        setImagesPreloaded(true); // Still set to true to not block rendering
-      }
-    };
-
-    if (featuredProducts && offersOfTheWeek && popularWines) {
-      preloadImages();
-    }
-  }, [featuredProducts, offersOfTheWeek, popularWines]);
-
   // Generate enhanced structured data for the website - MUST be before early returns
   const structuredData = useMemo(() => {
-    const baseUrl = window.location.origin;
     return {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Drinks Avenue - Premium Alcohol Delivery Service",
       "alternateName": "Drinks Avenue",
       "description": "Premium drinks and spirits delivery service in Kenya. Order wine, beer, whiskey, gin, rum, tequila, and more with fast 30-minute delivery across Nairobi and Kenya.",
-      "url": baseUrl,
+      "url": canonicalUrl,
       "potentialAction": {
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": `${baseUrl}/search?q={search_term_string}`
+          "urlTemplate": `${canonicalUrl}?search={search_term_string}`
         },
         "query-input": "required name=search_term_string"
       },
       "publisher": {
         "@type": "Organization",
         "name": "Drinks Avenue",
-        "url": baseUrl,
+        "url": canonicalUrl,
         "logo": {
           "@type": "ImageObject",
-          "url": `${baseUrl}/logo.png`,
+          "url": `${siteUrl}/logo.png`,
           "width": 512,
           "height": 512
         }
@@ -315,24 +216,23 @@ const Home = memo(() => {
       "inLanguage": "en-KE",
       "isAccessibleForFree": true
     };
-  }, []);
+  }, [canonicalUrl, siteUrl]);
 
   const organizationData = useMemo(() => {
-    const baseUrl = window.location.origin;
     return {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "Drinks Avenue",
       "legalName": "Drinks Avenue",
       "description": "Premium drinks and spirits delivery service in Kenya. Fast delivery of wine, beer, whiskey, gin, rum, tequila, vodka, and spirits across Nairobi and Kenya.",
-      "url": baseUrl,
+      "url": canonicalUrl,
       "logo": {
         "@type": "ImageObject",
-        "url": `${baseUrl}/logo.png`,
+        "url": `${siteUrl}/logo.png`,
         "width": 512,
         "height": 512
       },
-      "image": `${baseUrl}/logo.png`,
+      "image": `${siteUrl}/logo.png`,
       "contactPoint": [
         {
           "@type": "ContactPoint",
@@ -379,13 +279,35 @@ const Home = memo(() => {
         "Online Alcohol Store"
       ]
     };
-  }, []);
+  }, [canonicalUrl, siteUrl]);
+
+  const localBusinessData = useMemo(() => {
+    return {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "Drinks Avenue",
+      "url": canonicalUrl,
+      "image": `${siteUrl}/logo.png`,
+      "telephone": "0790 831798",
+      "priceRange": "$$",
+      "areaServed": "Kenya",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "KE",
+        "addressLocality": "Nairobi",
+      },
+      "sameAs": [
+        "https://www.facebook.com/dalalidrinks",
+        "https://www.instagram.com/dalalidrinks",
+        "https://www.twitter.com/dalalidrinks"
+      ]
+    };
+  }, [canonicalUrl, siteUrl]);
 
   // Enhanced ItemList structured data for featured products
   const featuredProductsStructuredData = useMemo(() => {
     if (!featuredProducts || (featuredProducts as any[]).length === 0) return null;
     
-    const baseUrl = window.location.origin;
     const products = (featuredProducts as any[]).slice(0, 12);
     
     return {
@@ -405,7 +327,7 @@ const Home = memo(() => {
           ? product.images.filter(Boolean)
           : (product.image ? [product.image] : []);
 
-        const productUrl = `${baseUrl}/product/${productSlug(product)}`;
+        const productUrl = `${siteUrl}/product/${productSlug(product)}`;
         const productSchema: any = {
           "@type": "Product",
           "@id": productUrl,
@@ -453,7 +375,7 @@ const Home = memo(() => {
         };
       })
     };
-  }, [featuredProducts]);
+  }, [featuredProducts, siteUrl]);
 
   // FAQ structured data for common questions
   const faqStructuredData = useMemo(() => {
@@ -546,7 +468,9 @@ const Home = memo(() => {
         <meta name="geo.region" content="KE" />
         <meta name="geo.placename" content="Nairobi" />
         <meta name="geo.position" content="-1.2921;36.8219" />
-        <link rel="canonical" href={window.location.origin} />
+        <link rel="canonical" href={canonicalUrl} />
+        <link rel="alternate" hrefLang="en-ke" href={canonicalUrl} />
+        <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
         
         {/* Performance optimizations */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -559,11 +483,11 @@ const Home = memo(() => {
         {/* Open Graph Tags - Enhanced */}
         <meta property="og:title" content="24 Hour Drinks Delivery Kenya | Dial a Drink | Chupa Chup | Drinks Avenue" />
         <meta property="og:description" content="24 hour drinks delivery Kenya - Dial a drink and get premium alcoholic beverages delivered fast. Order wine, beer, whiskey, gin, rum, tequila, vodka, Chupa Chup, and spirits with same-day delivery across Nairobi and Kenya." />
-        <meta property="og:image" content={`${window.location.origin}/logo.png`} />
+        <meta property="og:image" content={`${siteUrl}/logo.png`} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="Drinks Avenue - Premium Alcohol Delivery Service" />
-        <meta property="og:url" content={window.location.origin} />
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Drinks Avenue" />
         <meta property="og:locale" content="en_KE" />
@@ -573,7 +497,7 @@ const Home = memo(() => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Drinks Avenue - Premium Alcohol Delivery Service | Kenya" />
         <meta name="twitter:description" content="Order premium drinks online with fast 30-minute delivery across Kenya. Wide selection of wine, beer, whiskey, gin, rum, and spirits." />
-        <meta name="twitter:image" content={`${window.location.origin}/logo.png`} />
+        <meta name="twitter:image" content={`${siteUrl}/logo.png`} />
         <meta name="twitter:image:alt" content="Drinks Avenue - Premium Alcohol Delivery Service" />
         
         {/* Additional SEO Tags */}
@@ -593,6 +517,11 @@ const Home = memo(() => {
         {/* Structured Data - Organization */}
         <script type="application/ld+json">
           {JSON.stringify(organizationData)}
+        </script>
+
+        {/* Structured Data - Local Business */}
+        <script type="application/ld+json">
+          {JSON.stringify(localBusinessData)}
         </script>
         
         {/* Structured Data - Featured Products ItemList */}
@@ -1566,12 +1495,11 @@ const Home = memo(() => {
           
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {filterProductsByCategory((allProducts as any[]) || [], 'beer').slice(0, 8).map((product) => (
-              <Suspense fallback={<div className="h-64 bg-gray-100 animate-pulse rounded-lg" />}>
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={addToCart}
-              />
+              <Suspense key={product.id} fallback={<div className="h-64 bg-gray-100 animate-pulse rounded-lg" />}>
+                <LazyProductCard
+                  product={product}
+                  onAddToCart={addToCart}
+                />
               </Suspense>
             ))}
           </div>

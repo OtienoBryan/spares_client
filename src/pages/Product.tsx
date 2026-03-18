@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
@@ -15,13 +15,17 @@ import {
   Star, 
   Heart, 
   Share2, 
-  Truck, 
-  Shield, 
+  Truck,
   Minus,
   Plus,
   CheckCircle,
   AlertCircle,
-  MessageCircle
+  MessageCircle,
+  LayoutGrid,
+  MapPin,
+  Droplet,
+  Building2,
+  Copy
 } from "lucide-react";
 import type { Product } from "@/services/api";
 import { useProduct, useProductsByCategory } from "@/hooks/useApi";
@@ -151,11 +155,19 @@ const Product = () => {
   };
 
 
-  // Memoize discount percentage calculation
+  const selectedSkuData = useMemo(() => {
+    if (!product?.skus || product.skus.length === 0 || !selectedSku) return null;
+    return product.skus.find((sku: any) => sku.code === selectedSku) || null;
+  }, [product?.skus, selectedSku]);
+
+  const displayPrice = selectedSkuData?.price ?? product?.price ?? 0;
+  const displayOriginalPrice = selectedSkuData?.originalPrice ?? product?.originalPrice;
+  const hasDiscount = !!displayOriginalPrice && displayOriginalPrice > displayPrice;
+
   const discountPercentage = useMemo(() => {
-    if (!product?.originalPrice || product.originalPrice <= product.price) return 0;
-    return Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
-  }, [product?.originalPrice, product?.price]);
+    if (!hasDiscount || !displayOriginalPrice || displayOriginalPrice <= 0) return 0;
+    return Math.round(((displayOriginalPrice - displayPrice) / displayOriginalPrice) * 100);
+  }, [hasDiscount, displayOriginalPrice, displayPrice]);
 
   // Memoize enhanced structured data for SEO - MUST be before early returns to follow Rules of Hooks
   const structuredData = useMemo(() => {
@@ -508,7 +520,7 @@ const Product = () => {
       {/* Navigation */}
       <Navigation />
 
-      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 md:py-6 lg:py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 md:py-6 lg:py-8 pb-24 sm:pb-6 lg:pb-8">
         {/* Breadcrumb Navigation - Enhanced for SEO */}
         <nav className="mb-3 sm:mb-4 md:mb-6" aria-label="Breadcrumb" itemScope itemType="https://schema.org/BreadcrumbList">
           <ol className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm">
@@ -533,42 +545,46 @@ const Product = () => {
           </ol>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:gap-8" itemScope itemType="https://schema.org/Product">
-          {/* Product Images */}
-          <div className="space-y-2 sm:space-y-3">
-            <div className="aspect-square overflow-hidden rounded-lg border mx-auto max-w-[400px] sm:max-w-[400px] md:max-w-[450px] lg:max-w-[500px]">
+        <div className="grid grid-cols-1 lg:grid-cols-[460px_1fr] gap-5 sm:gap-6 lg:gap-10" itemScope itemType="https://schema.org/Product">
+          {/* Product Image */}
+          <div>
+            <div className="bg-white border rounded-xl p-4 sm:p-6 lg:p-8 flex items-center justify-center">
               <img
                 src={product.images?.[selectedImage] || product.image}
-                alt={`${product.name} by ${product.brand} - Premium ${product.category?.name || 'drink'} available at Drinks Avenue. ${product.alcoholContent ? `Alcohol content: ${product.alcoholContent}.` : ''} ${product.volume ? `Volume: ${product.volume}.` : ''} Fast delivery across Kenya.`}
-                className="h-full w-full object-contain bg-white"
+                alt={`${product.name} by ${product.brand} - Premium ${product.category?.name || 'drink'}`}
+                className="max-h-[340px] sm:max-h-[420px] lg:max-h-[520px] w-auto object-contain"
                 loading="eager"
                 decoding="async"
-                width="500"
-                height="500"
+                width="520"
+                height="520"
                 fetchPriority="high"
                 itemProp="image"
               />
             </div>
-            
+            <p className="mt-2 text-[11px] text-muted-foreground text-center">
+              * image is for display purpose only
+            </p>
+
             {product.images && product.images.length > 1 && (
-              <div className="grid grid-cols-4 sm:grid-cols-3 gap-1 sm:gap-2 max-w-[280px] md:max-w-[320px] mx-auto">
-                {product.images.map((image, index) => (
+              <div className="mt-3 sm:mt-4 grid grid-cols-4 sm:grid-cols-5 gap-2">
+                {product.images.slice(0, 5).map((image, index) => (
                   <button
                     key={`${image}-${index}`}
                     onClick={() => setSelectedImage(index)}
-                    className={`aspect-square overflow-hidden rounded-lg border-2 transition-colors touch-manipulation ${
-                      selectedImage === index ? 'border-wine' : 'border-muted'
+                    className={`aspect-square overflow-hidden rounded-lg border-2 transition-colors ${
+                      selectedImage === index ? "border-wine" : "border-muted"
                     }`}
                     aria-label={`View image ${index + 1} of ${product.images.length}`}
+                    type="button"
                   >
                     <img
                       src={image}
-                      alt={`${product.name} - ${product.brand} - View ${index + 1}`}
+                      alt={`${product.name} - view ${index + 1}`}
                       className="h-full w-full object-contain bg-white"
                       loading={index === 0 ? "eager" : "lazy"}
                       decoding="async"
-                      width="90"
-                      height="90"
+                      width="84"
+                      height="84"
                     />
                   </button>
                 ))}
@@ -576,317 +592,347 @@ const Product = () => {
             )}
           </div>
 
-          {/* Product Details (trimmed for clarity above-the-fold) */}
-          <div className="space-y-2 sm:space-y-3 md:space-y-4">
-            {/* Header */}
-            <div>
-              <div className="flex items-center gap-1 sm:gap-2 mb-2 flex-wrap">
-                {product.category?.name && (
-                  <Link to={`/category/${product.category.name.toLowerCase()}`}>
-                    <Badge className="bg-wine text-white capitalize text-xs px-2 py-1 hover:bg-wine/90 transition-colors cursor-pointer">
-                      {product.category.name}
-                    </Badge>
-                  </Link>
-                )}
-                {!product.category?.name && (
-                <Badge className="bg-wine text-white capitalize text-xs px-2 py-1">
-                    Unknown
-                </Badge>
-                )}
-                {discountPercentage > 0 && (
-                  <Badge className="bg-destructive text-destructive-foreground text-xs px-2 py-1">
-                    -{discountPercentage}% OFF
-                  </Badge>
-                )}
-                {product.stock <= 0 && (
-                  <Badge variant="destructive" className="text-xs px-2 py-1">Out of Stock</Badge>
-                )}
-              </div>
-              
-              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-wine mb-2 leading-tight" itemProp="name">
-                {product.name}
-                {product.origin && <span className="text-muted-foreground font-normal text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl"> from {product.origin}</span>}
-              </h1>
-              {product.brand && (
-                <p className="text-[10px] sm:text-xs text-muted-foreground mb-2" itemProp="brand" itemScope itemType="https://schema.org/Brand">
-                  <Link 
-                    to={`/brands/${encodeURIComponent(product.brand)}`}
-                    className="hover:text-wine transition-colors underline-offset-2 hover:underline"
-                    itemProp="name"
-                  >
-                    {product.brand}
-                  </Link>
-                </p>
-              )}
-              
-              <div className="flex items-center gap-2 sm:gap-4 mb-2">
-                <div className="flex items-center gap-1">
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`h-3 w-3 sm:h-4 sm:w-4 ${
-                          i < Math.floor(product.rating)
-                            ? "text-gold fill-gold"
-                            : "text-muted-foreground"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-xs sm:text-sm text-muted-foreground ml-1 sm:ml-2">
-                    {product.rating} ({product.reviewCount} reviews)
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Product Details - Top Section */}
-            <div className="space-y-2 sm:space-y-3 mb-4 p-3 sm:p-4 bg-muted/30 rounded-lg border border-border" itemScope itemType="https://schema.org/Product">
-              <h2 className="font-semibold text-xs sm:text-sm text-wine mb-2 sm:mb-3">Product Details</h2>
-              <div className="grid grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm">
-                {product.brand && (
-                  <div className="flex flex-col">
-                    <span className="text-muted-foreground mb-0.5">Brand</span>
-                    <Link 
-                      to={`/brands/${encodeURIComponent(product.brand)}`}
-                      className="font-medium text-foreground hover:text-wine transition-colors underline-offset-2 hover:underline"
-                    >
-                      {product.brand}
-                    </Link>
-                  </div>
-                )}
-                {product.origin && (
-                  <div className="flex flex-col">
-                    <span className="text-muted-foreground mb-0.5">Origin</span>
-                    <Link 
-                      to={`/origin/${encodeURIComponent(product.origin)}`}
-                      className="font-medium text-foreground hover:text-wine transition-colors underline-offset-2 hover:underline"
-                    >
-                      {product.origin}
-                    </Link>
-                  </div>
-                )}
-                {product.volume && (
-                  <div className="flex flex-col">
-                    <span className="text-muted-foreground mb-0.5">Volume</span>
-                    <span className="font-medium text-foreground">{product.volume}</span>
-                  </div>
-                )}
-                {product.alcoholContent && (
-                  <div className="flex flex-col">
-                    <span className="text-muted-foreground mb-0.5">Alcohol Content</span>
-                    <span className="font-medium text-foreground">{product.alcoholContent}% ABV</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* SKU Selection */}
-            {product.skus && product.skus.length > 0 && (
+          {/* Product Details */}
+          <div className="w-full max-w-none">
+            <div className="flex items-start justify-between gap-3 sm:gap-4">
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Select SKU:</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {product.skus.map((sku, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      onClick={() => setSelectedSku(sku.code)}
-                      className={`p-3 rounded-lg border-2 transition-all ${
-                        selectedSku === sku.code
-                          ? 'border-wine bg-wine/10'
-                          : 'border-gray-200 hover:border-wine/50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-col items-start">
-                          <span className="text-sm font-semibold text-gray-900">{sku.code}</span>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-base font-bold text-wine">
-                              {formatPrice(sku.price)}
-                            </span>
-                            {sku.originalPrice && (
-                              <span className="text-xs text-muted-foreground line-through">
-                                {formatPrice(sku.originalPrice)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        {selectedSku === sku.code && (
-                          <CheckCircle className="h-5 w-5 text-wine" />
-                        )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {(discountPercentage > 0 || (product as any)?.isOnOffer) && (
+                    <Badge className="bg-wine text-white text-xs px-2 py-0.5 rounded">
+                      Holiday Special
+                    </Badge>
+                  )}
+                  {product.stock <= 0 && (
+                    <Badge variant="destructive" className="text-xs px-2 py-0.5 rounded">
+                      Out of stock
+                    </Badge>
+                  )}
+                </div>
+
+                <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-gray-900" itemProp="name">
+                  {product.name}
+                </h1>
+
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>
+                    {(product.skus && product.skus.length > 0 && selectedSku) ? selectedSku : (product.volume || "")}
+                    {(product.skus && product.skus.length > 0) ? " Bottle" : ""}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-gray-900">
+                    <Star className="h-4 w-4 text-gold fill-gold" />
+                    <span className="font-medium">{product.rating ?? 0}</span>
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <div className="text-2xl sm:text-3xl font-extrabold text-gray-900 whitespace-nowrap">
+                    KES {formatPrice(displayPrice)}
+                  </div>
+                  {hasDiscount && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className="text-sm text-muted-foreground line-through whitespace-nowrap">
+                        KES {formatPrice(displayOriginalPrice)}
                       </div>
-                    </button>
-                  ))}
+                      {discountPercentage > 0 && (
+                        <Badge variant="outline" className="text-xs border-wine text-wine">
+                          {discountPercentage}% OFF
+                        </Badge>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
 
-            {/* Price (fallback if no SKUs) */}
-            {(!product.skus || product.skus.length === 0) && (
-              <div className="flex items-center gap-2 sm:gap-3" itemProp="offers" itemScope itemType="https://schema.org/Offer">
-                <span className="text-base sm:text-lg md:text-xl font-bold text-wine" itemProp="price" content={product.price?.toString()}>
-                  {formatPrice(product.price)}
-                </span>
-                <meta itemProp="priceCurrency" content="KES" />
-                <meta itemProp="availability" content={product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"} />
-                {product.originalPrice && (
-                  <span className="text-xs sm:text-sm md:text-base text-muted-foreground line-through">
-                    {formatPrice(product.originalPrice)}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {/* Stock Status */}
-            <div className="flex items-center gap-2">
-              {product.stock > 0 ? (
-                <>
-                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500" />
-                  <span className="text-green-600 font-medium text-xs sm:text-sm">
-                    In Stock 
-                  </span>
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
-                  <span className="text-red-600 font-medium text-xs sm:text-sm">Out of Stock</span>
-                </>
-              )}
+              <button
+                type="button"
+                onClick={() => setIsFavorite(v => !v)}
+                className="mt-0.5 inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border bg-white hover:bg-gray-50 transition-colors"
+                aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+              >
+                <Heart className={`h-5 w-5 ${isFavorite ? "text-wine fill-wine" : "text-gray-600"}`} />
+              </button>
             </div>
 
-            {/* Keep the detailed specs and description in tabs below */}
+            {/* Size selector (SKUs) */}
+            {product.skus && product.skus.length > 0 && (
+              <div className="mt-6">
+                <div className="text-sm font-semibold text-gray-900 mb-2">Size</div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {product.skus.map((sku) => {
+                    const isSelected = selectedSku === sku.code;
+                    const label = String(sku.code || "").replace(/[_-]+/g, " ").trim();
+                    const skuHasDiscount = !!sku.originalPrice && sku.originalPrice > sku.price;
+                    return (
+                      <button
+                        key={sku.code}
+                        type="button"
+                        onClick={() => setSelectedSku(sku.code)}
+                        className={`rounded-lg border px-3 py-2.5 text-center text-xs font-semibold leading-tight transition-colors min-h-[64px] ${
+                          isSelected ? "border-wine text-wine" : "border-gray-200 text-gray-900 hover:border-wine/60"
+                        }`}
+                        aria-pressed={isSelected}
+                      >
+                        <div className="flex flex-col items-center gap-1">
+                          <div>{label}</div>
+                          <div className={`text-[11px] font-bold ${isSelected ? "text-wine" : "text-gray-900"}`}>
+                            KES {formatPrice(sku.price)}
+                          </div>
+                          {skuHasDiscount && (
+                            <div className="text-[10px] text-muted-foreground line-through">
+                              KES {formatPrice(sku.originalPrice)}
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
-            {/* Purchase Section */}
-            <div className="space-y-2 sm:space-y-3">
-              <h2 className="font-semibold text-xs sm:text-sm text-wine">Purchase Options</h2>
-
-            {/* Quantity and Add to Cart */}
-              <div className="space-y-2 sm:space-y-3">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <span className="font-medium text-[11px] sm:text-xs">Quantity:</span>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleQuantityChange(-1)}
-                    disabled={quantity <= 1}
-                    className="touch-manipulation h-7 w-7 sm:h-8 sm:w-8"
-                    aria-label="Decrease quantity"
-                  >
-                    <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
-                  </Button>
-                    <span className="w-9 sm:w-10 text-center font-medium text-xs sm:text-sm">{quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleQuantityChange(1)}
-                    disabled={quantity >= product.stock}
-                    className="touch-manipulation h-7 w-7 sm:h-8 sm:w-8"
-                    aria-label="Increase quantity"
-                  >
-                    <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
-                  </Button>
+            {/* Details grid (mobile-optimized cards) */}
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-2 gap-3 text-sm">
+              <div className="min-w-0 rounded-xl border bg-white p-3">
+                <div className="flex items-start gap-2">
+                  <div className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-muted/50">
+                    <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-semibold text-muted-foreground">Category</div>
+                    <div className="font-semibold text-gray-900 truncate">
+                      {product.category?.name ? (
+                        <Link
+                          to={`/category/${String(product.category.name).toLowerCase()}`}
+                          className="hover:text-wine hover:underline underline-offset-2"
+                        >
+                          {String(product.category.name)}
+                        </Link>
+                      ) : (
+                        "—"
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {product.stock > 0 ? (
-                <div className="flex items-center gap-2 sm:gap-3">
+              <div className="min-w-0 rounded-xl border bg-white p-3">
+                <div className="flex items-start gap-2">
+                  <div className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-muted/50">
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-semibold text-muted-foreground">Brand</div>
+                    <div className="font-semibold text-gray-900 truncate">
+                      {product.brand ? (
+                        <Link
+                          to={`/brands/${encodeURIComponent(product.brand)}`}
+                          className="hover:text-wine hover:underline underline-offset-2"
+                        >
+                          {product.brand}
+                        </Link>
+                      ) : (
+                        "—"
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="min-w-0 rounded-xl border bg-white p-3">
+                <div className="flex items-start gap-2">
+                  <div className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-muted/50">
+                    <Droplet className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-semibold text-muted-foreground">Alcohol</div>
+                    <div className="font-semibold text-gray-900 truncate">
+                      {product.alcoholContent ? `${product.alcoholContent}%` : "—"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="min-w-0 rounded-xl border bg-white p-3">
+                <div className="flex items-start gap-2">
+                  <div className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-muted/50">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-semibold text-muted-foreground">Origin</div>
+                    <div className="font-semibold text-gray-900 truncate">
+                      {product.origin ? (
+                        <Link
+                          to={`/origin/${encodeURIComponent(product.origin)}`}
+                          className="hover:text-wine hover:underline underline-offset-2"
+                        >
+                          {product.origin}
+                        </Link>
+                      ) : (
+                        "—"
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="mt-7 sm:mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex items-center gap-2 justify-between sm:justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleQuantityChange(-1)}
+                  disabled={quantity <= 1}
+                  className="h-9 w-9 p-0"
+                  aria-label="Decrease quantity"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <div className="min-w-[44px] text-center font-semibold text-sm">{quantity}</div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleQuantityChange(1)}
+                  disabled={quantity >= (product.stock || 0)}
+                  className="h-9 w-9 p-0"
+                  aria-label="Increase quantity"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:flex sm:items-center gap-2">
                 <Button
                   onClick={handleAddToCart}
-                  disabled={isLoading}
-                  size="default"
-                    className="w-auto max-w-xs bg-wine hover:bg-wine-light text-white text-xs sm:text-sm md:text-base py-2 sm:py-3 md:py-3 px-4 sm:px-6 md:px-8 touch-manipulation active:scale-95 transition-transform"
+                  disabled={isLoading || product.stock <= 0}
+                  className="bg-wine hover:bg-wine/90 text-white w-full sm:w-auto"
                 >
-                  <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <ShoppingCart className="h-4 w-4 mr-2" />
                   {isLoading ? "Adding..." : "Add to Cart"}
                 </Button>
-                  <Button
-                    onClick={handleWhatsAppOrder}
-                    size="default"
-                    variant="outline"
-                    className="w-auto bg-green-600 hover:bg-green-700 text-white border-green-600 hover:border-green-700 text-xs sm:text-sm md:text-base py-2 sm:py-3 md:py-3 px-4 sm:px-6 md:px-8 touch-manipulation active:scale-95 transition-transform"
-                  >
-                    <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                    Order via WhatsApp
-                  </Button>
-                </div>
-              ) : (
-                <div className="w-auto max-w-xs bg-gray-100 text-gray-500 text-xs sm:text-sm md:text-base py-2 sm:py-3 md:py-3 px-4 sm:px-6 md:px-8 rounded-md text-center font-medium">
-                  Out of Stock
-                </div>
-              )}
+                <Button
+                  onClick={handleWhatsAppOrder}
+                  variant="outline"
+                  className="border-green-600 text-green-700 hover:bg-green-50 w-full sm:w-auto"
+                  disabled={product.stock <= 0}
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Order via WhatsApp
+                </Button>
+              </div>
             </div>
 
-            {/* Brief delivery note */}
-              <div className="flex items-center gap-3 p-2 sm:p-3 bg-muted/30 rounded-lg">
-                <Truck className="h-3 w-3 sm:h-4 sm:w-4 text-wine" />
-                <span className="text-xs sm:text-sm text-muted-foreground">Fast delivery. ID required for alcohol.</span>
+            <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Truck className="h-4 w-4" />
+                <span>Fast delivery. ID required for alcohol.</span>
+              </div>
+
+              <div className="flex items-center gap-2 justify-between sm:justify-end">
+                <span className="text-muted-foreground font-medium">Share</span>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(window.location.href);
+                      toast({ title: "Link copied", description: "Product link copied to clipboard." });
+                    } catch {
+                      toast({ title: "Copy failed", description: "Could not copy the link." });
+                    }
+                  }}
+                  className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-gray-50 min-h-[36px]"
+                >
+                  <Copy className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({ title: product.name, url: window.location.href }).catch(() => {});
+                    } else {
+                      toast({ title: "Share", description: "Use Copy to share this product link." });
+                    }
+                  }}
+                  className="inline-flex items-center gap-1 rounded-md border px-2 py-1 hover:bg-gray-50 min-h-[36px]"
+                >
+                  <Share2 className="h-4 w-4" />
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Product Details Tabs (reduced to essentials) - Deferred rendering */}
-        <section className="mt-6 sm:mt-8 md:mt-12" aria-label="Product Details">
-          <Tabs defaultValue="details" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 h-8 sm:h-9" role="tablist">
-              <TabsTrigger value="details" className="text-[11px] sm:text-xs" role="tab">Details</TabsTrigger>
-              <TabsTrigger value="reviews" className="text-[11px] sm:text-xs" role="tab">Reviews</TabsTrigger>
+        {/* Description + Reviews (Tabs) */}
+        <section className="mt-6 sm:mt-10" aria-label="Product details tabs">
+          <Tabs defaultValue="description">
+            <TabsList className="grid w-full grid-cols-2 h-10">
+              <TabsTrigger value="description" className="text-sm">
+                Description
+              </TabsTrigger>
+              <TabsTrigger value="reviews" className="text-sm">
+                Reviews
+              </TabsTrigger>
             </TabsList>
-            
-            <TabsContent value="details" className="mt-3 sm:mt-4" role="tabpanel">
-              <Card>
-                <CardHeader className="pb-2 sm:pb-3">
-                  <h2 className="text-sm sm:text-base font-semibold">Product Description</h2>
-                </CardHeader>
-                <CardContent className="space-y-2 sm:space-y-3">
-                  <div itemProp="description">
-                    <p className="text-muted-foreground leading-relaxed text-xs sm:text-sm">
-                      {product.description || `Discover ${product.name} by ${product.brand}${product.origin ? ` from ${product.origin}` : ''}${product.category?.name ? `, a premium ${product.category.name.toLowerCase()}` : ''} available at Drinks Avenue. ${product.alcoholContent ? `With ${product.alcoholContent}% ABV, ` : ''}this product offers exceptional quality and taste. Order now for fast delivery across Kenya.`}
-                    </p>
-                    {product.description && (
-                      <div className="mt-3 space-y-2 text-xs sm:text-sm text-muted-foreground">
-                        {product.origin && (
-                          <p><strong>Origin:</strong> {product.origin}</p>
-                        )}
-                        {product.alcoholContent && (
-                          <p><strong>Alcohol Content:</strong> {product.alcoholContent}% ABV</p>
-                        )}
-                        {product.volume && (
-                          <p><strong>Volume:</strong> {product.volume}</p>
-                        )}
-                        <p><strong>Delivery:</strong> Fast 30-minute delivery available in Nairobi. Free delivery on orders above KES 2,000.</p>
-                      </div>
-                    )}
+
+            <TabsContent value="description" className="mt-3">
+              <Card className="border bg-white">
+                <CardContent className="p-4 sm:p-6">
+                  <h2 className="text-sm font-bold text-gray-900 mb-2">Product Description</h2>
+                  <div className="space-y-3 text-sm text-muted-foreground leading-relaxed" itemProp="description">
+                    <div className="sm:hidden">
+                      {(product.description ? product.description.split(/\n\s*\n/g) : [
+                        `Discover ${product.name}${product.brand ? ` by ${product.brand}` : ""}${product.origin ? `, produced in ${product.origin}` : ""}.`,
+                      ]).filter(Boolean).slice(0, 2).map((p, idx) => (
+                        <p key={idx}>{p}</p>
+                      ))}
+                    </div>
+                    <div className="hidden sm:block">
+                      {(product.description ? product.description.split(/\n\s*\n/g) : [
+                        `Discover ${product.name}${product.brand ? ` by ${product.brand}` : ""}${product.origin ? `, produced in ${product.origin}` : ""}.`,
+                      ]).filter(Boolean).slice(0, 4).map((p, idx) => (
+                        <p key={idx}>{p}</p>
+                      ))}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
-            
-            <TabsContent value="reviews" className="mt-4 sm:mt-6">
-              <Card>
-                <CardHeader className="pb-3 sm:pb-6">
-                  <h2 className="text-base sm:text-lg font-semibold">Customer Reviews</h2>
-                </CardHeader>
-                <CardContent className="space-y-4 sm:space-y-6">
-                  <div className="text-center py-6 sm:py-8">
-                    <div className="flex items-center justify-center gap-1 mb-3 sm:mb-4">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 ${
-                            i < Math.floor(product.rating)
-                              ? "text-gold fill-gold"
-                              : "text-muted-foreground"
-                          }`}
-                        />
-                      ))}
+
+            <TabsContent value="reviews" className="mt-3">
+              <Card className="border bg-white">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 className="text-base sm:text-lg font-bold text-gray-900">Reviews</h2>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                        Verified customer feedback for this product.
+                      </p>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-wine mb-2">{product.rating}</h3>
-                    <p className="text-muted-foreground mb-3 sm:mb-4 text-xs sm:text-sm">Based on {product.reviewCount} reviews</p>
-                    <p className="text-[11px] sm:text-xs text-muted-foreground">
-                      Reviews are not available in the current API implementation.
-                    </p>
+                    <div className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-4 w-4 ${
+                              i < Math.floor(product.rating || 0)
+                                ? "text-gold fill-gold"
+                                : "text-muted-foreground"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <div className="mt-1 text-sm font-semibold text-gray-900">
+                        {product.rating ?? 0} / 5
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {product.reviewCount ?? 0} reviews
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 rounded-lg bg-muted/30 p-3 sm:p-4 text-sm text-muted-foreground">
+                    Reviews are not available in the current API implementation.
                   </div>
                 </CardContent>
               </Card>
@@ -897,13 +943,15 @@ const Product = () => {
         {/* Related Products - Lazy loaded after main content */}
         {filteredRelatedProducts.length > 0 && (
           <section 
-            className="mt-6 sm:mt-8 md:mt-12 py-3 sm:py-4 md:py-6 bg-gradient-to-br from-wine/5 to-primary/5" 
+            className="mt-6 sm:mt-8 md:mt-12 py-4 sm:py-5 md:py-6 bg-gradient-to-br from-wine/5 to-primary/5 -mx-3 sm:-mx-4 rounded-xl sm:rounded-2xl" 
             aria-label="Related Products"
             itemScope
             itemType="https://schema.org/ItemList"
           >
-            <div className="container mx-auto px-3 sm:px-4">
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4 md:mb-6" itemProp="name">You Might Also Like</h2>
+            <div className="px-3 sm:px-4">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4 md:mb-6" itemProp="name">
+                Related Products
+              </h2>
               <meta itemProp="numberOfItems" content={filteredRelatedProducts.slice(0, 6).length.toString()} />
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6 items-stretch">
               {filteredRelatedProducts.slice(0, 6).map((relatedProduct, index) => (
