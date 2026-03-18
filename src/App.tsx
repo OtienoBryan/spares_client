@@ -11,6 +11,7 @@ import { createLazyComponent } from "@/components/LazyWrapper";
 import { resourcePreloader, CRITICAL_IMAGES, CRITICAL_ROUTES } from "@/services/preloader";
 import PerformanceMonitor from "@/components/PerformanceMonitor";
 import { DevTools } from "@/components/DevTools";
+import FloatingContactButtons from "@/components/FloatingContactButtons";
 
 // Lazy load all pages with optimized loading states
 const Home = createLazyComponent(() => import("./pages/Home"), "Loading home...", true);
@@ -104,6 +105,7 @@ const App = () => {
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <FloatingContactButtons />
               <PerformanceMonitor showMetrics={process.env.NODE_ENV === 'development'} />
               <DevTools />
             </BrowserRouter>
