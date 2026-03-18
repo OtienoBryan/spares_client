@@ -172,11 +172,11 @@ All colors MUST be HSL.
       margin-left: 0 !important;
     }
     
-    /* Keep hero sections full width - they should overflow */
+    /* Align hero/slider start after the permanent sidebar */
     section.hero-section,
     section[class*="hero"] {
-      margin-left: 0 !important;
-      width: 100vw !important;
+      margin-left: 16rem !important;
+      width: auto !important;
       position: relative;
       left: 0;
     }

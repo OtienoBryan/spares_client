@@ -69,6 +69,7 @@ const Home = memo(() => {
   const bannerImages = useMemo(() => [
     {
       image: "/slider/4.webp",
+      //image: "/slider/1.jpg",
       title: "Premium Drinks Delivery",
       subtitle: "Fast, reliable, and fresh to your doorstep"
     }
@@ -478,7 +479,7 @@ const Home = memo(() => {
         <link rel="dns-prefetch" href="//api.shoppadrinks.com" />
         
         {/* LCP Optimization - Preload hero image for mobile */}
-        <link rel="preload" href="/slider/4.webp" as="image" type="image/webp" fetchPriority="high" imageSizes="100vw" />
+        <link rel="preload" href="/slider/4.webp" as="image" type="image/jpeg" fetchPriority="high" imageSizes="100vw" />
         
         {/* Open Graph Tags - Enhanced */}
         <meta property="og:title" content="24 Hour Drinks Delivery Kenya | Dial a Drink | Chupa Chup | Drinks Avenue" />
