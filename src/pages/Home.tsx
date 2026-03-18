@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useCart } from "@/contexts/CartContext";
-import { Star, ArrowRight, Phone, MapPin } from "lucide-react";
+import { ArrowRight, Phone, MapPin } from "lucide-react";
 import { useProducts, useFeaturedProducts, useCategories, useSearchProductsDebounced, usePopularWines } from "@/hooks/useApi";
 import { formatPrice } from "@/data/products";
 import { LoadingWave, LoadingWine, LoadingNetworkError } from "@/components/ui/lottie-loader";
@@ -850,23 +850,7 @@ const Home = memo(() => {
                           <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors">
                             {product.name}
                           </h3>
-                        <div className="flex items-center gap-1">
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-2 w-2 sm:h-3 sm:w-3 md:h-4 md:w-4 ${
-                                  i < Math.floor(product.rating)
-                                    ? "text-gold fill-gold"
-                                    : "text-muted-foreground"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-xs sm:text-sm text-muted-foreground">
-                            ({product.reviewCount})
-                          </span>
-                        </div>
+                        <div className="h-0" />
                         <div className="flex flex-col gap-1">
                           {product.skus && product.skus.length > 0 ? (
                             <>
@@ -1019,23 +1003,7 @@ const Home = memo(() => {
                           <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors">
                             {product.name}
                           </h3>
-                          <div className="flex items-center gap-1">
-                            <div className="flex">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-2 w-2 sm:h-3 sm:w-3 md:h-4 md:w-4 ${
-                                    i < Math.floor(product.rating || 0)
-                                      ? "text-gold fill-gold"
-                                      : "text-muted-foreground"
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-xs sm:text-sm text-muted-foreground">
-                              ({product.reviewCount || 0})
-                            </span>
-                          </div>
+                          <div className="h-0" />
                           <div className="flex flex-col gap-1">
                             {product.skus && product.skus.length > 0 ? (
                               <>
@@ -1198,23 +1166,7 @@ const Home = memo(() => {
                               <h3 className="font-semibold text-xs line-clamp-1 group-hover:text-wine transition-colors">
                                 {product.name}
                               </h3>
-                            <div className="flex items-center gap-1">
-                              <div className="flex">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-2 w-2 ${
-                                      i < Math.floor(product.rating || 4.5)
-                                        ? "text-gold fill-gold"
-                                        : "text-muted-foreground"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-xs text-muted-foreground">
-                                ({product.reviewCount || 0})
-                              </span>
-                            </div>
+                            <div className="h-0" />
                             <div className="flex flex-col gap-1">
                               {product.skus && product.skus.length > 0 ? (
                                 <>
@@ -1304,23 +1256,7 @@ const Home = memo(() => {
                               <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors">
                                 {product.name}
                               </h3>
-                            <div className="flex items-center gap-1">
-                              <div className="flex">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-2 w-2 sm:h-3 sm:w-3 md:h-4 md:w-4 ${
-                                      i < Math.floor(product.rating || 4.5)
-                                        ? "text-gold fill-gold"
-                                        : "text-muted-foreground"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-xs sm:text-sm text-muted-foreground">
-                                ({product.reviewCount || 0})
-                              </span>
-                            </div>
+                            <div className="h-0" />
                             <div className="flex flex-col gap-1">
                               {product.skus && product.skus.length > 0 ? (
                                 <>
