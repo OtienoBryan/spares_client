@@ -122,7 +122,7 @@ const Home = memo(() => {
   const offersOfTheWeek = useMemo(() => 
     (allProducts as any[])?.filter(product => 
       product && hasOffer(product)
-    ).slice(0, 8) || [],
+    ).slice(0, 12) || [],
     [allProducts, hasOffer]
   );
   
@@ -162,16 +162,16 @@ const Home = memo(() => {
 
   const displayProducts = useMemo(() => {
     if (!searchQuery) {
-      return (featuredProducts as any[])?.slice(0, 4) || [];
+      return (featuredProducts as any[])?.slice(0, 12) || [];
     }
     
     // If it's an exact brand match, show all products from that brand
     if (isBrandSearch) {
-      return brandFilteredProducts;
+      return (brandFilteredProducts as any[])?.slice(0, 12) || [];
     }
     
     // Otherwise, use search results
-    return (searchResults as any[]) || [];
+    return (searchResults as any[])?.slice(0, 12) || [];
   }, [searchQuery, searchResults, featuredProducts, isBrandSearch, brandFilteredProducts]);
 
   // Memoized helper function to safely filter products by category
@@ -950,7 +950,7 @@ const Home = memo(() => {
           </div>
           {featuredLoading ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-              {[...Array(4)].map((_, index) => (
+              {[...Array(12)].map((_, index) => (
                 <div key={index} className="animate-pulse">
                   <div className="bg-muted rounded-lg h-56 sm:h-64 md:h-72 mb-3"></div>
                   <div className="space-y-2">
@@ -1114,7 +1114,7 @@ const Home = memo(() => {
           
           {popularWinesLoading ? (
             <div className="flex gap-3 sm:gap-4 md:gap-6">
-              {Array.from({ length: 4 }).map((_, index) => (
+              {Array.from({ length: 12 }).map((_, index) => (
                 <div key={index} className="w-64 sm:w-72 md:w-80 flex-shrink-0">
                   <Card className="overflow-hidden">
                     <div className="animate-pulse">
@@ -1138,7 +1138,7 @@ const Home = memo(() => {
               {/* Mobile: Static Grid Layout */}
               <div className="block sm:hidden">
                 <div className="grid grid-cols-2 gap-3">
-                  {((popularWines as any[]) || []).slice(0, 4).map((product) => (
+                  {((popularWines as any[]) || []).slice(0, 12).map((product) => (
                     <div key={product.id} className="relative group">
                       <Link to={`/product/${productSlug(product)}`} className="block">
                         <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
@@ -1228,7 +1228,7 @@ const Home = memo(() => {
               {/* Desktop: Grid Layout */}
               <div className="hidden sm:block">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-                  {(popularWines as any[])?.map((product) => (
+                  {((popularWines as any[]) || []).slice(0, 12).map((product) => (
                     <div key={product.id} className="relative group">
                       <Link to={`/product/${productSlug(product)}`} className="block">
                         <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
@@ -1430,7 +1430,7 @@ const Home = memo(() => {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filterProductsByCategory((allProducts as any[]) || [], 'beer').slice(0, 8).map((product) => (
+            {filterProductsByCategory((allProducts as any[]) || [], 'beer').slice(0, 12).map((product) => (
               <Suspense key={product.id} fallback={<div className="h-64 bg-gray-100 animate-pulse rounded-lg" />}>
                 <LazyProductCard
                   product={product}
