@@ -269,8 +269,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       console.log('Items type:', typeof orderData.items);
       console.log('Items is array:', Array.isArray(orderData.items));
       
-      // Use user ID if signed in, otherwise use default ID (1)
-      const userId = user ? parseInt(user.id) : 1;
+      // For guest checkout we pass `0` and let the backend create a guest user.
+      const userId = user ? parseInt(user.id) : 0;
       console.log('Using user ID for order:', userId);
       
       console.log('Calling apiService.createOrder...');
@@ -322,7 +322,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       console.error('Error stack:', error.stack);
       console.error('Error name:', error.name);
       console.error('Order data that failed:', JSON.stringify(orderData, null, 2));
-      console.error('User ID used:', user ? parseInt(user.id) : 1);
+      console.error('User ID used:', user ? parseInt(user.id) : 0);
       console.error('Cart items count:', orderData.items?.length || 0);
       console.error('Items array:', orderData.items);
       console.error('Items type:', typeof orderData.items);

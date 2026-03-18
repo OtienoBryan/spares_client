@@ -22,6 +22,12 @@ import {
   Star
 } from "lucide-react";
 
+declare global {
+  interface Window {
+    PaystackPop?: any;
+  }
+}
+
 const Checkout = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -100,15 +106,6 @@ const Checkout = () => {
     return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
-  const calculateSavings = () => {
-    return cartItems.reduce((total, item) => {
-      if (item.originalPrice && item.originalPrice > item.price) {
-        return total + ((item.originalPrice - item.price) * item.quantity);
-      }
-      return total;
-    }, 0);
-  };
-
   const calculateTax = () => {
     return 0; // No tax
   };
@@ -122,7 +119,8 @@ const Checkout = () => {
   };
 
   const calculateTotal = () => {
-    return calculateSubtotal() - calculateSavings() + calculateTax() + calculateServiceFee() + calculateDeliveryFee();
+    // Savings are intentionally not calculated on the checkout page.
+    return calculateSubtotal() + calculateTax() + calculateServiceFee() + calculateDeliveryFee();
   };
 
   // Redirect to cart if cart is empty
@@ -132,11 +130,33 @@ const Checkout = () => {
     }
   }, [cartItems.length, navigate]);
 
+  const loadPaystackScript = async () => {
+    if (typeof window === "undefined") return;
+    if (window.PaystackPop) return;
+
+    await new Promise<void>((resolve, reject) => {
+      const existing = document.querySelector(
+        'script[src="https://js.paystack.co/v1/inline.js"]'
+      );
+
+      if (existing) {
+        resolve();
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = "https://js.paystack.co/v1/inline.js";
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error("Failed to load Paystack script"));
+      document.body.appendChild(script);
+    });
+  };
+
   const handlePaystackPayment = async () => {
     setIsProcessing(true);
-    
+  
     try {
-      // Validate cart items
       if (!cartItems || cartItems.length === 0) {
         toast({
           title: "Cart is empty",
@@ -147,14 +167,7 @@ const Checkout = () => {
         return;
       }
 
-      console.log('Cart items for order:', cartItems);
-      console.log('Cart items length:', cartItems.length);
-      
-      // Create a copy of cart items to prevent any potential issues
       const cartItemsCopy = [...cartItems];
-      console.log('Cart items copy:', cartItemsCopy);
-      console.log('Cart items copy length:', cartItemsCopy.length);
-      
       const orderData = {
         items: cartItemsCopy.map(item => ({
           productId: parseInt(item.id),
@@ -167,22 +180,14 @@ const Checkout = () => {
         total: calculateTotal(),
         shippingAddress: formData.address,
         billingAddress: formData.address,
+        customerName: formData.name,
+        customerEmail: formData.email,
+        customerPhone: formData.phone,
         notes: formData.instructions,
-        paymentMethod: 'paystack'
+        paymentMethod: "paystack"
       };
 
-      console.log('=== CHECKOUT ORDER CREATION START ===');
-      console.log('Order data being created:', JSON.stringify(orderData, null, 2));
-      console.log('Order data items:', orderData.items);
-      console.log('Cart items:', cartItems);
-      console.log('Form data:', formData);
-      console.log('Payment method:', paymentMethod);
-      console.log('Order data items length:', orderData.items.length);
-      console.log('Order data items type:', typeof orderData.items);
-
-      // Final validation before sending
       if (!orderData.items || orderData.items.length === 0) {
-        console.error('Order data items is empty or undefined!');
         toast({
           title: "Order Error",
           description: "No items found in order. Please try again.",
@@ -192,69 +197,116 @@ const Checkout = () => {
         return;
       }
 
-      console.log('Calling createOrder function...');
-      console.log('OrderData being passed to createOrder:', orderData);
-      console.log('OrderData type:', typeof orderData);
-      console.log('OrderData is undefined:', orderData === undefined);
-      
-      if (!orderData) {
-        console.error('ERROR: orderData is undefined before calling createOrder!');
+      const paystackPublicKey = (import.meta.env.VITE_PAYSTACK_PUBLIC_KEY ?? "") as string;
+      if (!paystackPublicKey) {
         toast({
-          title: "Order Error",
-          description: "Order data is missing. Please try again.",
+          title: "Paystack not configured",
+          description: "Missing `VITE_PAYSTACK_PUBLIC_KEY`. Add it to your client environment variables.",
           variant: "destructive",
         });
         setIsProcessing(false);
         return;
       }
-      
-      const orderResponse = await createOrder(orderData);
-      console.log('=== CHECKOUT ORDER CREATION RESULT ===');
-      console.log('Order response received:', orderResponse);
-      
-      if (orderResponse) {
-        // Add loyalty points for authenticated users
-        if (isAuthenticated && user) {
-          const pointsEarned = Math.floor(calculateSubtotal());
-          addLoyaltyPoints(pointsEarned);
-          
-          toast({
-            title: "Payment Successful!",
-            description: `Your order #${orderResponse.orderNumber} has been placed and payment processed. You earned ${pointsEarned} loyalty points!`,
-          });
-        } else {
-          toast({
-            title: "Payment Successful!",
-            description: `Your order #${orderResponse.orderNumber} has been placed and payment processed.`,
-          });
-        }
-      } else {
+
+      await loadPaystackScript();
+
+      if (!window.PaystackPop) {
         toast({
-          title: "Order Creation Failed",
-          description: "There was an error creating your order. Please try again or contact support.",
+          title: "Paystack not available",
+          description: "Paystack script failed to initialize. Please try again.",
           variant: "destructive",
         });
-        throw new Error('Failed to create order');
+        setIsProcessing(false);
+        return;
       }
-      
-      clearCart();
-      navigate("/");
-    } catch (error) {
-      console.error('=== CHECKOUT PAYSTACK PAYMENT ERROR ===');
-      console.error('Payment error:', error);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-      console.error('Cart items at error time:', cartItems);
-      console.error('Cart items length:', cartItems.length);
-      console.error('Form data:', formData);
-      console.error('Payment method:', paymentMethod);
-      
+
+      const total = calculateTotal();
+      const amountKobo = Math.round(total * 100);
+      const reference = `ORD-${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+
+      window.PaystackPop.setup({
+        key: paystackPublicKey,
+        email: formData.email,
+        amount: amountKobo,
+        currency: "KES",
+        ref: reference,
+        metadata: {
+          custom_fields: [
+            { display_name: "Customer Name", variable_name: "customer_name", value: formData.name },
+            { display_name: "Customer Phone", variable_name: "customer_phone", value: formData.phone }
+          ]
+        },
+        callback: function (response: any) {
+          // Paystack sometimes validates that callback is a "plain" function (not an async function).
+          // We still run async logic inside and do not return a Promise from this callback.
+          void (async () => {
+            try {
+              if (response?.status !== "success") {
+                toast({
+                  title: "Payment not completed",
+                  description: "Your payment did not complete successfully. Please try again.",
+                  variant: "destructive",
+                });
+                return;
+              }
+
+              const orderResponse = await createOrder({
+                ...orderData,
+                paymentMethod: "paystack",
+                notes: `${orderData.notes || ""}\nPaystack reference: ${response.reference || reference}`.trim()
+              });
+
+              if (!orderResponse) {
+                toast({
+                  title: "Order creation failed",
+                  description: "There was an error creating your order.",
+                  variant: "destructive",
+                });
+                return;
+              }
+
+              if (isAuthenticated && user) {
+                const pointsEarned = Math.floor(calculateSubtotal());
+                addLoyaltyPoints(pointsEarned);
+                toast({
+                  title: "Payment Successful!",
+                  description: `Your order #${orderResponse.orderNumber} has been placed. You earned ${pointsEarned} loyalty points!`,
+                });
+              } else {
+                toast({
+                  title: "Payment Successful!",
+                  description: `Your order #${orderResponse.orderNumber} has been placed.`,
+                });
+              }
+
+              clearCart();
+              navigate("/");
+            } catch (e: any) {
+              toast({
+                title: "Payment Success, but Order Failed",
+                description: e?.message || "Please contact support.",
+                variant: "destructive",
+              });
+            } finally {
+              setIsProcessing(false);
+            }
+          })();
+        },
+        onClose: () => {
+          toast({
+            title: "Payment cancelled",
+            description: "You closed the Paystack window before completing payment.",
+            variant: "destructive",
+          });
+          setIsProcessing(false);
+        }
+      }).openIframe();
+    } catch (error: any) {
       toast({
         title: "Payment Failed",
-        description: `There was an error processing your payment: ${error.message || 'Unknown error'}. Please try again or contact support.`,
+        description: error?.message || "Unknown error. Please try again or contact support.",
         variant: "destructive",
       });
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -296,6 +348,9 @@ const Checkout = () => {
         total: calculateTotal(),
         shippingAddress: formData.address,
         billingAddress: formData.address,
+        customerName: formData.name,
+        customerEmail: formData.email,
+        customerPhone: formData.phone,
         notes: formData.instructions,
         paymentMethod: 'cash_on_delivery'
       };
@@ -578,10 +633,10 @@ const Checkout = () => {
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <CreditCard className="h-5 w-5" />
-                          <span className="font-medium">Pay with Paystack</span>
+                          <span className="font-medium">Pay online (Card/bank transfer/MPESA)</span>
                         </div>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Secure online payment with cards, bank transfer, or mobile money
+                          Secure online payment with cards, bank transfer, or mobile money. You will be redirected to the Paystack payment page to complete your payment.
                         </p>
                       </div>
                       <Badge variant="outline" className="text-green-600 border-green-600">
@@ -669,15 +724,7 @@ const Checkout = () => {
                       <span>Subtotal ({cartItems.length} items)</span>
                       <span>{calculateSubtotal().toFixed(2)}</span>
                     </div>
-                    
-                    {calculateSavings() > 0 && (
-                      <div className="flex justify-between text-sm text-green-600">
-                        <span>Savings</span>
-                        <span>-{calculateSavings().toFixed(2)}</span>
-                      </div>
-                    )}
-                    
-                    
+
                     <div className="flex justify-between text-sm">
                       <span>Delivery Fee</span>
                       <span>{calculateDeliveryFee().toFixed(2)}</span>
