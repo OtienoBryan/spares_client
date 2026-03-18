@@ -336,7 +336,7 @@ const Home = memo(() => {
       "contactPoint": [
         {
           "@type": "ContactPoint",
-          "telephone": "+254-712-345678",
+          "telephone": "0790 831798",
           "contactType": "customer service",
           "availableLanguage": ["English", "Swahili"],
           "areaServed": "KE",
@@ -1591,7 +1591,7 @@ const Home = memo(() => {
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <Button size="lg" variant="secondary" className="bg-white text-wine hover:bg-white/90 text-sm sm:text-base">
               <Phone className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-              Call Us: +254 (712) 345678
+              Call Us: 0790 831798
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-wine text-sm sm:text-base">
               <MapPin className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />

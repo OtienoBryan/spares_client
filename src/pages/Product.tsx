@@ -144,7 +144,7 @@ const Product = () => {
       `Total: KES ${formatPrice(price * quantity)}\n\n` +
       `Product Link: ${window.location.href}`;
     
-    const whatsappNumber = '254712345678'; // Replace with your WhatsApp business number
+    const whatsappNumber = '0790831798'; // Replace with your WhatsApp business number
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     
     window.open(whatsappUrl, '_blank');

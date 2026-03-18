@@ -246,9 +246,9 @@ const Navigation = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <a href="tel:+254717215155" className="flex items-center gap-2 hover:text-wine-light transition-colors">
+              <a href="tel:0790831798" className="flex items-center gap-2 hover:text-wine-light transition-colors">
                 <Phone className="h-4 w-4" />
-                <span>Call Us +254 717 215 155</span>
+                <span>Call Us 0790 831798</span>
               </a>
               <div className="hidden md:flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
@@ -267,9 +267,9 @@ const Navigation = () => {
       <div className="bg-wine text-white py-1 text-xs">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex items-center justify-center">
-            <a href="tel:+254712345678" className="flex items-center gap-1 hover:text-wine-light transition-colors">
+            <a href="tel:0790831798" className="flex items-center gap-1 hover:text-wine-light transition-colors">
               <Phone className="h-3 w-3" />
-              <span className="font-medium"> +254 712 345 678</span>
+              <span className="font-medium">0790 831798</span>
             </a>
           </div>
         </div>
@@ -410,11 +410,11 @@ const Navigation = () => {
               {/* Contact Details */}
               {/* <div className="flex items-center gap-3 lg:gap-4 text-white/90">
                 <a 
-                  href="tel:+254712345678" 
+                  href="tel:0790831798" 
                   className="flex items-center gap-2 px-3 py-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
                 >
                   <Phone className="h-4 w-4" />
-                  <span className="text-sm lg:text-base font-medium">+254 712 345 678</span>
+                  <span className="text-sm lg:text-base font-medium">0790 831798</span>
                 </a>
               </div> */}
               
@@ -516,7 +516,7 @@ const Navigation = () => {
             <div className="md:hidden flex items-center gap-2">
               {/* Phone Number for Mobile */}
               {/* <a 
-                href="tel:+254712345678" 
+                href="tel:0790831798" 
                 className="flex items-center gap-1 px-2 py-1 bg-white/10 rounded-lg text-white hover:bg-white/20 transition-colors"
               >
                 <Phone className="h-4 w-4" />
@@ -755,9 +755,9 @@ const Navigation = () => {
               </div>
 
               <div className="pt-4 border-t">
-                <a href="tel:+254712345678" className="flex items-center gap-2 text-sm text-muted-foreground mb-4 hover:text-wine transition-colors">
+                <a href="tel:0790831798" className="flex items-center gap-2 text-sm text-muted-foreground mb-4 hover:text-wine transition-colors">
                   <Phone className="h-4 w-4" />
-                  <span>+254 712 345 678</span>
+                  <span>0790 831798</span>
                 </a>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                   <MapPin className="h-4 w-4" />
