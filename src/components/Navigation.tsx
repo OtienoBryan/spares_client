@@ -11,6 +11,7 @@ import { formatPrice } from "@/data/products";
 import { productSlug } from "@/lib/utils";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { RegisterModal } from "@/components/auth/RegisterModal";
+import { apiService } from "@/services/api";
 import { 
   MapPin, 
   Search,
@@ -144,14 +145,38 @@ const Navigation = () => {
     return location.pathname === path;
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: React.SyntheticEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
+    void (async () => {
+      const trimmedQuery = searchQuery.trim()
+      if (!trimmedQuery) return
+
+      try {
+        // Fetch fresh results immediately so we don't depend on the debounced suggestions state.
+        const results = await apiService.searchProducts(trimmedQuery)
+        if (Array.isArray(results) && results.length > 0) {
+          const lowerQuery = trimmedQuery.toLowerCase()
+          const exactMatch =
+            results.find((p: any) => p?.name?.toLowerCase() === lowerQuery) ??
+            results.find((p: any) => productSlug(p)?.toLowerCase() === lowerQuery)
+
+          // Always take user to a product page when there is at least one result.
+          const target = exactMatch ?? results[0]
+          navigate(`/product/${productSlug(target)}`)
+          setSearchQuery("")
+          setShowSuggestions(false)
+          return
+        }
+      } catch (err) {
+        // If API fails, fall back to home search results.
+        console.error("Search navigation failed:", err)
+      }
+
       // Navigate to home page with search query
-      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery("");
-      setShowSuggestions(false);
-    }
+      navigate(`/?search=${encodeURIComponent(trimmedQuery)}`)
+      setSearchQuery("")
+      setShowSuggestions(false)
+    })()
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,6 +190,15 @@ const Navigation = () => {
     navigate(`/product/${productSlug(product)}`);
     setSearchQuery("");
     setShowSuggestions(false);
+  };
+
+  // Returns the display price for a product: lowest SKU price when SKUs exist, else product.price
+  const getDisplayPrice = (product: any): string => {
+    if (product.skus && product.skus.length > 0) {
+      const min = Math.min(...product.skus.map((s: any) => s.price));
+      return `From KES ${formatPrice(min)}`;
+    }
+    return `KES ${formatPrice(product.price)}`;
   };
 
   const handleBrandClick = (brand: string) => {
@@ -191,33 +225,31 @@ const Navigation = () => {
   }, [searchSuggestions, searchQuery]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!showSuggestions || searchSuggestions.length === 0) return;
-
     switch (e.key) {
+      case "Enter":
+        // Use the same logic as form submit so we always navigate correctly
+        // even when debounced suggestions haven't updated yet.
+        e.preventDefault()
+        void handleSearch(e)
+        break
       case 'ArrowDown':
-        e.preventDefault();
-        setSelectedSuggestionIndex(prev => 
+        if (!showSuggestions || searchSuggestions.length === 0) return
+        e.preventDefault()
+        setSelectedSuggestionIndex(prev =>
           prev < searchSuggestions.length - 1 ? prev + 1 : 0
-        );
-        break;
+        )
+        break
       case 'ArrowUp':
-        e.preventDefault();
-        setSelectedSuggestionIndex(prev => 
+        if (!showSuggestions || searchSuggestions.length === 0) return
+        e.preventDefault()
+        setSelectedSuggestionIndex(prev =>
           prev > 0 ? prev - 1 : searchSuggestions.length - 1
-        );
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < searchSuggestions.length) {
-          handleSuggestionClick(searchSuggestions[selectedSuggestionIndex]);
-        } else {
-          handleSearch(e);
-        }
-        break;
+        )
+        break
       case 'Escape':
-        setShowSuggestions(false);
-        setSelectedSuggestionIndex(-1);
-        break;
+        setShowSuggestions(false)
+        setSelectedSuggestionIndex(-1)
+        break
     }
   };
 
@@ -320,6 +352,7 @@ const Navigation = () => {
                 {showSuggestions && searchQuery.length > 0 && (
                   <div 
                     ref={suggestionsRef}
+                    onMouseDown={e => e.stopPropagation()}
                     className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
                   >
                     {suggestionsLoading ? (
@@ -369,9 +402,10 @@ const Navigation = () => {
                               </div>
                             )}
                             {searchSuggestions.slice(0, 8).map((product, index) => (
-                              <button
+                              <Link
                                 key={product.id}
-                                onClick={() => handleSuggestionClick(product)}
+                                to={`/product/${productSlug(product)}`}
+                                onClick={() => { setSearchQuery(""); setShowSuggestions(false); }}
                                 className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 ${
                                   index === selectedSuggestionIndex ? 'bg-gray-100' : ''
                                 }`}
@@ -385,11 +419,11 @@ const Navigation = () => {
                                   <div className="font-medium text-gray-900 truncate">
                                     {product.name}
                                   </div>
-                                  <div className="text-sm text-primary font-semibold">
-                                    {formatPrice(product.price)}
+                                  <div className="text-sm text-wine font-semibold">
+                                    {getDisplayPrice(product)}
                                   </div>
                                 </div>
-                              </button>
+                              </Link>
                             ))}
                           </>
                         )}
@@ -569,6 +603,7 @@ const Navigation = () => {
               {showSuggestions && searchQuery.length > 0 && (
                 <div 
                   ref={suggestionsRef}
+                  onMouseDown={e => e.stopPropagation()}
                   className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
                 >
                   {suggestionsLoading ? (
@@ -618,9 +653,10 @@ const Navigation = () => {
                             </div>
                           )}
                           {searchSuggestions.slice(0, 8).map((product, index) => (
-                            <button
+                            <Link
                               key={product.id}
-                              onClick={() => handleSuggestionClick(product)}
+                              to={`/product/${productSlug(product)}`}
+                              onClick={() => { setSearchQuery(""); setShowSuggestions(false); }}
                               className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center gap-3 ${
                                 index === selectedSuggestionIndex ? 'bg-gray-100' : ''
                               }`}
@@ -638,10 +674,10 @@ const Navigation = () => {
                                   {product.brand}
                                 </div>
                                 <div className="text-sm font-semibold text-wine">
-                                  KES {formatPrice(product.price)}
+                                  {getDisplayPrice(product)}
                                 </div>
                               </div>
-                            </button>
+                            </Link>
                           ))}
                           {searchSuggestions.length > 8 && (
                             <div className="px-4 py-2 text-sm text-gray-500 border-t">
@@ -786,6 +822,7 @@ const Navigation = () => {
                     {showSuggestions && searchQuery.length > 0 && (
                       <div 
                         ref={suggestionsRef}
+                        onMouseDown={e => e.stopPropagation()}
                         className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto"
                       >
                         {suggestionsLoading ? (
@@ -835,9 +872,10 @@ const Navigation = () => {
                                   </div>
                                 )}
                                 {searchSuggestions.slice(0, 5).map((product, index) => (
-                                  <button
+                                  <Link
                                     key={product.id}
-                                    onClick={() => handleSuggestionClick(product)}
+                                    to={`/product/${productSlug(product)}`}
+                                    onClick={() => { setSearchQuery(""); setShowSuggestions(false); setIsMobileMenuOpen(false); }}
                                     className={`w-full px-3 py-2 text-left hover:bg-gray-50 transition-colors flex items-center gap-2 ${
                                       index === selectedSuggestionIndex ? 'bg-gray-100' : ''
                                     }`}
@@ -854,8 +892,11 @@ const Navigation = () => {
                                       <div className="text-xs text-gray-500 truncate">
                                         {product.brand}
                                       </div>
+                                      <div className="text-xs font-semibold text-wine">
+                                        {getDisplayPrice(product)}
+                                      </div>
                                     </div>
-                                  </button>
+                                  </Link>
                                 ))}
                                 {searchSuggestions.length > 5 && (
                                   <div className="px-3 py-1 text-xs text-gray-500 border-t">

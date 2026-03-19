@@ -154,8 +154,8 @@ export function useProductsByCategoryName(categoryName: string, enabled: boolean
 }
 
 export function useSearchProducts(query: string) {
-  return useApi(
-    () => query ? apiService.searchProducts(query) : Promise.resolve([]),
+  return useApi<Product[]>(
+    () => query ? apiService.searchProducts(query) : Promise.resolve([] as Product[]),
     [query]
   );
 }
