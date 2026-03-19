@@ -105,6 +105,13 @@ const Category = () => {
     return (subcategories as any[])?.map(sc => sc.name) || [];
   }, [subcategories]);
 
+  // Map of subcategoryId → name for products that only carry an id (not a joined object)
+  const subcategoryIdToName = useMemo(() => {
+    const map: Record<number, string> = {};
+    (subcategories as any[])?.forEach(sc => { map[sc.id] = sc.name; });
+    return map;
+  }, [subcategories]);
+
   const uniqueCountries = useMemo(() => {
     return [...new Set(baseProducts.map(p => p.origin).filter(Boolean))].sort();
   }, [baseProducts]);
@@ -130,12 +137,15 @@ const Category = () => {
       const matchesRating = product.rating >= minRating;
       const matchesStock = !inStock || product.stock > 0;
       const matchesSize = selectedSize === "all" || product.volume === selectedSize;
-      const matchesSubCategory = selectedSubCategory === "all" || product.subcategory?.name === selectedSubCategory;
+      const productSubcategoryName =
+        product.subcategory?.name ||
+        (product.subcategoryId ? subcategoryIdToName[product.subcategoryId] : undefined);
+      const matchesSubCategory = selectedSubCategory === "all" || productSubcategoryName === selectedSubCategory;
       const matchesCountry = selectedCountry === "all" || product.origin === selectedCountry;
       
       return matchesSearch && matchesPrice && matchesAlcohol && matchesRating && matchesStock && matchesSize && matchesSubCategory && matchesCountry;
     });
-  }, [baseProducts, searchQuery, priceRange, alcoholRange, minRating, inStock, selectedSize, selectedSubCategory, selectedCountry]);
+  }, [baseProducts, searchQuery, priceRange, alcoholRange, minRating, inStock, selectedSize, selectedSubCategory, selectedCountry, subcategoryIdToName]);
 
   // Memoize sorted products
   const sortedProducts = useMemo(() => {
