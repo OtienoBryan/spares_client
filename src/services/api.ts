@@ -228,8 +228,10 @@ class ApiService {
   // Helper method to get products by category name (for backward compatibility)
   async getProductsByCategoryName(categoryName: string): Promise<Product[]> {
     const categories = await this.getCategories();
-    const category = categories.find(cat => 
-      cat.name.toLowerCase() === categoryName.toLowerCase()
+    const slug = categoryName.toLowerCase();
+    const category = categories.find(cat =>
+      cat.name.toLowerCase() === slug ||
+      cat.name.toLowerCase().replace(/\s+/g, '-') === slug
     );
     
     if (!category) {

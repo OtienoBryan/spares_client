@@ -53,12 +53,42 @@ const Category = () => {
 
   // Fetch categories first (needed to find category ID)
   const { data: categories, loading: categoriesLoading } = useCategories();
-  
-  // Get current category to fetch its subcategories and products
+
+  // Fetch all subcategories to detect when the route param is a subcategory slug
+  const { data: allSubcategories } = useSubCategories();
+
+  // Check if the route param matches a subcategory (e.g. /category/red-wine)
+  const matchedSubcategory = useMemo(() => {
+    if (!allSubcategories || !category) return null;
+    const slug = category.toLowerCase();
+    return (allSubcategories as any[]).find(
+      sc => sc.name.toLowerCase() === slug ||
+            sc.name.toLowerCase().replace(/\s+/g, '-') === slug
+    ) || null;
+  }, [allSubcategories, category]);
+
+  // Get current category to fetch its subcategories and products.
+  // For subcategory routes, resolve to the parent category instead.
   const currentCategory = useMemo(() => {
     if (!categories || !category) return null;
-    return (categories as any[]).find(cat => cat.name.toLowerCase() === category.toLowerCase());
-  }, [categories, category]);
+    const slug = category.toLowerCase();
+    // Try direct match (exact or slug)
+    const direct = (categories as any[]).find(
+      cat => cat.name.toLowerCase() === slug ||
+             cat.name.toLowerCase().replace(/\s+/g, '-') === slug
+    );
+    if (direct) return direct;
+    // Fall back to parent category of a matched subcategory
+    if (matchedSubcategory) {
+      return (categories as any[]).find(cat => cat.id === matchedSubcategory.categoryId) || null;
+    }
+    return null;
+  }, [categories, category, matchedSubcategory]);
+
+  // Auto-apply subcategory filter when navigating to a subcategory route
+  useEffect(() => {
+    setSelectedSubCategory(matchedSubcategory ? matchedSubcategory.name : "all");
+  }, [matchedSubcategory?.name]);
 
   // Optimize: Use category ID directly when available to avoid extra API call in getProductsByCategoryName
   // This avoids fetching all categories again inside getProductsByCategoryName
@@ -116,10 +146,11 @@ const Category = () => {
     return [...new Set(baseProducts.map(p => p.origin).filter(Boolean))].sort();
   }, [baseProducts]);
 
-  // Get category display name
+  // Get category display name — show subcategory name when on a subcategory route
   const categoryDisplayName = useMemo(() => {
+    if (matchedSubcategory) return matchedSubcategory.name;
     return currentCategory?.name || category || "All Drinks";
-  }, [currentCategory, category]);
+  }, [currentCategory, category, matchedSubcategory]);
 
   // Memoize filtered products to avoid recalculating on every render
   const filteredProducts = useMemo(() => {
