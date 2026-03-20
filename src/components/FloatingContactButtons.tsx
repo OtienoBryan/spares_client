@@ -2,7 +2,7 @@ import { Phone, MessageCircle } from "lucide-react";
 
 const PHONE_DISPLAY = "0790 831798";
 const PHONE_TEL = "0790831798";
-const WHATSAPP_NUMBER = "0790831798";
+const WHATSAPP_NUMBER = "254790831798";
 
 export default function FloatingContactButtons() {
   const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}`;
