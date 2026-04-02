@@ -85,11 +85,6 @@ const Category = () => {
     return null;
   }, [categories, category, matchedSubcategory]);
 
-  // Auto-apply subcategory filter when navigating to a subcategory route
-  useEffect(() => {
-    setSelectedSubCategory(matchedSubcategory ? matchedSubcategory.name : "all");
-  }, [matchedSubcategory?.name]);
-
   // Optimize: Use category ID directly when available to avoid extra API call in getProductsByCategoryName
   // This avoids fetching all categories again inside getProductsByCategoryName
   // Only fetch by ID if we have a valid category ID, otherwise use name-based lookup
@@ -146,11 +141,10 @@ const Category = () => {
     return [...new Set(baseProducts.map(p => p.origin).filter(Boolean))].sort();
   }, [baseProducts]);
 
-  // Get category display name — show subcategory name when on a subcategory route
+  // Get category display name (always show the parent category)
   const categoryDisplayName = useMemo(() => {
-    if (matchedSubcategory) return matchedSubcategory.name;
     return currentCategory?.name || category || "All Drinks";
-  }, [currentCategory, category, matchedSubcategory]);
+  }, [currentCategory, category]);
 
   // Memoize filtered products to avoid recalculating on every render
   const filteredProducts = useMemo(() => {
