@@ -68,8 +68,8 @@ const Home = memo(() => {
   // Memoized banner slider images - LCP optimized
   const bannerImages = useMemo(() => [
     {
-      image: "/slider/4.webp",
-      //image: "/slider/1.jpg",
+      //image: "/slider/4.webp",
+      image: "/slider/5.png",
       title: "Premium Drinks Delivery",
       subtitle: "Fast, reliable, and fresh to your doorstep"
     }
@@ -542,44 +542,51 @@ const Home = memo(() => {
       <style>{`
         /* Critical styles for hero section */
         .hero-section {
-          min-height: 45vh;
+          min-height: 55vh;
           background-color: #f3f4f6;
         }
         
         @media (min-width: 640px) {
           .hero-section {
-            min-height: 40vh;
+            min-height: 52vh;
           }
         }
         
         @media (min-width: 768px) {
           .hero-section {
-            min-height: 50vh;
+            min-height: 62vh;
+          }
+        }
+        
+        @media (min-width: 1024px) {
+          .hero-section {
+            min-height: 72vh;
           }
         }
         
         .hero-image {
           width: 100%;
+          min-width: 100%;
           height: 100%;
+          min-height: 100%;
           object-fit: cover;
-          object-position: center;
+          object-position: center center;
           display: block;
-          max-width: 100%;
+          max-width: none;
         }
         
-        /* Mobile optimization - ensure image covers properly on small screens */
         @media (max-width: 640px) {
           .hero-image {
             object-position: center center;
+            width: 100%;
+            min-width: 100%;
+            height: 100%;
             min-height: 100%;
-            width: 100vw;
-            height: 45vh;
-            max-height: 45vh;
           }
           
           .hero-image-container {
-            min-height: 45vh;
-            max-height: 45vh;
+            min-height: 55vh;
+            max-height: 55vh;
           }
           
           picture {
@@ -589,19 +596,18 @@ const Home = memo(() => {
           }
         }
         
-        /* Prevent layout shift */
+        /* Prevent layout shift — full width of parent */
         .hero-image-container {
           position: relative;
           width: 100%;
+          max-width: 100%;
           overflow: hidden;
           background-color: #f3f4f6;
         }
         
-        /* Optimize image rendering and performance */
+        /* Optimize image rendering (photos: avoid crisp-edges — looks over-sharpened) */
         .hero-image {
-          image-rendering: -webkit-optimize-contrast;
-          image-rendering: crisp-edges;
-          image-rendering: optimize-quality;
+          image-rendering: auto;
           backface-visibility: hidden;
           transform: translateZ(0);
           -webkit-transform: translateZ(0);
@@ -631,11 +637,19 @@ const Home = memo(() => {
           }
         }
         
-        /* Ensure proper image display on all devices */
-        picture img {
+        /* Hero picture: fill box with contained image (do not use height:auto — it breaks object-fit) */
+        .hero-image-container picture {
           display: block;
-          max-width: 100%;
-          height: auto;
+          width: 100%;
+          height: 100%;
+        }
+        .hero-image-container picture img.hero-image {
+          width: 100%;
+          min-width: 100%;
+          height: 100%;
+          min-height: 100%;
+          object-fit: cover;
+          object-position: center center;
         }
         
         /* Reduce motion for accessibility */
@@ -675,34 +689,34 @@ const Home = memo(() => {
       <Navigation />
 
       {/* Hero Section - Optimized for LCP and Mobile with SEO */}
-      <section className="relative bg-gray-100 hero-section" aria-label="Hero Banner" itemScope itemType="https://schema.org/WebPageElement">
-        <div className="w-full">
-          <div className="relative h-[45vh] sm:h-[40vh] md:h-[50vh] lg:h-[60vh] overflow-hidden shadow-2xl hero-image-container">
+      <section className="relative w-full bg-gray-100 hero-section" aria-label="Hero Banner" itemScope itemType="https://schema.org/WebPageElement">
+        <div className="w-full max-w-full">
+          <div className="relative h-[55vh] sm:h-[52vh] md:h-[62vh] lg:h-[72vh] w-full max-w-full overflow-hidden shadow-2xl hero-image-container">
             <picture>
               {/* Mobile-first: optimized for mobile devices */}
               <source
                 media="(max-width: 640px)"
-                srcSet="/slider/4.webp"
-                type="image/webp"
+                srcSet="/slider/5.png"
+                type="image/png"
                 sizes="100vw"
               />
               {/* Tablet */}
               <source
                 media="(min-width: 641px) and (max-width: 1024px)"
-                srcSet="/slider/4.webp"
-                type="image/webp"
+                srcSet="/slider/5.png"
+                type="image/png"
                 sizes="100vw"
               />
               {/* Desktop */}
               <source
                 media="(min-width: 1025px)"
-                srcSet="/slider/4.webp"
-                type="image/webp"
+                srcSet="/slider/5.png"
+                type="image/png"
                 sizes="100vw"
               />
               {/* Fallback img element with optimized attributes and SEO */}
               <img
-                src="/slider/4.webp"
+                src="/slider/5.png"
                 alt="Premium Drinks Delivery Kenya - Fast 30-minute alcohol delivery service in Nairobi and across Kenya. Order wine, beer, whiskey, gin, rum, and spirits online."
                 className="hero-image"
                 loading="eager"
@@ -714,9 +728,11 @@ const Home = memo(() => {
                 itemProp="image"
                 style={{
                   width: '100%',
+                  minWidth: '100%',
                   height: '100%',
+                  minHeight: '100%',
                   objectFit: 'cover',
-                  objectPosition: 'center',
+                  objectPosition: 'center center',
                   willChange: 'auto'
                 }}
                 onLoad={(e) => {
