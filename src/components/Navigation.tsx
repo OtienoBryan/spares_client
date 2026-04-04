@@ -582,6 +582,45 @@ const Navigation = () => {
               </Button>
             </div>
           </div>
+
+          {/* Mobile: sliding category badges (below logo row, above search) */}
+          <div
+            className="lg:hidden border-t border-white/15 bg-primary/95 -mx-3 sm:-mx-6 px-3 sm:px-6 pt-2 pb-1"
+            aria-label="Browse categories"
+          >
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 pt-0.5 snap-x snap-mandatory touch-pan-x [-webkit-overflow-scrolling:touch]">
+              {categoriesLoading ? (
+                <div className="flex shrink-0 items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] text-white/90">
+                  <LoadingWine size="sm" />
+                  <span>Loading…</span>
+                </div>
+              ) : categoriesError ? (
+                <span className="shrink-0 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] text-white/80">
+                  Categories unavailable
+                </span>
+              ) : (
+                categories.map((category) => (
+                  <Link
+                    key={category.path}
+                    to={category.path}
+                    className={`snap-start shrink-0 inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold leading-none transition-colors min-h-[30px] ${
+                      isActiveCategory(category.path)
+                        ? "border-white bg-white text-primary shadow-sm"
+                        : "border-white/25 bg-white/10 text-white hover:bg-white/20"
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {category.icon ? (
+                      <span className="text-sm leading-none" aria-hidden>
+                        {category.icon}
+                      </span>
+                    ) : null}
+                    <span className="whitespace-nowrap">{category.name}</span>
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
           
           {/* Mobile Search Bar */}
           <div className="md:hidden border-t border-white/20 pt-3 px-3">
@@ -693,37 +732,6 @@ const Navigation = () => {
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Mobile Category Menu (hidden on mobile) */}
-          <div className="hidden border-t border-white/20">
-            <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide py-3">
-              {categoriesLoading ? (
-                <div className="flex items-center gap-2 px-3 py-2 text-sm text-white/80 whitespace-nowrap">
-                  <LoadingWine size="sm" />
-                  Loading...
-                </div>
-              ) : categoriesError ? (
-                <div className="flex items-center gap-2 px-3 py-2 text-sm text-white/80 whitespace-nowrap">
-                  Error
-                </div>
-              ) : (
-                categories.map((category) => (
-                  <Link
-                    key={category.path}
-                    to={category.path}
-                    className={`flex items-center gap-1 px-3 py-2 rounded-lg text-base font-medium transition-colors whitespace-nowrap min-h-[40px] ${
-                      isActiveCategory(category.path)
-                        ? "bg-white text-primary"
-                        : "text-white/90 hover:text-white hover:bg-white/10"
-                    }`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {category.name}
-                  </Link>
-                ))
               )}
             </div>
           </div>
