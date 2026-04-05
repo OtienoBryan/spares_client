@@ -1,22 +1,24 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Star, Loader2 } from "lucide-react";
+import { ShoppingCart, Loader2, MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { Product } from "@/services/api";
 import { formatPrice, getDiscountPercentage, isProductInStock } from "@/data/products";
 import { productSlug } from "@/lib/utils";
+import { buildWhatsAppProductOrderUrl } from "@/lib/whatsapp";
 
 interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => void;
   compact?: boolean; // render a smaller, denser card layout
   hideAddToCart?: boolean; // hide the add to cart button
+  hideWhatsApp?: boolean;
 }
 
-export function ProductCard({ product, onAddToCart, compact = false, hideAddToCart = false }: ProductCardProps) {
+export function ProductCard({ product, onAddToCart, compact = false, hideAddToCart = false, hideWhatsApp = false }: ProductCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const { toast } = useToast();
@@ -44,6 +46,12 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
         description: `${product.name} has been added to your cart.`,
       });
     }, 500);
+  };
+
+  const handleWhatsApp = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.open(buildWhatsAppProductOrderUrl(product), "_blank", "noopener,noreferrer");
   };
 
   const discountPercentage = getDiscountPercentage(product);
@@ -110,7 +118,7 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
             </div>
           </div>
           
-          <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2 ${compact ? 'mt-1' : 'mt-3'}`}>
+          <div className={`flex flex-col gap-2 ${compact ? 'mt-1' : 'mt-3'}`}>
             <div className={`flex flex-col ${compact ? 'gap-1' : 'gap-2'}`}>
               {product.skus && product.skus.length > 0 ? (
                 product.skus.map((sku, idx) => (
@@ -141,27 +149,44 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
                 </div>
               )}
             </div>
-            
-            {!hideAddToCart && (
-              inStock ? (
-                <Button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleAddToCart();
-                  }}
-                  disabled={isLoading}
-                  size="sm"
-                  className={`bg-wine hover:bg-wine-light text-white w-full sm:w-auto ${compact ? 'text-xs sm:text-sm px-3 py-2 h-8' : 'text-sm sm:text-base px-4 py-2 h-9 sm:h-10'} touch-manipulation active:scale-95 transition-transform font-semibold`}
-                >
-                  <ShoppingCart className={`${compact ? 'h-3 w-3 sm:h-4 sm:w-4' : 'h-4 w-4 sm:h-4 sm:w-4'} mr-2`} />
-                  {isLoading ? "Adding..." : "Add"}
-                </Button>
-              ) : (
-                <div className={`w-full sm:w-auto flex items-center justify-center ${compact ? 'px-3 py-2 h-8 text-xs sm:text-sm' : 'px-4 py-2 h-9 sm:h-10 text-sm sm:text-base'} bg-gray-100 text-gray-500 font-semibold rounded-md`}>
-                  Out of Stock
-                </div>
-              )
+
+            {(!hideAddToCart || !hideWhatsApp) && (
+              <div className="flex flex-col gap-1.5 w-full">
+                {!hideAddToCart &&
+                  (inStock ? (
+                    <Button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAddToCart(e);
+                      }}
+                      disabled={isLoading}
+                      size="sm"
+                      className={`bg-wine hover:bg-wine-light text-white w-full ${compact ? 'text-xs sm:text-sm px-3 py-2 h-8' : 'text-sm sm:text-base px-4 py-2 h-9 sm:h-10'} touch-manipulation active:scale-95 transition-transform font-semibold`}
+                    >
+                      <ShoppingCart className={`${compact ? 'h-3 w-3 sm:h-4 sm:w-4' : 'h-4 w-4 sm:h-4 sm:w-4'} mr-2`} />
+                      {isLoading ? "Adding..." : "Add to cart"}
+                    </Button>
+                  ) : (
+                    <div
+                      className={`w-full flex items-center justify-center ${compact ? 'px-3 py-2 h-8 text-xs sm:text-sm' : 'px-4 py-2 h-9 sm:h-10 text-sm sm:text-base'} bg-gray-100 text-gray-500 font-semibold rounded-md`}
+                    >
+                      Out of Stock
+                    </div>
+                  ))}
+                {!hideWhatsApp && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleWhatsApp}
+                    className={`w-full border-green-600 text-green-700 hover:bg-green-50 ${compact ? 'text-xs sm:text-sm px-3 py-2 h-8' : 'text-sm sm:text-base px-4 py-2 h-9 sm:h-10'}`}
+                  >
+                    <MessageCircle className={`${compact ? 'h-3 w-3 mr-1.5' : 'h-4 w-4 mr-2'}`} />
+                    Order via WhatsApp
+                  </Button>
+                )}
+              </div>
             )}
           </div>
         </div>

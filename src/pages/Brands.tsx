@@ -218,7 +218,6 @@ const Brands = () => {
                     key={product.id}
                     product={product}
                     onAddToCart={addToCart}
-                    hideAddToCart={true}
                     compact
                   />
                 ))}

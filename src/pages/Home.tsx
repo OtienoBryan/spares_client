@@ -13,6 +13,7 @@ import { useProducts, useFeaturedProducts, useCategories, useSearchProductsDebou
 import { formatPrice } from "@/data/products";
 import { LoadingWave, LoadingWine, LoadingNetworkError } from "@/components/ui/lottie-loader";
 import { useNetworkStatus, isNetworkError } from "@/hooks/useNetworkStatus";
+import { ProductGridCardActions } from "@/components/ProductGridCardActions";
 
 // Lazy load heavy components
 const LazyProductCard = lazy(() => import("@/components/ui/product-card").then(module => ({ default: module.ProductCard })));
@@ -844,8 +845,8 @@ const Home = memo(() => {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
               {(offersOfTheWeek as any[])?.map((product) => (
                 <div key={product.id} className="relative group">
-                  <Link to={`/product/${productSlug(product)}`} className="block">
-                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
+                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 flex flex-col h-full">
+                    <Link to={`/product/${productSlug(product)}`} className="block flex-1 min-w-0 touch-manipulation cursor-pointer">
                       <div className="relative overflow-hidden">
                         <img
                           src={product.image || '/placeholder-product.jpg'}
@@ -917,8 +918,11 @@ const Home = memo(() => {
                         </div>
                       </div>
                     </CardContent>
-                    </Card>
-                  </Link>
+                    </Link>
+                    <div className="px-2 sm:px-2 md:px-3 lg:px-3 pb-2 pt-0 shrink-0">
+                      <ProductGridCardActions product={product} onAddToCart={addToCart} />
+                    </div>
+                  </Card>
                 </div>
               ))}
             </div>
@@ -997,8 +1001,8 @@ const Home = memo(() => {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6" itemProp="itemListElement" itemScope itemType="https://schema.org/ListItem">
               {displayProducts.map((product, index) => (
                 <div key={product.id} className="relative group" itemProp="item" itemScope itemType="https://schema.org/Product">
-                  <Link to={`/product/${productSlug(product)}`} className="block">
-                    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
+                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 flex flex-col h-full">
+                    <Link to={`/product/${productSlug(product)}`} className="block flex-1 min-w-0 touch-manipulation cursor-pointer">
                       <div className="relative overflow-hidden">
                         <img
                           src={product.image || '/placeholder-product.jpg'}
@@ -1072,8 +1076,11 @@ const Home = memo(() => {
                           </div>
                         </div>
                       </CardContent>
-                    </Card>
-                  </Link>
+                    </Link>
+                    <div className="px-2 sm:px-2 md:px-3 lg:px-3 pb-2 pt-0 shrink-0">
+                      <ProductGridCardActions product={product} onAddToCart={addToCart} />
+                    </div>
+                  </Card>
                 </div>
               ))}
             </div>
@@ -1157,8 +1164,8 @@ const Home = memo(() => {
                 <div className="grid grid-cols-2 gap-3">
                   {((popularWines as any[]) || []).slice(0, 12).map((product) => (
                     <div key={product.id} className="relative group">
-                      <Link to={`/product/${productSlug(product)}`} className="block">
-                        <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
+                      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 flex flex-col h-full">
+                        <Link to={`/product/${productSlug(product)}`} className="block flex-1 min-w-0 touch-manipulation cursor-pointer">
                           <div className="relative overflow-hidden">
                             <img
                               src={product.image || '/placeholder-product.jpg'}
@@ -1235,8 +1242,11 @@ const Home = memo(() => {
                             </div>
                           </div>
                         </CardContent>
-                        </Card>
-                      </Link>
+                        </Link>
+                        <div className="px-2 pb-2 pt-0 shrink-0">
+                          <ProductGridCardActions product={product} onAddToCart={addToCart} />
+                        </div>
+                      </Card>
                     </div>
                   ))}
                 </div>
@@ -1247,8 +1257,8 @@ const Home = memo(() => {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
                   {((popularWines as any[]) || []).slice(0, 12).map((product) => (
                     <div key={product.id} className="relative group">
-                      <Link to={`/product/${productSlug(product)}`} className="block">
-                        <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 touch-manipulation cursor-pointer">
+                      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-0 flex flex-col h-full">
+                        <Link to={`/product/${productSlug(product)}`} className="block flex-1 min-w-0 touch-manipulation cursor-pointer">
                           <div className="relative overflow-hidden">
                             <img
                               src={product.image || '/placeholder-product.jpg'}
@@ -1325,8 +1335,11 @@ const Home = memo(() => {
                             </div>
                           </div>
                         </CardContent>
-                        </Card>
-                      </Link>
+                        </Link>
+                        <div className="px-2 sm:px-2 md:px-3 lg:px-3 pb-2 pt-0 shrink-0">
+                          <ProductGridCardActions product={product} onAddToCart={addToCart} />
+                        </div>
+                      </Card>
                     </div>
                   ))}
                 </div>

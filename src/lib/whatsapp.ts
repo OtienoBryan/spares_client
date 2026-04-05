@@ -1,0 +1,33 @@
+import type { Product } from "@/services/api";
+import { productSlug } from "@/lib/utils";
+import { formatPrice } from "@/data/products";
+
+/** E.164 without + (Kenya), matches site contact */
+export const WHATSAPP_ORDER_NUMBER = "254790831798";
+
+/**
+ * Opens WhatsApp with a prefilled order message for a product (listing / card context).
+ */
+export function buildWhatsAppProductOrderUrl(product: Product, quantity = 1): string {
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const path = `/product/${productSlug(product)}`;
+  const productUrl = origin ? `${origin}${path}` : path;
+
+  let priceLine = "";
+  if (product.skus && product.skus.length > 0) {
+    const sku = product.skus[0];
+    priceLine = `${sku.code}: KES ${formatPrice(sku.price)}`;
+  } else {
+    priceLine = `KES ${formatPrice(product.price)}`;
+  }
+
+  const message =
+    `Hello! I'd like to order:\n\n` +
+    `*${product.name}*\n` +
+    (product.brand ? `Brand: ${product.brand}\n` : "") +
+    `${priceLine}\n` +
+    `Qty: ${quantity}\n\n` +
+    `${productUrl}`;
+
+  return `https://wa.me/${WHATSAPP_ORDER_NUMBER}?text=${encodeURIComponent(message)}`;
+}

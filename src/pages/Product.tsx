@@ -1068,39 +1068,52 @@ const Product = () => {
 
       {/* Sticky mobile Add to Cart bar */}
       {product.stock > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur border-t p-2 sm:hidden">
-          <div className="container mx-auto px-2 flex items-center justify-between gap-2">
-            <div className="flex flex-col gap-0.5">
-              {product.skus && product.skus.length > 0 && selectedSku ? (
-                (() => {
-                  const selectedSkuData = product.skus.find(sku => sku.code === selectedSku);
-                  return selectedSkuData ? (
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-xs font-semibold text-gray-700">{selectedSkuData.code}:</span>
-                      <span className="text-sm font-bold text-wine">{formatPrice(selectedSkuData.price)}</span>
-                      {selectedSkuData.originalPrice && (
-                        <span className="text-[10px] text-muted-foreground line-through">{formatPrice(selectedSkuData.originalPrice)}</span>
-                      )}
-                    </div>
-                  ) : null;
-                })()
-              ) : (
-                <div className="flex items-baseline gap-1">
-                  <span className="text-base font-bold text-wine">{formatPrice(product.price)}</span>
-                  {product.originalPrice && (
-                    <span className="text-xs text-muted-foreground line-through">{formatPrice(product.originalPrice)}</span>
-                  )}
-                </div>
-              )}
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur border-t p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:hidden">
+          <div className="container mx-auto px-2 flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-col gap-0.5 min-w-0">
+                {product.skus && product.skus.length > 0 && selectedSku ? (
+                  (() => {
+                    const selectedSkuData = product.skus.find(sku => sku.code === selectedSku);
+                    return selectedSkuData ? (
+                      <div className="flex items-baseline gap-1 flex-wrap">
+                        <span className="text-xs font-semibold text-gray-700">{selectedSkuData.code}:</span>
+                        <span className="text-sm font-bold text-wine">{formatPrice(selectedSkuData.price)}</span>
+                        {selectedSkuData.originalPrice && (
+                          <span className="text-[10px] text-muted-foreground line-through">{formatPrice(selectedSkuData.originalPrice)}</span>
+                        )}
+                      </div>
+                    ) : null;
+                  })()
+                ) : (
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-base font-bold text-wine">{formatPrice(product.price)}</span>
+                    {product.originalPrice && (
+                      <span className="text-xs text-muted-foreground line-through">{formatPrice(product.originalPrice)}</span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-            <Button
-              onClick={handleAddToCart}
-              disabled={isLoading}
-              className="bg-wine hover:bg-wine-light text-white text-xs px-3 py-2"
-            >
-              <ShoppingCart className="h-4 w-4 mr-1" />
-              {isLoading ? "Adding..." : "Add to Cart"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleAddToCart}
+                disabled={isLoading}
+                className="flex-1 bg-wine hover:bg-wine-light text-white text-xs px-3 py-2 min-h-[44px]"
+              >
+                <ShoppingCart className="h-4 w-4 mr-1 shrink-0" />
+                {isLoading ? "Adding..." : "Add to Cart"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleWhatsAppOrder}
+                className="flex-1 border-green-600 text-green-700 hover:bg-green-50 text-xs px-3 py-2 min-h-[44px]"
+              >
+                <MessageCircle className="h-4 w-4 mr-1 shrink-0" />
+                WhatsApp
+              </Button>
+            </div>
           </div>
         </div>
       )}
