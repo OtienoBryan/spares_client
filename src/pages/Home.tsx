@@ -90,16 +90,10 @@ const Home = memo(() => {
     300
   );
 
-  // Helper function to check if product has any offers (from SKUs or general price)
-  const hasOffer = useCallback((product: any) => {
-    // Check if product has SKUs with discounts
-    if (product.skus && product.skus.length > 0) {
-      return product.skus.some((sku: any) => 
-        sku.originalPrice && sku.originalPrice > sku.price
-      );
-    }
-    // Check general product discount
-    return product.originalPrice && product.originalPrice > product.price;
+  // Helper function to check DB offer flag (supports number/string/boolean shapes)
+  const isProductOnOffer = useCallback((product: any) => {
+    const offerFlag = product?.isOnOffer;
+    return offerFlag === 1 || offerFlag === "1" || offerFlag === true;
   }, []);
 
   // Helper function to get best discount percentage from SKUs only
@@ -123,9 +117,9 @@ const Home = memo(() => {
 
   const offersOfTheWeek = useMemo(() => 
     (allProducts as any[])?.filter(product => 
-      product && hasOffer(product)
+      product && isProductOnOffer(product)
     ).slice(0, 12) || [],
-    [allProducts, hasOffer]
+    [allProducts, isProductOnOffer]
   );
   
   // Get all unique brands from products

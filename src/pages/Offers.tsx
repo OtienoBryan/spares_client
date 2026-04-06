@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { productSlug } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -36,17 +36,11 @@ const Offers = () => {
   // Fetch data from API
   const { data: allProducts, loading: productsLoading, error: productsError } = useProducts();
 
-  // Helper function to check if product has any offers (from SKUs or general price)
-  const hasOffer = (product: any) => {
-    // Check if product has SKUs with discounts
-    if (product.skus && product.skus.length > 0) {
-      return product.skus.some((sku: any) => 
-        sku.originalPrice && sku.originalPrice > sku.price
-      );
-    }
-    // Check general product price discount
-    return product.originalPrice && product.originalPrice > product.price;
-  };
+  // Helper function to check DB offer flag (supports number/string/boolean shapes)
+  const isProductOnOffer = useCallback((product: any) => {
+    const offerFlag = product?.isOnOffer;
+    return offerFlag === 1 || offerFlag === "1" || offerFlag === true;
+  }, []);
 
   // Helper function to get best discount percentage from SKUs only (matching homepage)
   const getBestDiscountFromSKU = (product: any) => {
@@ -94,12 +88,12 @@ const Offers = () => {
     return maxDiscount;
   };
 
-  // Get all offer products (products with SKU discounts or general price discounts)
+  // Get all offer products from DB offer flag
   const offerProducts = useMemo(() => {
     return allProducts?.filter(product => 
-      product && hasOffer(product)
+      product && isProductOnOffer(product)
     ) || [];
-  }, [allProducts]);
+  }, [allProducts, isProductOnOffer]);
 
   // Filter products by category
   const filteredProducts = useMemo(() => {
