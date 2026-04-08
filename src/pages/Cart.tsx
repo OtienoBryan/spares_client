@@ -40,7 +40,7 @@ const Cart = () => {
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const originalTotal = cartItems.reduce((sum, item) => sum + ((item.originalPrice || item.price) * item.quantity), 0);
   const savings = originalTotal - subtotal;
-  const deliveryFee = 300;
+  const deliveryFee = 0;
   const total = subtotal + deliveryFee;
 
   const handleQuantityChange = (id: string, change: number) => {
@@ -298,10 +298,6 @@ const Cart = () => {
                   )}
                   
                   
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span>Delivery Fee</span>
-                    <span>{deliveryFee.toFixed(2)}</span>
-                  </div>
                 </div>
 
                 <Separator />

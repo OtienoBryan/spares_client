@@ -117,7 +117,7 @@ const Checkout = () => {
   };
 
   const calculateDeliveryFee = () => {
-    return 300;
+    return 0;
   };
 
   const calculateTotal = () => {
@@ -754,10 +754,6 @@ const Checkout = () => {
                       <span>{calculateSubtotal().toFixed(2)}</span>
                     </div>
 
-                    <div className="flex justify-between text-sm">
-                      <span>Delivery Fee</span>
-                      <span>{calculateDeliveryFee().toFixed(2)}</span>
-                    </div>
                   </div>
 
                   <Separator />
