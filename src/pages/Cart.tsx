@@ -122,9 +122,9 @@ const Cart = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <div className="container mx-auto px-4 py-4 sm:py-6 md:py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-6 md:py-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-1">
             <Link to="/">
               <Button variant="outline" size="sm" className="w-fit">
@@ -134,8 +134,8 @@ const Cart = () => {
               </Button>
             </Link>
             <div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-wine">Shopping Cart</h1>
-              <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
+              <h1 className="text-xl sm:text-3xl md:text-4xl font-bold text-wine">Shopping Cart</h1>
+              <p className="text-xs sm:text-base text-muted-foreground mt-1 sm:mt-2">
                 {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
               </p>
             </div>
@@ -153,13 +153,13 @@ const Cart = () => {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
           {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-3">
             {cartItems.map((item) => (
               <Card key={item.id} className="overflow-hidden">
                 <div className="flex flex-col sm:flex-row">
-                  <div className="w-full sm:w-24 md:w-32 h-48 sm:h-24 md:h-32 flex-shrink-0">
+                  <div className="w-full sm:w-24 md:w-32 h-36 sm:h-24 md:h-32 flex-shrink-0">
                     <img
                       src={item.image}
                       alt={item.name}
@@ -167,10 +167,10 @@ const Cart = () => {
                     />
                   </div>
                   
-                  <div className="flex-1 p-4 sm:p-6">
-                    <div className="flex justify-between items-start mb-3 sm:mb-2">
+                  <div className="flex-1 p-3 sm:p-6">
+                    <div className="flex justify-between items-start mb-2 sm:mb-2">
                       <div className="flex-1">
-                        <h3 className="text-base sm:text-lg font-semibold text-wine mb-1 leading-tight">{item.name}</h3>
+                        <h3 className="text-sm sm:text-lg font-semibold text-wine mb-1 leading-tight">{item.name}</h3>
                         {item.selectedSku && (
                           <Badge variant="secondary" className="text-xs mb-1 bg-wine/10 text-wine border-wine/20">
                             SKU: {item.selectedSku}
@@ -194,29 +194,29 @@ const Cart = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveItem(item.id)}
-                        className="text-destructive hover:text-destructive flex-shrink-0"
+                        className="text-destructive hover:text-destructive flex-shrink-0 h-7 w-7 p-0 sm:h-9 sm:w-9"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </Button>
                     </div>
                     
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
-                      <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleQuantityChange(item.id, -1)}
                           disabled={item.quantity <= 1}
-                          className="h-8 w-8 p-0"
+                          className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                         >
                           <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
-                        <span className="w-8 sm:w-12 text-center font-medium text-sm sm:text-base">{item.quantity}</span>
+                        <span className="w-7 sm:w-12 text-center font-medium text-xs sm:text-base">{item.quantity}</span>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleQuantityChange(item.id, 1)}
-                          className="h-8 w-8 p-0"
+                          className="h-7 w-7 sm:h-8 sm:w-8 p-0"
                         >
                           <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
@@ -224,17 +224,17 @@ const Cart = () => {
                       
                       <div className="text-right">
                         <div className="flex items-center gap-2">
-                          <span className="text-xl font-bold text-wine">
+                          <span className="text-base sm:text-xl font-bold text-wine">
                             {(item.price * item.quantity).toFixed(2)}
                           </span>
                           {item.originalPrice && item.originalPrice > item.price && (
-                            <span className="text-sm text-muted-foreground line-through">
+                            <span className="text-xs sm:text-sm text-muted-foreground line-through">
                               {(item.originalPrice * item.quantity).toFixed(2)}
                             </span>
                           )}
                         </div>
                         {item.originalPrice && item.originalPrice > item.price && (
-                          <div className="text-sm text-green-600 font-medium">
+                          <div className="text-xs sm:text-sm text-green-600 font-medium">
                             Save {((item.originalPrice - item.price) * item.quantity).toFixed(2)}
                           </div>
                         )}
@@ -248,32 +248,34 @@ const Cart = () => {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-24">
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
+            <Card className="sticky top-20">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base sm:text-lg">Order Summary</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {/* Promo Code */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Promo Code</label>
+                  <label className="text-xs sm:text-sm font-medium">Promo Code</label>
                   <div className="flex gap-2">
                     <Input
                       placeholder="Enter code"
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value)}
-                      className="flex-1"
+                      className="flex-1 h-8 sm:h-10 text-xs sm:text-sm"
                     />
                     <Button 
                       variant="outline" 
                       onClick={handleApplyPromo}
                       disabled={!promoCode}
+                      size="sm"
+                      className="text-xs sm:text-sm"
                     >
                       Apply
                     </Button>
                   </div>
                   {appliedPromo && (
-                    <div className="flex items-center gap-2 text-sm text-green-600">
-                      <CheckCircle className="h-4 w-4" />
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-green-600">
+                      <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       <span>Promo code {appliedPromo} applied</span>
                     </div>
                   )}
@@ -282,21 +284,21 @@ const Cart = () => {
                 <Separator />
 
                 {/* Pricing Breakdown */}
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span>Subtotal ({cartItems.length} items)</span>
                     <span>{subtotal.toFixed(2)}</span>
                   </div>
                   
                   {savings > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
+                    <div className="flex justify-between text-xs sm:text-sm text-green-600">
                       <span>Savings</span>
                       <span>-{savings.toFixed(2)}</span>
                     </div>
                   )}
                   
                   
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between text-xs sm:text-sm">
                     <span>Delivery Fee</span>
                     <span>{deliveryFee.toFixed(2)}</span>
                   </div>
@@ -304,34 +306,34 @@ const Cart = () => {
 
                 <Separator />
 
-                <div className="flex justify-between text-lg font-bold">
+                <div className="flex justify-between text-sm sm:text-lg font-bold">
                   <span>Total</span>
                   <span>{total.toFixed(2)}</span>
                 </div>
 
                 {/* Delivery Info */}
-                <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
+                <div className="space-y-2 p-3 bg-muted/30 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-wine" />
-                    <span className="text-sm font-medium">30-minute delivery</span>
+                    <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-wine" />
+                    <span className="text-xs sm:text-sm font-medium">24 hour delivery services</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-wine" />
-                    <span className="text-sm text-muted-foreground">Deliver to 10001</span>
+                    <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-wine" />
+                    <span className="text-xs sm:text-sm text-muted-foreground">Deliver to 10001</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-wine" />
-                    <span className="text-sm text-muted-foreground">Age verification required</span>
+                    <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-wine" />
+                    <span className="text-xs sm:text-sm text-muted-foreground">Age verification required</span>
                   </div>
                 </div>
 
                 {/* Checkout Button */}
                 <Button 
                   onClick={handleCheckout}
-                  size="lg" 
-                  className="w-full bg-wine hover:bg-wine-light text-white text-lg py-6"
+                  size="sm" 
+                  className="w-full bg-wine hover:bg-wine-light text-white text-sm sm:text-base py-5"
                 >
-                  <CreditCard className="h-5 w-5 mr-2" />
+                  <CreditCard className="h-4 w-4 mr-2" />
                   Proceed to Checkout
                 </Button>
 

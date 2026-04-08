@@ -1,7 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CartSidebar } from "@/components/ui/cart-sidebar";
-import { CategoriesSidebar } from "@/components/ui/categories-sidebar";
 import { CategoriesSidebarPermanent } from "@/components/ui/categories-sidebar-permanent";
 import { useCart } from "@/contexts/CartContext";
 import { useUser } from "@/contexts/UserContext";
@@ -15,14 +14,12 @@ import { apiService } from "@/services/api";
 import { 
   MapPin, 
   Search,
-  Menu,
   X,
   ShoppingCart,
   Phone,
   User,
   LogOut,
-  Package,
-  Star
+  Package
 } from "lucide-react";
 import { useState, useRef, useEffect, useMemo } from "react";
 
@@ -40,7 +37,7 @@ const Navigation = () => {
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const { cartItems, updateQuantity, removeItem } = useCart();
   
-  const { user, isAuthenticated, logout, getLoyaltyPoints } = useUser();
+  const { user, isAuthenticated, logout } = useUser();
   
   const { data: apiCategories = [], loading: categoriesLoading, error: categoriesError } = useCategories();
   
@@ -288,7 +285,7 @@ const Navigation = () => {
               </div>
             </div>
             <div className="hidden md:flex items-center gap-4 text-xs">
-              <span>Free delivery on orders over KShs 5,000</span>
+              <span>24 hour delivery services</span>
             </div>
           </div>
         </div>
@@ -296,7 +293,7 @@ const Navigation = () => {
       
 
       {/* Top Bar with Phone Number */}
-      <div className="bg-wine text-white py-1 text-xs">
+      <div className="bg-wine text-white py-1 text-md">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex items-center justify-center">
             <a href="tel:0790831798" className="flex items-center gap-1 hover:text-wine-light transition-colors">
@@ -328,6 +325,9 @@ const Navigation = () => {
               <span className="text-xs sm:text-sm md:text-lg font-extrabold tracking-tight text-white drop-shadow-sm">
                 Drinks Avenue Kenya
               </span>
+              {/* <span className="text-xs sm:text-sm md:text-lg font-extrabold tracking-tight text-white drop-shadow-sm">
+              24 hour delivery services
+              </span> */}
               {/* Fallback text if logo fails to load */}
               {/* <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight">Dalali v2</span> */}
             </Link>
@@ -462,8 +462,6 @@ const Navigation = () => {
                   >
                     <User className="h-4 w-4" />
                     {user?.firstName}
-                    <Star className="h-4 w-4 text-yellow-500" />
-                    {getLoyaltyPoints()}
                   </Button>
                   
                   {isUserMenuOpen && (
@@ -484,14 +482,6 @@ const Navigation = () => {
                         >
                           <Package className="h-4 w-4" />
                           My Orders
-                        </Link>
-                        <Link
-                          to="/account?tab=loyalty"
-                          className="flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-                          onClick={() => setIsUserMenuOpen(false)}
-                        >
-                          <Star className="h-4 w-4" />
-                          Loyalty Points
                         </Link>
                         <div className="border-t border-gray-200 my-2"></div>
                         <button
@@ -556,14 +546,28 @@ const Navigation = () => {
                 <span className="text-sm font-medium">Call</span>
               </a> */}
               
-              {/* Categories Sidebar Button - Mobile */}
-              <div className="block md:hidden">
-                <CategoriesSidebar 
-                  categories={categories}
-                  isLoading={categoriesLoading}
-                />
-              </div>
-              
+              {isAuthenticated ? (
+                <Link to="/account" aria-label="My account">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9 border-white text-black hover:bg-white hover:text-primary rounded-lg"
+                  >
+                    <User className="h-4 w-4" />
+                  </Button>
+                </Link>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setIsLoginModalOpen(true)}
+                  className="h-9 w-9 border-white text-black hover:bg-white hover:text-primary rounded-lg"
+                  aria-label="Login"
+                >
+                  <User className="h-4 w-4" />
+                </Button>
+              )}
+
               <div className="block md:hidden">
                 <CartSidebar 
                   items={cartItems}
@@ -571,15 +575,6 @@ const Navigation = () => {
                   onRemoveItem={removeItem}
                 />
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 text-white hover:bg-white/10 hover:text-white min-h-[40px] min-w-[40px]"
-                aria-label={isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
-              >
-                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
             </div>
           </div>
 

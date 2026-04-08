@@ -88,54 +88,77 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   console.log('UserProvider rendering, user:', user, 'isLoading:', isLoading);
 
-  // Mock data for demonstration
-  const mockOrders: Order[] = [
-    {
-      id: '1',
-      orderNumber: 'ORD-2024-001',
-      date: '2024-01-15',
-      status: 'delivered',
-      items: [
-        {
-          id: '1',
-          name: 'Premium Red Wine',
-          price: 29.99,
-          quantity: 2,
-          image: '/wine-bottle.jpg'
-        }
-      ],
-      subtotal: 59.98,
-      tax: 4.80,
-      deliveryFee: 0,
-      total: 64.78,
-      deliveryAddress: {
-        street: '123 Main St',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10001'
-      },
-      estimatedDelivery: '2024-01-16',
-      trackingNumber: 'TRK123456789'
-    }
-  ];
+  const mapOrderResponseToOrder = (orderResponse: OrderResponse): Order => ({
+    id: orderResponse.id.toString(),
+    orderNumber: orderResponse.orderNumber,
+    date: orderResponse.createdAt.split('T')[0],
+    status: orderResponse.status as any,
+    items: orderResponse.items.map(item => ({
+      id: item.id.toString(),
+      name: item.product.name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.product.image
+    })),
+    subtotal: orderResponse.subtotal,
+    tax: orderResponse.tax,
+    deliveryFee: orderResponse.shipping,
+    total: orderResponse.total,
+    deliveryAddress: {
+      street: orderResponse.shippingAddress,
+      city: '',
+      state: '',
+      zipCode: ''
+    },
+    estimatedDelivery: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  });
 
   useEffect(() => {
     // Check for existing session on app load
     const savedUser = localStorage.getItem('user');
-    const savedOrders = localStorage.getItem('userOrders');
     
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    
-    if (savedOrders) {
-      setOrders(JSON.parse(savedOrders));
-    } else {
-      setOrders(mockOrders);
+      const parsedUser = JSON.parse(savedUser) as User;
+      setUser(parsedUser);
+      const savedOrdersForUser = localStorage.getItem(`userOrders_${parsedUser.id}`);
+      if (savedOrdersForUser) {
+        setOrders(JSON.parse(savedOrdersForUser));
+      }
     }
     
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    const loadMyOrders = async () => {
+      if (!user) {
+        setOrders([]);
+        return;
+      }
+
+      const userIdNum = parseInt(user.id, 10);
+      if (isNaN(userIdNum)) {
+        // Fallback to cached per-user orders when user id is not numeric
+        const savedOrdersForUser = localStorage.getItem(`userOrders_${user.id}`);
+        setOrders(savedOrdersForUser ? JSON.parse(savedOrdersForUser) : []);
+        return;
+      }
+
+      try {
+        const myOrders = await apiService.getMyOrders(userIdNum);
+        const mappedOrders = myOrders.map(mapOrderResponseToOrder);
+        setOrders(mappedOrders);
+        localStorage.setItem(`userOrders_${user.id}`, JSON.stringify(mappedOrders));
+      } catch (error) {
+        console.error('Failed to load user orders:', error);
+        // Keep any cached orders for this user if request fails
+        const savedOrdersForUser = localStorage.getItem(`userOrders_${user.id}`);
+        setOrders(savedOrdersForUser ? JSON.parse(savedOrdersForUser) : []);
+      }
+    };
+
+    void loadMyOrders();
+  }, [user]);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
@@ -211,6 +234,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 
   const logout = () => {
     setUser(null);
+    setOrders([]);
     localStorage.removeItem('user');
   };
 
@@ -285,33 +309,12 @@ export const UserProvider = ({ children }: UserProviderProps) => {
       
       // Only add the new order to local state if user is authenticated
       if (user) {
-        const newOrder: Order = {
-          id: orderResponse.id.toString(),
-          orderNumber: orderResponse.orderNumber,
-          date: orderResponse.createdAt.split('T')[0],
-          status: orderResponse.status as any,
-          items: orderResponse.items.map(item => ({
-            id: item.id.toString(),
-            name: item.product.name,
-            price: item.price,
-            quantity: item.quantity,
-            image: item.product.image
-          })),
-          subtotal: orderResponse.subtotal,
-          tax: orderResponse.tax,
-          deliveryFee: orderResponse.shipping,
-          total: orderResponse.total,
-          deliveryAddress: {
-            street: orderResponse.shippingAddress,
-            city: '',
-            state: '',
-            zipCode: ''
-          },
-          estimatedDelivery: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-        };
-        
-        setOrders(prev => [newOrder, ...prev]);
-        localStorage.setItem('userOrders', JSON.stringify([newOrder, ...orders]));
+        const newOrder = mapOrderResponseToOrder(orderResponse);
+        setOrders(prev => {
+          const next = [newOrder, ...prev];
+          localStorage.setItem(`userOrders_${user.id}`, JSON.stringify(next));
+          return next;
+        });
       }
       
       return orderResponse;

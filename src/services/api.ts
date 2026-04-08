@@ -222,7 +222,7 @@ class ApiService {
   }
 
   async getPopularWines(): Promise<Product[]> {
-    return this.request<Product[]>('/products/category/2');
+    return this.request<Product[]>('/products/popular-wines');
   }
 
   // Helper method to get products by category name (for backward compatibility)

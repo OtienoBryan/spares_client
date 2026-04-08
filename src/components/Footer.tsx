@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Phone, MapPin, Clock } from "lucide-react";
+import { Phone, MapPin } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -11,7 +11,7 @@ const Footer = () => {
           <div className="col-span-2 sm:col-span-1 space-y-2">
             <h3 className="text-lg font-bold text-white">Drinks Avenue</h3>
             <p className="text-gray-300 text-xs leading-relaxed">
-              Premium drinks delivery. Fast, reliable, and fresh.
+              Premium drinks delivery with 24 hour delivery services.
             </p>
             <div className="flex space-x-2">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -75,10 +75,9 @@ const Footer = () => {
                 <span className="text-gray-300 text-xs">Nairobi, Kenya</span>
               </div>
               <div className="flex items-start space-x-2">
-                <Clock className="h-3 w-3 text-gray-400 flex-shrink-0 mt-0.5" />
+                <span className="h-3 w-3 text-gray-400 flex-shrink-0 mt-0.5">•</span>
                 <div className="text-gray-300 text-xs">
-                  <p>Mon-Fri: 9AM-9PM</p>
-                  <p>Sat-Sun: 10AM-8PM</p>
+                  <p>24 hour delivery services</p>
                 </div>
               </div>
             </div>

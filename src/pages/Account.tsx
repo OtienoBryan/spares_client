@@ -8,12 +8,10 @@ import Navigation from '@/components/Navigation';
 import { 
   User, 
   Package, 
-  Star, 
   MapPin, 
   Phone, 
   Mail,
   Edit,
-  Gift,
   Clock,
   CheckCircle,
   Truck,
@@ -85,10 +83,9 @@ const Account = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="loyalty">Loyalty</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -223,72 +220,6 @@ const Account = () => {
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Loyalty Tab */}
-          <TabsContent value="loyalty" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Star className="h-5 w-5" />
-                  Loyalty Points
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="text-center py-8 bg-gradient-to-r from-wine/10 to-wine/5 rounded-lg">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Gift className="h-8 w-8 text-wine" />
-                    <span className="text-4xl font-bold text-wine">{user.loyaltyPoints}</span>
-                  </div>
-                  <p className="text-lg font-semibold">Loyalty Points</p>
-                  <p className="text-muted-foreground">
-                    Earn 1 point for every $1 spent. Redeem points for discounts!
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card className="text-center p-4">
-                    <h3 className="font-semibold mb-2">Welcome Bonus</h3>
-                    <p className="text-2xl font-bold text-wine">+50</p>
-                    <p className="text-sm text-muted-foreground">Points earned on signup</p>
-                  </Card>
-                  <Card className="text-center p-4">
-                    <h3 className="font-semibold mb-2">Next Reward</h3>
-                    <p className="text-2xl font-bold text-wine">100</p>
-                    <p className="text-sm text-muted-foreground">Points for $5 off</p>
-                  </Card>
-                  <Card className="text-center p-4">
-                    <h3 className="font-semibold mb-2">Member Since</h3>
-                    <p className="text-2xl font-bold text-wine">
-                      {new Date(user.memberSince).getFullYear()}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Years of loyalty</p>
-                  </Card>
-                </div>
-
-                <div className="pt-4 border-t">
-                  <h3 className="font-semibold mb-4">How to earn points:</h3>
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      $1 spent = 1 point
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      Write a review = 10 points
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      Refer a friend = 50 points
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                      Birthday bonus = 100 points
-                    </li>
-                  </ul>
-                </div>
               </CardContent>
             </Card>
           </TabsContent>

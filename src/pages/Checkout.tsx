@@ -12,6 +12,7 @@ import { useUser } from "@/contexts/UserContext";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { LoginModal } from "@/components/auth/LoginModal";
 import { 
   CreditCard, 
   Truck, 
@@ -44,6 +45,7 @@ const Checkout = () => {
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("paystack");
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [formErrors, setFormErrors] = useState<{[key: string]: string}>({});
   
   // Form states
@@ -121,6 +123,10 @@ const Checkout = () => {
   const calculateTotal = () => {
     // Savings are intentionally not calculated on the checkout page.
     return calculateSubtotal() + calculateTax() + calculateServiceFee() + calculateDeliveryFee();
+  };
+
+  const calculateLoyaltyPointsEarned = () => {
+    return Math.floor(calculateSubtotal() / 1000) * 10;
   };
 
   // Redirect to cart if cart is empty
@@ -266,7 +272,7 @@ const Checkout = () => {
               }
 
               if (isAuthenticated && user) {
-                const pointsEarned = Math.floor(calculateSubtotal());
+                const pointsEarned = calculateLoyaltyPointsEarned();
                 addLoyaltyPoints(pointsEarned);
                 toast({
                   title: "Payment Successful!",
@@ -398,7 +404,7 @@ const Checkout = () => {
       if (orderResponse) {
         // Add loyalty points for authenticated users
         if (isAuthenticated && user) {
-          const pointsEarned = Math.floor(calculateSubtotal());
+          const pointsEarned = calculateLoyaltyPointsEarned();
           addLoyaltyPoints(pointsEarned);
           
           toast({
@@ -489,10 +495,10 @@ const Checkout = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="flex items-center gap-2 sm:gap-4 mb-4 sm:mb-8">
+          <div className="flex items-center gap-2 sm:gap-4 mb-3 sm:mb-8">
             <Button 
               variant="ghost" 
               size="sm" 
@@ -504,18 +510,40 @@ const Checkout = () => {
               <span className="sm:hidden">Back</span>
             </Button>
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-wine">Checkout</h1>
-              <p className="text-sm sm:text-base text-muted-foreground">Complete your order</p>
+              <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-wine">Checkout</h1>
+              <p className="text-xs sm:text-base text-muted-foreground">Complete your order</p>
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          <div className="grid lg:grid-cols-3 gap-3 sm:gap-6 lg:gap-8">
             {/* Checkout Form */}
             <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+              {!isAuthenticated && (
+                <Card>
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                        <p className="text-sm sm:text-base font-semibold text-wine">Have an account?</p>
+                        <p className="text-xs sm:text-sm text-muted-foreground">Sign in to autofill your details and track your order easily.</p>
+                      </div>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsLoginModalOpen(true)}
+                        className="text-xs sm:text-sm"
+                      >
+                        Sign In
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Delivery Information */}
               <Card>
                 <CardHeader className="pb-3 sm:pb-6">
-                  <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                  <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
                     <Truck className="h-4 w-4 sm:h-5 sm:w-5 text-wine" />
                     Delivery Information
                   </CardTitle>
@@ -527,27 +555,27 @@ const Checkout = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6">
-                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                  <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-6">
 
                     {/* Personal Information */}
                     <div className="space-y-2">
-                      <Label htmlFor="name">Full Name *</Label>
+                      <Label htmlFor="name" className="text-xs sm:text-sm">Full Name *</Label>
                       <Input
                         id="name"
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
                         placeholder="Enter your full name"
-                        className={formErrors.name ? "border-red-500" : ""}
+                        className={`h-9 text-xs sm:text-sm ${formErrors.name ? "border-red-500" : ""}`}
                       />
                       {formErrors.name && (
-                        <p className="text-sm text-red-500">{formErrors.name}</p>
+                        <p className="text-xs text-red-500">{formErrors.name}</p>
                       )}
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email Address *</Label>
+                        <Label htmlFor="email" className="text-xs sm:text-sm">Email Address *</Label>
                         <Input
                           id="email"
                           name="email"
@@ -555,14 +583,14 @@ const Checkout = () => {
                           value={formData.email}
                           onChange={handleInputChange}
                           placeholder="Enter your email"
-                          className={formErrors.email ? "border-red-500" : ""}
+                          className={`h-9 text-xs sm:text-sm ${formErrors.email ? "border-red-500" : ""}`}
                         />
                         {formErrors.email && (
-                          <p className="text-sm text-red-500">{formErrors.email}</p>
+                          <p className="text-xs text-red-500">{formErrors.email}</p>
                         )}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number *</Label>
+                        <Label htmlFor="phone" className="text-xs sm:text-sm">Phone Number *</Label>
                         <Input
                           id="phone"
                           name="phone"
@@ -570,17 +598,17 @@ const Checkout = () => {
                           value={formData.phone}
                           onChange={handleInputChange}
                           placeholder="Enter your phone number"
-                          className={formErrors.phone ? "border-red-500" : ""}
+                          className={`h-9 text-xs sm:text-sm ${formErrors.phone ? "border-red-500" : ""}`}
                         />
                         {formErrors.phone && (
-                          <p className="text-sm text-red-500">{formErrors.phone}</p>
+                          <p className="text-xs text-red-500">{formErrors.phone}</p>
                         )}
                       </div>
                     </div>
 
                     {/* Address Information */}
                     <div className="space-y-2">
-                      <Label htmlFor="address">Address *</Label>
+                      <Label htmlFor="address" className="text-xs sm:text-sm">Address *</Label>
                       <Textarea
                         id="address"
                         name="address"
@@ -588,15 +616,15 @@ const Checkout = () => {
                         onChange={handleInputChange}
                         placeholder="Enter your full address including city, state, and ZIP code"
                         rows={3}
-                        className={formErrors.address ? "border-red-500" : ""}
+                        className={`text-xs sm:text-sm ${formErrors.address ? "border-red-500" : ""}`}
                       />
                       {formErrors.address && (
-                        <p className="text-sm text-red-500">{formErrors.address}</p>
+                        <p className="text-xs text-red-500">{formErrors.address}</p>
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="instructions">Delivery Instructions</Label>
+                      <Label htmlFor="instructions" className="text-xs sm:text-sm">Delivery Instructions</Label>
                       <Textarea
                         id="instructions"
                         name="instructions"
@@ -604,6 +632,7 @@ const Checkout = () => {
                         onChange={handleInputChange}
                         placeholder="Any special instructions for delivery (optional)..."
                         rows={3}
+                        className="text-xs sm:text-sm"
                       />
                     </div>
 
@@ -620,8 +649,8 @@ const Checkout = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50 cursor-pointer" onClick={() => setPaymentMethod("paystack")}>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2.5 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer" onClick={() => setPaymentMethod("paystack")}>
                       <input 
                         type="radio" 
                         name="paymentMethod" 
@@ -632,20 +661,20 @@ const Checkout = () => {
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <CreditCard className="h-5 w-5" />
-                          <span className="font-medium">Pay online (Card/bank transfer/MPESA)</span>
+                          <CreditCard className="h-4 w-4" />
+                          <span className="font-medium text-xs sm:text-sm">Pay online (Card/bank transfer/MPESA)</span>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           Secure online payment with cards, bank transfer, or mobile money. You will be redirected to the Paystack payment page to complete your payment.
                         </p>
                       </div>
-                      <Badge variant="outline" className="text-green-600 border-green-600">
+                      <Badge variant="outline" className="text-green-600 border-green-600 text-[10px] sm:text-xs">
                         <Lock className="h-3 w-3 mr-1" />
                         Secure
                       </Badge>
                     </div>
 
-                    <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-muted/50 cursor-pointer" onClick={() => setPaymentMethod("cod")}>
+                    <div className="flex items-center space-x-2.5 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer" onClick={() => setPaymentMethod("cod")}>
                       <input 
                         type="radio" 
                         name="paymentMethod" 
@@ -656,14 +685,14 @@ const Checkout = () => {
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <Truck className="h-5 w-5" />
-                          <span className="font-medium">Cash on Delivery</span>
+                          <Truck className="h-4 w-4" />
+                          <span className="font-medium text-xs sm:text-sm">Cash on Delivery</span>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           Pay when your order is delivered
                         </p>
                       </div>
-                      <Badge variant="outline" className="text-blue-600 border-blue-600">
+                      <Badge variant="outline" className="text-blue-600 border-blue-600 text-[10px] sm:text-xs">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Available
                       </Badge>
@@ -675,26 +704,26 @@ const Checkout = () => {
 
             {/* Order Summary */}
             <div className="space-y-4 sm:space-y-6">
-              <Card className="sticky top-4">
+              <Card className="sticky top-2 sm:top-4">
                 <CardHeader className="pb-3 sm:pb-6">
                   <CardTitle className="text-lg sm:text-xl">Order Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="p-3 sm:p-6 space-y-3 sm:space-y-4">
                   {/* Order Items */}
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {cartItems.map((item) => (
-                      <div key={item.id} className="flex items-center gap-3">
+                      <div key={item.id} className="flex items-center gap-2.5">
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="h-12 w-12 object-cover rounded"
+                          className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded"
                         />
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm line-clamp-1">{item.name}</h4>
-                          <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                          <h4 className="font-medium text-xs sm:text-sm line-clamp-1">{item.name}</h4>
+                          <p className="text-[11px] sm:text-xs text-muted-foreground">Qty: {item.quantity}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium text-sm">{(item.price * item.quantity).toFixed(2)}</p>
+                          <p className="font-medium text-xs sm:text-sm">{(item.price * item.quantity).toFixed(2)}</p>
                         </div>
                       </div>
                     ))}
@@ -708,7 +737,7 @@ const Checkout = () => {
                         <span className="text-sm font-medium">Loyalty Points</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        You'll earn {Math.floor(calculateSubtotal())} points with this order
+                        You'll earn {calculateLoyaltyPointsEarned()} points with this order
                       </p>
                       <p className="text-xs text-muted-foreground">
                         Current balance: {getLoyaltyPoints()} points
@@ -733,7 +762,7 @@ const Checkout = () => {
 
                   <Separator />
 
-                  <div className="flex justify-between text-lg font-bold">
+                  <div className="flex justify-between text-sm sm:text-lg font-bold">
                     <span>Total</span>
                     <span>{calculateTotal().toFixed(2)}</span>
                   </div>
@@ -742,8 +771,8 @@ const Checkout = () => {
                   <Button
                     onClick={handleSubmit}
                     disabled={isProcessing || !isFormValid()}
-                    className="w-full bg-wine hover:bg-wine-light text-white disabled:opacity-50 disabled:cursor-not-allowed py-3 sm:py-4 text-sm sm:text-base"
-                    size="lg"
+                    className="w-full bg-wine hover:bg-wine-light text-white disabled:opacity-50 disabled:cursor-not-allowed py-2.5 sm:py-4 text-xs sm:text-base"
+                    size="sm"
                   >
                     {isProcessing ? (
                       <>
@@ -787,6 +816,12 @@ const Checkout = () => {
       
       {/* Footer */}
       <Footer />
+
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onSwitchToRegister={() => setIsLoginModalOpen(false)}
+      />
     </div>
   );
 };

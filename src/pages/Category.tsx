@@ -46,7 +46,7 @@ const Category = () => {
   const [selectedSize, setSelectedSize] = useState<string>("all");
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>("all");
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
-  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   const { addToCart } = useCart();
@@ -515,24 +515,24 @@ const Category = () => {
           </div>
         </header>
 
-        {/* Mobile Filter Toggle - Redesigned */}
-        <div className="lg:hidden mb-4">
+        {/* Filter Toggle */}
+        <div className="mb-4">
           <Button
             variant="outline"
-            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            onClick={() => setShowFilters(!showFilters)}
             className="w-full justify-between h-12 text-sm font-medium shadow-sm hover:shadow-md transition-shadow"
           >
             <span className="flex items-center gap-2">
               <SlidersHorizontal className="h-4 w-4" />
-              Filters & Sort
+              {showFilters ? "Hide Filters & Sort" : "Show Filters & Sort"}
             </span>
-            {showMobileFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </Button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-1 lg:gap-2">
           {/* Filters Sidebar - Redesigned */}
-          <aside className={`lg:col-span-3 ${showMobileFilters ? 'block' : 'hidden lg:block'}`} aria-label="Product Filters">
+          <aside className={`${showFilters ? 'block lg:col-span-3' : 'hidden'}`} aria-label="Product Filters">
             <Card className="lg:sticky lg:top-24 shadow-md border-2">
               <CardHeader className="border-b bg-gradient-to-r from-wine/5 to-wine/10 pb-2">
                 <CardTitle className="flex items-center gap-2 text-sm font-bold">
@@ -709,7 +709,7 @@ const Category = () => {
           </aside>
 
           {/* Products Grid - Redesigned */}
-          <main className="lg:col-span-9 -ml-2 lg:ml-0" aria-label="Product List">
+          <main className={`${showFilters ? 'lg:col-span-9' : 'lg:col-span-12'} -ml-2 lg:ml-0`} aria-label="Product List">
             {sortedProducts.length === 0 ? (
               <div className="text-center py-16 sm:py-20">
                 <div className="text-6xl sm:text-7xl mb-4">🔍</div>
@@ -739,7 +739,7 @@ const Category = () => {
                     </div>
                     
                     {/* Products Grid - Improved spacing with SEO attributes */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 md:gap-4" itemScope itemType="https://schema.org/ItemList">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3 md:gap-4" itemScope itemType="https://schema.org/ItemList">
                       {paginatedProducts.map((product, index) => (
                         <article 
                           key={product.id} 

@@ -44,50 +44,50 @@ export function CartSidebar({ items, onUpdateQuantity, onRemoveItem }: CartSideb
         </Button>
       </SheetTrigger>
       
-      <SheetContent className="w-full sm:max-w-lg">
+      <SheetContent className="w-full sm:max-w-lg px-3 sm:px-6">
         <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5" />
-            Shopping Cart ({totalItems} items)
+          <SheetTitle className="flex items-center gap-2 text-sm sm:text-base">
+            <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
+            Shopping Cart ({totalItems})
           </SheetTitle>
         </SheetHeader>
         
         <div className="flex flex-col h-full">
-          <div className="flex-1 overflow-y-auto py-4">
+          <div className="flex-1 overflow-y-auto py-3">
             {items.length === 0 ? (
               <div className="text-center py-8">
-                <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">Your cart is empty</p>
+                <ShoppingCart className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+                <p className="text-xs sm:text-sm text-muted-foreground">Your cart is empty</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-2.5">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-3 p-3 border rounded-lg">
+                  <div key={item.id} className="flex gap-2 p-2 border rounded-lg bg-background">
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="h-16 w-16 object-cover rounded-md"
+                      className="h-14 w-14 sm:h-16 sm:w-16 object-cover rounded-md shrink-0"
                     />
-                    <div className="flex-1">
-                      <h4 className="font-medium line-clamp-1">{item.name}</h4>
-                      <p className="text-sm text-wine font-semibold">{item.price}</p>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium line-clamp-1 text-xs sm:text-sm">{item.name}</h4>
+                      <p className="text-xs sm:text-sm text-wine font-semibold">{item.price}</p>
                       
-                      <div className="flex items-center justify-between mt-2">
-                        <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-between mt-1.5">
+                        <div className="flex items-center gap-1.5">
                           <Button
                             size="icon"
                             variant="outline"
-                            className="h-8 w-8"
+                            className="h-7 w-7 sm:h-8 sm:w-8"
                             onClick={() => onUpdateQuantity(item.id, Math.max(0, item.quantity - 1))}
                             aria-label={`Decrease quantity of ${item.name}`}
                           >
                             <Minus className="h-3 w-3" />
                           </Button>
-                          <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
+                          <span className="text-xs sm:text-sm font-medium w-6 sm:w-8 text-center">{item.quantity}</span>
                           <Button
                             size="icon"
                             variant="outline"
-                            className="h-8 w-8"
+                            className="h-7 w-7 sm:h-8 sm:w-8"
                             onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
                             aria-label={`Increase quantity of ${item.name}`}
                           >
@@ -98,7 +98,7 @@ export function CartSidebar({ items, onUpdateQuantity, onRemoveItem }: CartSideb
                         <Button
                           size="icon"
                           variant="outline"
-                          className="h-8 w-8 text-destructive"
+                          className="h-7 w-7 sm:h-8 sm:w-8 text-destructive"
                           onClick={() => onRemoveItem(item.id)}
                           aria-label={`Remove ${item.name} from cart`}
                         >
@@ -113,21 +113,21 @@ export function CartSidebar({ items, onUpdateQuantity, onRemoveItem }: CartSideb
           </div>
           
           {items.length > 0 && (
-            <div className="border-t pt-4 space-y-4">
-              <div className="flex justify-between text-lg font-semibold">
+            <div className="border-t pt-3 space-y-3">
+              <div className="flex justify-between text-sm sm:text-base font-semibold">
                 <span>Total:</span>
                 <span className="text-wine">{totalPrice.toFixed(2)}</span>
               </div>
               
               <Button 
                 className="w-full bg-wine hover:bg-wine-light text-white" 
-                size="lg"
+                size="sm"
                 onClick={() => {
                   setOpen(false);
                   navigate("/checkout");
                 }}
               >
-                Proceed to Checkout
+                <span className="text-xs sm:text-sm">Proceed to Checkout</span>
               </Button>
             </div>
           )}

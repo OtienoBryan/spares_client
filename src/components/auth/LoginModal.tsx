@@ -139,15 +139,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
               </div>
             </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full"
-              onClick={handleDemoLogin}
-              disabled={isLoading}
-            >
-              Try Demo Account
-            </Button>
+           
 
             <div className="text-center text-sm">
               <span className="text-muted-foreground">Don't have an account? </span>

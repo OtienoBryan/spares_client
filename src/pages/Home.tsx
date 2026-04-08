@@ -1474,7 +1474,7 @@ const Home = memo(() => {
             Ready to Order?
           </h2>
           <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-2xl mx-auto">
-            Get your favorite drinks delivered in under 30 minutes. Fast, reliable, and always fresh.
+            Get your favorite drinks with 24 hour delivery services. Fast, reliable, and always fresh.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <Button size="lg" variant="secondary" className="bg-white text-wine hover:bg-white/90 text-sm sm:text-base">
