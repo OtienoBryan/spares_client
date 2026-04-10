@@ -57,10 +57,6 @@ const Navigation = () => {
         { name: "White Wine", path: "/category/white-wine" },
         { name: "Rose", path: "/category/rose" },
         { name: "Sparkling", path: "/category/sparkling" }
-      ],
-      "More": [
-        { name: "Mixers", path: "/category/mixers" },
-        { name: "Convenience Store", path: "/category/convenience" }
       ]
     };
 
@@ -96,13 +92,6 @@ const Navigation = () => {
         icon: "🍷",
         id: undefined,
         subcategories: getSubcategoriesForCategory("Wine")
-      },
-      { 
-        name: "More", 
-        path: "/category/more", 
-        icon: "🍹",
-        id: undefined,
-        subcategories: getSubcategoriesForCategory("More")
       }
     ];
 
