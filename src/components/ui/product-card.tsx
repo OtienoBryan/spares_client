@@ -87,58 +87,49 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
             decoding="async"
           />
           {discountPercentage && discountPercentage > 0 && (
-            <Badge className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-destructive text-destructive-foreground text-xs sm:text-sm px-1.5 sm:px-2 py-0.5 sm:py-1">
+            <Badge className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-destructive text-destructive-foreground text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 font-bold flex items-center gap-1 shadow-sm">
+              <span className="material-icons text-[12px] sm:text-[14px]">local_offer</span>
               -{discountPercentage}%
             </Badge>
           )}
           {!inStock && (
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-              <Badge variant="destructive" className="text-sm sm:text-base px-3 py-2 font-semibold bg-red-600 text-white">
+              <Badge variant="destructive" className="text-xs sm:text-sm px-3 py-2 font-bold bg-gray-900 border-red-600/50 text-white flex items-center gap-1.5 shadow-lg">
+                <span className="material-icons text-base">error_outline</span>
                 Out of Stock
               </Badge>
             </div>
           )}
-          <Badge className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-wine text-white text-xs sm:text-sm px-1.5 sm:px-2 py-0.5 sm:py-1">
-            {product.category?.name || 'Drink'}
+          <Badge className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-primary text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 font-bold shadow-sm">
+            {product.category?.name || 'Spares'}
           </Badge>
         </div>
         
         <CardContent className={`${compact ? 'p-2 sm:p-2 md:p-3 lg:p-3' : 'p-3 sm:p-4 md:p-5'} flex flex-col h-full`}>
           <div className={`${compact ? 'space-y-1 sm:space-y-2' : 'space-y-2 sm:space-y-3'} flex-1`}>
-            <h3 className={`${compact ? 'text-[10px] sm:text-xs md:text-xs lg:text-sm' : 'text-base sm:text-lg md:text-xl lg:text-2xl'} font-semibold line-clamp-1 group-hover:text-wine transition-colors`}>
+            <h3 className={`${compact ? 'text-[10px] sm:text-xs md:text-sm' : 'text-base sm:text-lg md:text-xl'} font-bold line-clamp-1 group-hover:text-primary transition-colors tracking-tight`}>
               {product.name}
             </h3>
           
-          <div className={`flex flex-col gap-1 ${compact ? 'text-[10px] sm:text-xs' : 'text-sm sm:text-base'} text-muted-foreground`}>
+          <div className={`flex flex-col gap-1 ${compact ? 'text-[9px] sm:text-xs' : 'text-xs sm:text-sm'} text-muted-foreground`}>
             <div className={`flex items-center flex-wrap ${compact ? 'gap-1' : 'gap-2 sm:gap-3'}`}>
-              <span className="text-gold font-semibold">Alc. {product.alcoholContent || 'N/A'}%</span>
+              <div className="flex items-center gap-1 font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded-md">
+                <span className="material-icons text-[12px] sm:text-[14px] text-gray-500">settings_suggest</span>
+                <span>Specs: {product.specifications || product.alcoholContent || 'N/A'}</span>
+              </div>
               {product.origin && (
-                <span className="font-semibold text-wine">• {product.origin}</span>
+                <div className="flex items-center gap-1 font-bold text-primary group-hover:underline">
+                  <span className="material-icons text-[12px] sm:text-[14px]">verified</span>
+                  <span>{product.origin}</span>
+                </div>
               )}
             </div>
           </div>
           
           <div className={`flex flex-col gap-2 ${compact ? 'mt-1' : 'mt-3'}`}>
             <div className={`flex flex-col ${compact ? 'gap-1' : 'gap-2'}`}>
-              {product.skus && product.skus.length > 0 ? (
-                product.skus.map((sku, idx) => (
-                  <div key={idx} className={`flex items-center ${compact ? 'gap-1 sm:gap-2' : 'gap-2 sm:gap-3'}`}>
-                    <span className={`${compact ? 'text-[10px] sm:text-xs' : 'text-sm sm:text-base'} font-semibold text-gray-700`}>
-                      {sku.code}:
-                    </span>
-                    <span className={`${compact ? 'text-xs sm:text-xs md:text-sm' : 'text-base sm:text-lg md:text-xl'} font-bold text-wine`}>
-                      {formatPrice(sku.price)}
-                    </span>
-                    {sku.originalPrice && (
-                      <span className={`${compact ? 'text-[10px] sm:text-xs' : 'text-sm sm:text-base'} text-muted-foreground line-through`}>
-                        {formatPrice(sku.originalPrice)}
-                      </span>
-                    )}
-                  </div>
-                ))
-              ) : (
                 <div className={`flex items-center ${compact ? 'gap-1 sm:gap-2' : 'gap-2 sm:gap-3'}`}>
-                  <span className={`${compact ? 'text-xs sm:text-xs md:text-sm lg:text-base' : 'text-lg sm:text-xl md:text-2xl'} font-bold text-wine`}>
+                  <span className={`${compact ? 'text-xs sm:text-sm md:text-base' : 'text-lg sm:text-xl md:text-2xl'} font-black text-gray-900`}>
                     {formatPrice(product.price)}
                   </span>
                   {product.originalPrice && (
@@ -147,7 +138,6 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
                     </span>
                   )}
                 </div>
-              )}
             </div>
 
             {(!hideAddToCart || !hideWhatsApp) && (
@@ -162,7 +152,7 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
                       }}
                       disabled={isLoading}
                       size="sm"
-                      className={`bg-wine hover:bg-wine-light text-white w-full ${compact ? 'text-xs sm:text-sm px-3 py-2 h-8' : 'text-sm sm:text-base px-4 py-2 h-9 sm:h-10'} touch-manipulation active:scale-95 transition-transform font-semibold`}
+                      className={`bg-primary hover:bg-primary-light text-white w-full ${compact ? 'text-xs sm:text-sm px-3 py-2 h-8' : 'text-sm sm:text-base px-4 py-2 h-9 sm:h-10'} touch-manipulation active:scale-95 transition-transform font-semibold`}
                     >
                       <ShoppingCart className={`${compact ? 'h-3 w-3 sm:h-4 sm:w-4' : 'h-4 w-4 sm:h-4 sm:w-4'} mr-2`} />
                       {isLoading ? "Adding..." : "Add to cart"}

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUser } from '@/contexts/UserContext';
 import { useToast } from '@/hooks/use-toast';
 import { X, Eye, EyeOff, Check } from 'lucide-react';
-import { LoadingWine } from '@/components/ui/lottie-loader';
+import { LoadingComponent } from '@/components/ui/lottie-loader';
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -95,7 +95,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }: RegisterModa
 
       if (success) {
         toast({
-          title: "Welcome to Drinks Avenue!",
+          title: "Welcome to Spares Avenue!",
           description: "Your account has been created successfully. You've earned 50 loyalty points!",
         });
         onClose();
@@ -132,7 +132,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }: RegisterModa
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <Card className="w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <CardHeader className="relative">
-          <CardTitle className="text-2xl font-bold text-wine text-center">Create Account</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary text-center">Create Account</CardTitle>
           <Button
             variant="ghost"
             size="sm"
@@ -251,18 +251,18 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }: RegisterModa
                 className="p-1 h-auto"
               >
                 <div className={`w-4 h-4 border-2 rounded flex items-center justify-center ${
-                  agreedToTerms ? 'bg-wine border-wine' : 'border-muted-foreground'
+                  agreedToTerms ? 'bg-primary border-primary' : 'border-muted-foreground'
                 }`}>
                   {agreedToTerms && <Check className="h-3 w-3 text-white" />}
                 </div>
               </Button>
               <Label className="text-sm">
                 I agree to the{' '}
-                <a href="#" className="text-wine hover:underline">
+                <a href="#" className="text-primary hover:underline">
                   Terms of Service
                 </a>{' '}
                 and{' '}
-                <a href="#" className="text-wine hover:underline">
+                <a href="#" className="text-primary hover:underline">
                   Privacy Policy
                 </a>
               </Label>
@@ -270,12 +270,12 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }: RegisterModa
 
             <Button
               type="submit"
-              className="w-full bg-wine hover:bg-wine-light text-white"
+              className="w-full bg-primary hover:bg-primary-light text-white"
               disabled={isLoading}
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
-                  <LoadingWine size="sm" />
+                  <LoadingComponent size="sm" />
                   Creating account...
                 </div>
               ) : (
@@ -289,7 +289,7 @@ export const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }: RegisterModa
             <button
               type="button"
               onClick={onSwitchToLogin}
-              className="text-wine hover:underline font-medium"
+              className="text-primary hover:underline font-medium"
             >
               Sign in
             </button>

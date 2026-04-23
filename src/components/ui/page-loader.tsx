@@ -1,24 +1,21 @@
-import { Loader2 } from "lucide-react";
+import { LoadingGear } from "./lottie-loader";
 
 interface PageLoaderProps {
   message?: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 export const PageLoader = ({ 
-  message = "Loading...", 
+  message = "Calibrating systems...", 
   size = "md" 
 }: PageLoaderProps) => {
-  const sizeClasses = {
-    sm: "h-4 w-4",
-    md: "h-8 w-8", 
-    lg: "h-12 w-12"
-  };
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-      <Loader2 className={`${sizeClasses[size]} animate-spin text-primary`} />
-      <p className="text-sm text-muted-foreground">{message}</p>
+    <div className="flex flex-col items-center justify-center min-h-[400px] space-y-6">
+      <LoadingGear size={size === "lg" ? "xl" : size} className="text-primary" />
+      <div className="text-center">
+        <p className="text-lg font-bold text-gray-900">{message}</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium mt-1">Precision Parts Kenya</p>
+      </div>
     </div>
   );
 };

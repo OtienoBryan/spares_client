@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 export default {
+  /* Light-only app: never add `class="dark"` on `<html>`. `dark:` utilities stay inert. */
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
@@ -22,6 +23,10 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+        },
+        header: {
+          DEFAULT: "hsl(var(--header))",
+          foreground: "hsl(var(--header-foreground))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",

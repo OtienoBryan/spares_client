@@ -1,14 +1,36 @@
 // API service for fetching data from the backend
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  (typeof window !== 'undefined' && (
-    window.location.hostname.endsWith('vercel.app') ||
-    window.location.hostname.includes('drinksavenue.co.ke')
-  )
-    ? '/api'
-    : 'http://localhost:3001/api');
+function resolveApiBaseUrl(): string {
+  const fromEnv = import.meta.env.VITE_API_BASE_URL?.trim();
+  if (fromEnv) return fromEnv.replace(/\/$/, "");
+
+  // Vite dev: use same-origin /api (proxied in vite.config.ts — no local :3001 needed)
+  if (import.meta.env.DEV) return "/api";
+
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    if (host.endsWith("vercel.app") || host.includes("precisionparts.co.ke")) {
+      return "/api";
+    }
+  }
+
+  return "http://localhost:3001/api";
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
+
+/** Helper to map legacy drink fields to automotive terms */
+const mapProductFields = (product: any): Product => {
+  if (!product) return product;
+  return {
+    ...product,
+    specifications: product.specifications || product.alcoholContent || "N/A",
+    dimensions: product.dimensions || product.volume || "Standard",
+    requiresSpecialHandling: product.requiresSpecialHandling ?? product.requiresAgeVerification ?? false
+  } as Product;
+};
 
 export interface Category {
+// ... existing Category interface ...
   id: number;
   name: string;
   description: string;
@@ -16,6 +38,14 @@ export interface Category {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  /**
+   * When set (along with isActive), category appears on home “Shop by parts”.
+   * Sort ascending (1, 2, 3…). Omitted categories are not shown there.
+   * Backend may send snake_case `shop_by_parts_sort` — see `categoryShopTiles.ts`.
+   */
+  shopByPartsSort?: number | null;
+  /** Optional shorter label on the tile; defaults to category name. */
+  shopByPartsLabel?: string | null;
 }
 
 export interface SubCategory {
@@ -45,8 +75,18 @@ export interface Product {
   image: string;
   images?: string[];
   brand: string;
+  /** Automotive specifications (mapped from legacy alcoholContent) */
+  specifications: string;
+  /** Unit size or dimensions (mapped from legacy volume) */
+  dimensions: string;
+  /** Legacy field for backend compatibility */
   alcoholContent: string;
+  /** Legacy field for backend compatibility */
   volume: string;
+  /** Primary OEM reference number for precise fitment cross-checking */
+  oemNumber?: string;
+  /** Part number assigned by the manufacturer (e.g. Bosch, Brembo) */
+  manufacturerPartNumber?: string;
   origin: string;
   tags: string[];
   rating: number;
@@ -54,7 +94,9 @@ export interface Product {
   isActive: boolean;
   isFeatured: boolean;
   newArrival: boolean;
-  requiresAgeVerification: boolean;
+  /** Refined for automotive: e.g. hazardous materials or professional install required */
+  requiresSpecialHandling?: boolean;
+  requiresAgeVerification: boolean; // Legacy
   category: Category;
   categoryId: number;
   subcategory?: SubCategory;
@@ -198,31 +240,38 @@ class ApiService {
 
   // Products
   async getProducts(): Promise<Product[]> {
-    return this.request<Product[]>('/products');
+    const data = await this.request<Product[]>('/products');
+    return data.map(mapProductFields);
   }
 
   async getProductById(id: number): Promise<Product> {
-    return this.request<Product>(`/products/${id}`);
+    const data = await this.request<Product>(`/products/${id}`);
+    return mapProductFields(data);
   }
 
   async getFeaturedProducts(): Promise<Product[]> {
-    return this.request<Product[]>('/products/featured');
+    const data = await this.request<Product[]>('/products/featured');
+    return data.map(mapProductFields);
   }
 
   async getNewArrivals(): Promise<Product[]> {
-    return this.request<Product[]>('/products/new-arrivals');
+    const data = await this.request<Product[]>('/products/new-arrivals');
+    return data.map(mapProductFields);
   }
 
   async searchProducts(query: string): Promise<Product[]> {
-    return this.request<Product[]>(`/products/search?q=${encodeURIComponent(query)}`);
+    const data = await this.request<Product[]>(`/products/search?q=${encodeURIComponent(query)}`);
+    return data.map(mapProductFields);
   }
 
   async getProductsByCategory(categoryId: number): Promise<Product[]> {
-    return this.request<Product[]>(`/products/category/${categoryId}`);
+    const data = await this.request<Product[]>(`/products/category/${categoryId}`);
+    return data.map(mapProductFields);
   }
 
-  async getPopularWines(): Promise<Product[]> {
-    return this.request<Product[]>('/products/popular-wines');
+  async getPopularParts(): Promise<Product[]> {
+    const data = await this.request<Product[]>('/products/popular-wines');
+    return data.map(mapProductFields);
   }
 
   // Helper method to get products by category name (for backward compatibility)

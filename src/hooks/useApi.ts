@@ -27,7 +27,7 @@ export function useApi<T>(
 
 // Specific hooks for different data types with optimized query keys
 export function useCategories() {
-  const { data, isLoading: loading, error } = useQuery({
+  const { data, isLoading: loading, error } = useQuery<Category[]>({
     queryKey: ['categories'],
     queryFn: () => apiService.getCategories(),
     staleTime: 10 * 60 * 1000, // 10 minutes - categories don't change often
@@ -40,7 +40,7 @@ export function useCategories() {
 }
 
 export function useProducts() {
-  const { data, isLoading: loading, error } = useQuery({
+  const { data, isLoading: loading, error } = useQuery<Product[]>({
     queryKey: ['products'],
     queryFn: () => apiService.getProducts(),
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -53,7 +53,7 @@ export function useProducts() {
 }
 
 export function useFeaturedProducts() {
-  const { data, isLoading: loading, error } = useQuery({
+  const { data, isLoading: loading, error } = useQuery<Product[]>({
     queryKey: ['featured-products'],
     queryFn: () => apiService.getFeaturedProducts(),
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -66,7 +66,7 @@ export function useFeaturedProducts() {
 }
 
 export function useNewArrivals() {
-  const { data, isLoading: loading, error } = useQuery({
+  const { data, isLoading: loading, error } = useQuery<Product[]>({
     queryKey: ['new-arrivals'],
     queryFn: () => apiService.getNewArrivals(),
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -78,10 +78,10 @@ export function useNewArrivals() {
   return { data: data || null, loading, error: error?.message || null };
 }
 
-export function usePopularWines() {
-  const { data, isLoading: loading, error } = useQuery({
-    queryKey: ['popular-wines'],
-    queryFn: () => apiService.getPopularWines(),
+export function usePopularParts() {
+  const { data, isLoading: loading, error } = useQuery<Product[]>({
+    queryKey: ['popular-parts'],
+    queryFn: () => apiService.getPopularParts(),
     staleTime: 5 * 60 * 1000, // 5 minutes
     cacheTime: 15 * 60 * 1000, // 15 minutes
     retry: 1,
@@ -90,6 +90,9 @@ export function usePopularWines() {
 
   return { data: data || null, loading, error: error?.message || null };
 }
+
+/** Legacy alias */
+export const usePopularWines = usePopularParts;
 
 export function useProduct(id: number) {
   const { data, isLoading: loading, error } = useQuery({

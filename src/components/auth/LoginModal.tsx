@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUser } from '@/contexts/UserContext';
 import { useToast } from '@/hooks/use-toast';
 import { X, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { LoadingWine } from '@/components/ui/lottie-loader';
+import { LoadingComponent } from '@/components/ui/lottie-loader';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -66,7 +66,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <Card className="w-full max-w-md mx-4">
         <CardHeader className="relative">
-          <CardTitle className="text-2xl font-bold text-wine text-center">Welcome Back</CardTitle>
+          <CardTitle className="text-2xl font-bold text-primary text-center">Welcome Back</CardTitle>
           <Button
             variant="ghost"
             size="sm"
@@ -115,12 +115,12 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
 
             <Button
               type="submit"
-              className="w-full bg-wine hover:bg-wine-light text-white"
+              className="w-full bg-primary hover:bg-primary-light text-white"
               disabled={isLoading}
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
-                  <LoadingWine size="sm" />
+                  <LoadingComponent size="sm" />
                   Signing in...
                 </div>
               ) : (
@@ -146,7 +146,7 @@ export const LoginModal = ({ isOpen, onClose, onSwitchToRegister }: LoginModalPr
               <button
                 type="button"
                 onClick={onSwitchToRegister}
-                className="text-wine hover:underline font-medium"
+                className="text-primary hover:underline font-medium"
               >
                 Sign up
               </button>

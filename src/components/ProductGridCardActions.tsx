@@ -57,7 +57,7 @@ export function ProductGridCardActions({ product, onAddToCart, compact = true }:
           variant="default"
           size="sm"
           disabled={loading}
-          className={`w-full bg-wine hover:bg-wine/90 text-white ${btnClass}`}
+          className={`w-full bg-primary hover:bg-primary/90 text-white ${btnClass}`}
           onClick={handleAdd}
         >
           <ShoppingCart className="h-3 w-3 shrink-0" />

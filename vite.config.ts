@@ -1,13 +1,26 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), "");
+  /** Backend for local/preview; matches production rewrite in vercel.json unless overridden */
+  const apiProxyTarget =
+    env.VITE_DEV_API_PROXY_TARGET?.trim() || "http://159.203.188.25:3000";
+  const apiProxy = {
+    "/api": {
+      target: apiProxyTarget,
+      changeOrigin: true,
+    },
+  };
+
+  return {
   server: {
     port: 5173,
     strictPort: false,
+    proxy: apiProxy,
     // Disable caching in development
     headers: {
       'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
@@ -110,4 +123,8 @@ export default defineConfig(({ mode }) => ({
   esbuild: {
     jsx: 'automatic',
   },
-}));
+  preview: {
+    proxy: apiProxy,
+  },
+};
+});

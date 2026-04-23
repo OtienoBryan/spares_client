@@ -37,7 +37,7 @@ export function CartSidebar({ items, onUpdateQuantity, onRemoveItem }: CartSideb
         >
           <ShoppingCart className="h-4 w-4" />
           {totalItems > 0 && (
-            <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-wine text-white text-xs">
+            <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center bg-primary text-white text-xs">
               {totalItems}
             </Badge>
           )}
@@ -70,7 +70,7 @@ export function CartSidebar({ items, onUpdateQuantity, onRemoveItem }: CartSideb
                     />
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium line-clamp-1 text-xs sm:text-sm">{item.name}</h4>
-                      <p className="text-xs sm:text-sm text-wine font-semibold">{item.price}</p>
+                      <p className="text-xs sm:text-sm text-primary font-semibold">{item.price}</p>
                       
                       <div className="flex items-center justify-between mt-1.5">
                         <div className="flex items-center gap-1.5">
@@ -116,11 +116,11 @@ export function CartSidebar({ items, onUpdateQuantity, onRemoveItem }: CartSideb
             <div className="border-t pt-3 space-y-3">
               <div className="flex justify-between text-sm sm:text-base font-semibold">
                 <span>Total:</span>
-                <span className="text-wine">{totalPrice.toFixed(2)}</span>
+                <span className="text-primary">{totalPrice.toFixed(2)}</span>
               </div>
               
               <Button 
-                className="w-full bg-wine hover:bg-wine-light text-white" 
+                className="w-full bg-primary hover:bg-primary-light text-white" 
                 size="sm"
                 onClick={() => {
                   setOpen(false);

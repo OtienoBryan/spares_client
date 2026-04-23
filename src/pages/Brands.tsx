@@ -107,7 +107,7 @@ const Brands = () => {
         <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
           <div className="text-center">
             <LoadingWave size="xl" className="mx-auto mb-3 sm:mb-4" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-2 sm:mb-4">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary mb-2 sm:mb-4">
               {brandName ? `Loading ${decodeURIComponent(brandName)} Products...` : "Loading Brands..."}
             </h1>
             <p className="text-sm sm:text-base">Discovering our brands...</p>
@@ -129,7 +129,7 @@ const Brands = () => {
         <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
           <div className="text-center">
             <LoadingNetworkError size="xl" className="mx-auto mb-3 sm:mb-4" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4">Connection Error</h1>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary mb-3 sm:mb-4">Connection Error</h1>
             <p className="text-muted-foreground mb-3 sm:mb-4 text-sm sm:text-base">Unable to load brands</p>
             <Button onClick={() => window.location.reload()} className="text-xs sm:text-sm touch-manipulation">
               Try Again
@@ -146,13 +146,13 @@ const Brands = () => {
     return (
       <div className="min-h-screen bg-background">
         <Helmet>
-          <title>{selectedBrandName} Products - Drinks Avenue</title>
-          <meta name="description" content={`Browse all products from ${selectedBrandName}. Premium drinks and spirits.`} />
+          <title>{selectedBrandName} Products - Spares Avenue</title>
+          <meta name="description" content={`Browse all products from ${selectedBrandName}. Premium Spares and spirits.`} />
         </Helmet>
         <Navigation />
         
         {/* Header Section */}
-        <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-wine/10 to-primary/10">
+        <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-Component/10 to-primary/10">
           <div className="container mx-auto px-3 sm:px-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
               <Link to="/brands">
@@ -162,14 +162,14 @@ const Brands = () => {
                   <span className="sm:hidden text-xs">Back</span>
                 </Button>
               </Link>
-              <div className="inline-flex items-center gap-2 bg-wine text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
+              <div className="inline-flex items-center gap-2 bg-primary text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
                 <Tag className="h-3 w-3 sm:h-4 sm:w-4" />
                 {selectedBrandName}
               </div>
             </div>
             
             <div className="text-center sm:text-left">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-wine mb-2 sm:mb-3">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 sm:mb-3">
                 {selectedBrandName} Products
               </h1>
               <p className="text-sm sm:text-base text-muted-foreground">
@@ -232,7 +232,7 @@ const Brands = () => {
                   We don't have any products from this brand at the moment.
                 </p>
                 <Link to="/brands">
-                  <Button className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-xs sm:text-sm touch-manipulation">
+                  <Button className="bg-primary hover:bg-primary/90 active:bg-primary/80 text-xs sm:text-sm touch-manipulation">
                     <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     Back to Brands
                   </Button>
@@ -251,13 +251,13 @@ const Brands = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Brands - Drinks Avenue</title>
-        <meta name="description" content="Browse all brands available at Drinks Avenue. Discover premium drinks and spirits from your favorite brands." />
+        <title>Brands - Spares Avenue</title>
+        <meta name="description" content="Browse all brands available at Spares Avenue. Discover premium Spares and spirits from your favorite brands." />
       </Helmet>
       <Navigation />
       
       {/* Header Section */}
-      <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-wine/10 to-primary/10">
+      <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-Component/10 to-primary/10">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
             <Link to="/">
@@ -267,18 +267,18 @@ const Brands = () => {
                 <span className="sm:hidden text-xs">Back</span>
               </Button>
             </Link>
-            <div className="inline-flex items-center gap-2 bg-wine text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
+            <div className="inline-flex items-center gap-2 bg-primary text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
               <Tag className="h-3 w-3 sm:h-4 sm:w-4" />
               All Brands
             </div>
           </div>
           
           <div className="text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-wine mb-2 sm:mb-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 sm:mb-3">
               Browse by Brand
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Discover premium drinks from {allBrands.length} {allBrands.length === 1 ? 'brand' : 'brands'}
+              Discover premium Spares from {allBrands.length} {allBrands.length === 1 ? 'brand' : 'brands'}
             </p>
           </div>
         </div>
@@ -311,7 +311,7 @@ const Brands = () => {
                   to={`/brands/${encodeURIComponent(brand.name)}`}
                   className="group"
                 >
-                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-2 border-wine/20 hover:border-wine/40 touch-manipulation flex flex-col h-full">
+                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-2 border-primary/20 hover:border-primary/40 touch-manipulation flex flex-col h-full">
                     <div className="relative overflow-hidden bg-white p-4 sm:p-6 flex items-center justify-center min-h-[120px] sm:min-h-[140px]">
                       {brand.image ? (
                         <img
@@ -322,15 +322,15 @@ const Brands = () => {
                           decoding="async"
                         />
                       ) : (
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-wine/10 flex items-center justify-center">
-                          <span className="text-wine font-bold text-2xl sm:text-3xl">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-primary/10 flex items-center justify-center">
+                          <span className="text-primary font-bold text-2xl sm:text-3xl">
                             {brand.name.charAt(0).toUpperCase()}
                           </span>
                         </div>
                       )}
                     </div>
                     <CardContent className="p-3 sm:p-4 text-center">
-                      <h3 className="font-semibold text-sm sm:text-base mb-1 sm:mb-2 group-hover:text-wine transition-colors line-clamp-2">
+                      <h3 className="font-semibold text-sm sm:text-base mb-1 sm:mb-2 group-hover:text-primary transition-colors line-clamp-2">
                         {brand.name}
                       </h3>
                       <Badge variant="secondary" className="text-xs">
@@ -356,7 +356,7 @@ const Brands = () => {
               {searchQuery && (
                 <Button 
                   onClick={() => setSearchQuery("")}
-                  className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-xs sm:text-sm touch-manipulation"
+                  className="bg-primary hover:bg-primary/90 active:bg-primary/80 text-xs sm:text-sm touch-manipulation"
                 >
                   Clear Search
                 </Button>

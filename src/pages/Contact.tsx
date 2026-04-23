@@ -7,6 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
+import {
+  COMPANY_NAME,
+  CONTACT_PHONE_DISPLAY,
+  ORDERS_EMAIL,
+  SUPPORT_EMAIL,
+} from "@/config/site";
 import { 
   Mail, 
   Phone, 
@@ -68,19 +74,19 @@ const Contact = () => {
     {
       icon: <Phone className="h-5 w-5" />,
       title: "Phone",
-      details: ["0790 831798"],
+      details: [CONTACT_PHONE_DISPLAY],
       description: "Call us for immediate assistance"
     },
     {
       icon: <Mail className="h-5 w-5" />,
       title: "Email",
-      details: ["support@shoppadrinks.com", "orders@shoppadrinks.com"],
+      details: [SUPPORT_EMAIL, ORDERS_EMAIL],
       description: "Email us anytime, we respond within 24 hours"
     },
     {
       icon: <MapPin className="h-5 w-5" />,
       title: "Address",
-      details: ["123 Beverage Street", "Drink City, DC 12345"],
+      details: ["123 Beverage Street", "Spare City, DC 12345"],
       description: "Visit our headquarters"
     },
     {
@@ -107,10 +113,10 @@ const Contact = () => {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-wine/10 to-gold/10">
+      <section className="relative py-20 bg-gradient-to-br from-Component/10 to-gold/10">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-wine mb-6">
+            <h1 className="text-4xl md:text-5xl font-bold text-primary mb-6">
               Get in Touch
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
@@ -141,7 +147,7 @@ const Contact = () => {
             {/* Contact Form */}
             <Card className="shadow-lg">
               <CardHeader>
-                <CardTitle className="text-2xl text-wine">Send us a Message</CardTitle>
+                <CardTitle className="text-2xl text-primary">Send us a Message</CardTitle>
                 <p className="text-muted-foreground">
                   Fill out the form below and we'll get back to you as soon as possible.
                 </p>
@@ -244,7 +250,7 @@ const Contact = () => {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-wine hover:bg-wine-light text-white"
+                    className="w-full bg-primary hover:bg-primary-light text-white"
                     size="lg"
                   >
                     {isSubmitting ? (
@@ -266,7 +272,7 @@ const Contact = () => {
             {/* Contact Information */}
             <div className="space-y-6">
               <div>
-                <h2 className="text-2xl font-bold text-wine mb-4">Contact Information</h2>
+                <h2 className="text-2xl font-bold text-primary mb-4">Contact Information</h2>
                 <p className="text-muted-foreground mb-6">
                   Choose the most convenient way to reach us. We're here to help with any questions or concerns.
                 </p>
@@ -277,7 +283,7 @@ const Contact = () => {
                   <Card key={index} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
-                        <div className="p-2 bg-wine/10 rounded-lg text-wine">
+                        <div className="p-2 bg-primary/10 rounded-lg text-primary">
                           {info.icon}
                         </div>
                         <div className="flex-1">
@@ -328,7 +334,7 @@ const Contact = () => {
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-center text-wine mb-12">
+            <h2 className="text-3xl font-bold text-center text-primary mb-12">
               Frequently Asked Questions
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
@@ -370,15 +376,15 @@ const Contact = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-wine text-white py-12">
+      <footer className="bg-primary text-white py-12">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <h3 className="text-2xl font-bold mb-4">Drinks Avenue</h3>
-            <p className="text-wine-light mb-4">
-              Premium drinks delivered fast to your doorstep
+            <h3 className="text-2xl font-bold mb-4">{COMPANY_NAME}</h3>
+            <p className="text-primary-light mb-4">
+              Premium Spares delivered fast to your doorstep
             </p>
-            <p className="text-sm text-wine-light">
-              © 2024 Drinks Avenue. All rights reserved.
+            <p className="text-sm text-primary-light">
+              © 2026 {COMPANY_NAME}. All rights reserved.
             </p>
           </div>
         </div>

@@ -187,7 +187,7 @@ const Orders = () => {
         <Navigation />
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
-            <h1 className="text-xl font-bold text-wine mb-2">Please log in</h1>
+            <h1 className="text-xl font-bold text-primary mb-2">Please log in</h1>
             <p className="text-sm text-muted-foreground">You need to be logged in to view your orders.</p>
           </div>
         </div>
@@ -217,7 +217,7 @@ const Orders = () => {
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         {/* Simple Header */}
         <div className="mb-6">
-          <h1 className="text-xl font-bold text-wine mb-1">My Orders</h1>
+          <h1 className="text-xl font-bold text-primary mb-1">My Orders</h1>
           <p className="text-xs text-muted-foreground">{stats.total} {stats.total === 1 ? 'order' : 'orders'} total</p>
         </div>
 
@@ -307,7 +307,7 @@ const Orders = () => {
                       {/* Left: Order Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="text-sm font-semibold text-wine">#{order.orderNumber}</span>
+                          <span className="text-sm font-semibold text-primary">#{order.orderNumber}</span>
                           <Badge className={`${getStatusColor(order.status)} text-xs px-2 py-0.5 border`}>
                             <div className="flex items-center gap-1">
                               {getStatusIcon(order.status)}
@@ -348,7 +348,7 @@ const Orders = () => {
                       {/* Right: Price & Action */}
                       <div className="flex flex-col items-end gap-2">
                         <div className="text-right">
-                          <p className="text-base font-bold text-wine">{formatPrice(typeof order.total === 'number' ? order.total : parseFloat(order.total) || 0)}</p>
+                          <p className="text-base font-bold text-primary">{formatPrice(typeof order.total === 'number' ? order.total : parseFloat(order.total) || 0)}</p>
                         </div>
                         <Dialog>
                           <DialogTrigger asChild>
@@ -376,7 +376,7 @@ const Orders = () => {
                                       <span>{order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
                                     </div>
                                   </Badge>
-                                  <p className="text-base font-bold text-wine">
+                                  <p className="text-base font-bold text-primary">
                                     {formatPrice(typeof order.total === 'number' ? order.total : parseFloat(order.total) || 0)}
                                   </p>
                                 </div>
@@ -464,7 +464,7 @@ const Orders = () => {
                                         navigate('/cart');
                                       }, 500);
                                     }}
-                                    className="w-full bg-wine hover:bg-wine-light text-white"
+                                    className="w-full bg-primary hover:bg-primary-light text-white"
                                     size="sm"
                                   >
                                     <ShoppingCart className="h-4 w-4 mr-2" />

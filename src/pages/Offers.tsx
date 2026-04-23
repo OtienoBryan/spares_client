@@ -147,7 +147,7 @@ const Offers = () => {
         <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
           <div className="text-center">
             <LoadingWave size="xl" className="mx-auto mb-3 sm:mb-4" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-2 sm:mb-4">Loading Offers...</h1>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary mb-2 sm:mb-4">Loading Offers...</h1>
             <p className="text-sm sm:text-base">Finding the best deals for you...</p>
           </div>
         </div>
@@ -166,7 +166,7 @@ const Offers = () => {
         <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
           <div className="text-center">
             <LoadingNetworkError size="xl" className="mx-auto mb-3 sm:mb-4" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4">Connection Error</h1>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary mb-3 sm:mb-4">Connection Error</h1>
             <p className="text-muted-foreground mb-3 sm:mb-4 text-sm sm:text-base">Unable to load offers</p>
             <Button onClick={() => window.location.reload()} className="text-xs sm:text-sm touch-manipulation">
               Try Again
@@ -182,7 +182,7 @@ const Offers = () => {
       <Navigation />
       
       {/* Header Section */}
-      <section className="py-4 sm:py-5 md:py-6 bg-gradient-to-br from-wine/10 to-primary/10">
+      <section className="py-4 sm:py-5 md:py-6 bg-gradient-to-br from-Component/10 to-primary/10">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
             <Link to="/">
@@ -192,18 +192,18 @@ const Offers = () => {
                 <span className="sm:hidden text-xs">Back</span>
               </Button>
             </Link>
-            <div className="inline-flex items-center gap-2 bg-wine text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
+            <div className="inline-flex items-center gap-2 bg-primary text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
               <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
               Limited Time Offers
             </div>
           </div>
           
           <div className="text-center sm:text-left">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-wine mb-1 sm:mb-2">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-primary mb-1 sm:mb-2">
               Special Offers
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Discover amazing deals on premium drinks - limited time only!
+              Discover amazing deals on premium Spares - limited time only!
             </p>
           </div>
         </div>
@@ -227,7 +227,7 @@ const Offers = () => {
                     size="sm"
                     onClick={() => setFilterCategory(category)}
                     className={`text-xs sm:text-sm touch-manipulation ${
-                      filterCategory === category ? "bg-wine hover:bg-wine/90" : ""
+                      filterCategory === category ? "bg-primary hover:bg-primary/90" : ""
                     }`}
                   >
                     {category === 'all' ? 'All Categories' : category}
@@ -265,7 +265,7 @@ const Offers = () => {
       </section>
 
       {/* Products Grid */}
-      <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-wine/5 to-primary/5">
+      <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-Component/5 to-primary/5">
         <div className="container mx-auto px-3 sm:px-4">
           {paginatedProducts.length > 0 ? (
             <>
@@ -292,7 +292,7 @@ const Offers = () => {
                       </div>
                       <CardContent className="p-2 sm:p-2 md:p-3 lg:p-3">
                         <div className="space-y-1 sm:space-y-2">
-                          <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-wine transition-colors">
+                          <h3 className="font-semibold text-[10px] sm:text-xs md:text-xs lg:text-sm line-clamp-1 group-hover:text-primary transition-colors">
                             {product.name}
                           </h3>
                           <div className="flex items-center gap-1">
@@ -318,7 +318,7 @@ const Offers = () => {
                                 {product.skus.map((sku, idx) => (
                                   <div key={idx} className="flex items-center gap-1 sm:gap-2">
                                     <span className="text-[10px] sm:text-xs font-semibold text-gray-700">{sku.code}:</span>
-                                    <span className="text-xs sm:text-xs md:text-sm font-bold text-wine">
+                                    <span className="text-xs sm:text-xs md:text-sm font-bold text-primary">
                                       {formatPrice(sku.price)}
                                     </span>
                                     {sku.originalPrice && (
@@ -333,7 +333,7 @@ const Offers = () => {
                               <>
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-1 sm:gap-2">
-                                    <span className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-wine">
+                                    <span className="text-xs sm:text-xs md:text-sm lg:text-base font-bold text-primary">
                                       {formatPrice(product.price)}
                                     </span>
                                     {product.originalPrice && (
@@ -446,7 +446,7 @@ const Offers = () => {
                 }
               </p>
               <Link to="/">
-                <Button className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-xs sm:text-sm touch-manipulation">
+                <Button className="bg-primary hover:bg-primary/90 active:bg-primary/80 text-xs sm:text-sm touch-manipulation">
                   <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   Back to Home
                 </Button>

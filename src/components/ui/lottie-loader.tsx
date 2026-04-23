@@ -10,15 +10,15 @@ interface LottieLoaderProps {
   autoplay?: boolean;
 }
 
-// Wine glass pouring animation
-const wineGlassAnimation = {
+// Component glass pouring animation
+const ComponentGlassAnimation = {
   "v": "5.7.4",
   "fr": 30,
   "ip": 0,
   "op": 120,
   "w": 200,
   "h": 200,
-  "nm": "Wine Glass Pouring",
+  "nm": "Component Glass Pouring",
   "ddd": 0,
   "assets": [],
   "layers": [
@@ -26,7 +26,7 @@ const wineGlassAnimation = {
       "ddd": 0,
       "ind": 1,
       "ty": 4,
-      "nm": "Wine Glass",
+      "nm": "Component Glass",
       "sr": 1,
       "ks": {
         "p": {
@@ -155,7 +155,7 @@ const wineGlassAnimation = {
       "ddd": 0,
       "ind": 2,
       "ty": 4,
-      "nm": "Wine Pour",
+      "nm": "Component Pour",
       "sr": 1,
       "ks": {
         "o": {
@@ -297,7 +297,7 @@ const wineGlassAnimation = {
               "nm": "Transform"
             }
           ],
-          "nm": "Wine",
+          "nm": "Component",
           "np": 2,
           "cix": 2,
           "bm": 0,
@@ -1112,7 +1112,7 @@ export const LottieLoader = ({
   if (loading) {
     return (
       <div className={`${sizeClasses[size]} ${className}`}>
-        <div className="animate-spin rounded-full h-full w-full border-b-2 border-wine"></div>
+        <div className="animate-spin rounded-full h-full w-full border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -1129,17 +1129,74 @@ export const LottieLoader = ({
   );
 };
 
-// New wine-themed loading animations
-export const LoadingWine = ({ size = 'md', className = '' }: { size?: 'sm' | 'md' | 'lg' | 'xl', className?: string }) => (
-  <LottieLoader size={size} className={className} animationData={wineGlassAnimation} />
+// Industrial Rotating Gear Animation
+const gearAnimation = {
+  "v": "5.7.4",
+  "fr": 30,
+  "ip": 0,
+  "op": 60,
+  "w": 100,
+  "h": 100,
+  "nm": "Rotating Gear",
+  "ddd": 0,
+  "assets": [],
+  "layers": [
+    {
+      "ddd": 0,
+      "ind": 1,
+      "ty": 4,
+      "nm": "Gear",
+      "sr": 1,
+      "ks": {
+        "o": { "a": 0, "k": 100 },
+        "r": { "a": 1, "k": [{ "t": 0, "s": [0] }, { "t": 60, "s": [360] }] },
+        "p": { "a": 0, "k": [50, 50, 0] },
+        "a": { "a": 0, "k": [0, 0, 0] },
+        "s": { "a": 0, "k": [100, 100, 100] }
+      },
+      "ao": 0,
+      "shapes": [
+        {
+          "ty": "gr",
+          "it": [
+            {
+              "ty": "st",
+              "c": { "a": 0, "k": [0.8, 0.1, 0.1, 1] },
+              "o": { "a": 0, "k": 100 },
+              "w": { "a": 0, "k": 4 }
+            },
+            {
+              "ty": "sh",
+              "ks": {
+                "a": 0,
+                "k": {
+                  "i": [[0,0],[0,0],[0,0],[0,0]],
+                  "o": [[0,0],[0,0],[0,0],[0,0]],
+                  "v": [[-20,-20],[20,-20],[20,20],[-20,20]],
+                  "c": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+};
+
+// Spares-themed loading animations
+export const LoadingSpares = ({ size = 'md', className = '' }: { size?: 'sm' | 'md' | 'lg' | 'xl', className?: string }) => (
+  <LottieLoader size={size} className={className} animationData={gearAnimation} />
 );
 
 export const LoadingWave = ({ size = 'md', className = '' }: { size?: 'sm' | 'md' | 'lg' | 'xl', className?: string }) => (
-  <LottieLoader size={size} className={className} animationData={waveAnimation} />
+  <LottieLoader size={size} className={className} animationData={gearAnimation} />
 );
 
+export const LoadingGear = LoadingSpares;
+
 export const LoadingSpinner = ({ size = 'md', className = '' }: { size?: 'sm' | 'md' | 'lg' | 'xl', className?: string }) => (
-  <LottieLoader size={size} className={className} animationData={geometricSpinner} />
+  <LottieLoader size={size} className={className} animationData={gearAnimation} />
 );
 
 export const LoadingNetworkError = ({ size = 'md', className = '' }: { size?: 'sm' | 'md' | 'lg' | 'xl', className?: string }) => (
@@ -1148,4 +1205,4 @@ export const LoadingNetworkError = ({ size = 'md', className = '' }: { size?: 's
 
 // Keep the old names for backward compatibility
 export const LoadingDots = LoadingWave;
-export const LoadingPulse = LoadingWine;
+export const LoadingPulse = LoadingSpares; export const LoadingComponent = LoadingSpares;

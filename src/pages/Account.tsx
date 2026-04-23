@@ -30,7 +30,7 @@ const Account = () => {
         <Navigation />
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-wine mb-4">Please login</h1>
+            <h1 className="text-2xl font-bold text-primary mb-4">Please login</h1>
             <p className="text-muted-foreground">You need to be logged in to view your account.</p>
           </div>
         </div>
@@ -78,7 +78,7 @@ const Account = () => {
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-wine mb-2">My Account</h1>
+          <h1 className="text-3xl font-bold text-primary mb-2">My Account</h1>
           <p className="text-muted-foreground">Manage your profile, orders, and loyalty points</p>
         </div>
 
@@ -163,14 +163,14 @@ const Account = () => {
                     <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">No orders yet</h3>
                     <p className="text-muted-foreground mb-4">Start shopping to see your orders here</p>
-                    <Button className="bg-wine hover:bg-wine-light text-white">
+                    <Button className="bg-primary hover:bg-primary-light text-white">
                       Start Shopping
                     </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {orders.map((order) => (
-                      <Card key={order.id} className="border-l-4 border-l-wine">
+                      <Card key={order.id} className="border-l-4 border-l-Component">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between mb-4">
                             <div>

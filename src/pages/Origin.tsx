@@ -104,7 +104,7 @@ const Origin = () => {
         <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
           <div className="text-center">
             <LoadingWave size="xl" className="mx-auto mb-3 sm:mb-4" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-2 sm:mb-4">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary mb-2 sm:mb-4">
               {country ? `Loading ${decodeURIComponent(country)} Products...` : "Loading Origins..."}
             </h1>
             <p className="text-sm sm:text-base">Discovering our products...</p>
@@ -126,7 +126,7 @@ const Origin = () => {
         <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
           <div className="text-center">
             <LoadingNetworkError size="xl" className="mx-auto mb-3 sm:mb-4" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-wine mb-3 sm:mb-4">Connection Error</h1>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary mb-3 sm:mb-4">Connection Error</h1>
             <p className="text-muted-foreground mb-3 sm:mb-4 text-sm sm:text-base">Unable to load products</p>
             <Button onClick={() => window.location.reload()} className="text-xs sm:text-sm touch-manipulation">
               Try Again
@@ -143,13 +143,13 @@ const Origin = () => {
     return (
       <div className="min-h-screen bg-background">
         <Helmet>
-          <title>{selectedOriginName} Products - Drinks Avenue</title>
-          <meta name="description" content={`Browse all products from ${selectedOriginName}. Premium drinks and spirits.`} />
+          <title>{selectedOriginName} Products - Spares Avenue</title>
+          <meta name="description" content={`Browse all products from ${selectedOriginName}. Premium Spares and spirits.`} />
         </Helmet>
         <Navigation />
         
         {/* Header Section */}
-        <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-wine/10 to-primary/10">
+        <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-Component/10 to-primary/10">
           <div className="container mx-auto px-3 sm:px-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
               <Link to="/origin">
@@ -159,14 +159,14 @@ const Origin = () => {
                   <span className="sm:hidden text-xs">Back</span>
                 </Button>
               </Link>
-              <div className="inline-flex items-center gap-2 bg-wine text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
+              <div className="inline-flex items-center gap-2 bg-primary text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
                 <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
                 {selectedOriginName}
               </div>
             </div>
             
             <div className="text-center sm:text-left">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-wine mb-2 sm:mb-3">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 sm:mb-3">
                 Products from {selectedOriginName}
               </h1>
               <p className="text-sm sm:text-base text-muted-foreground">
@@ -229,7 +229,7 @@ const Origin = () => {
                   We don't have any products from this country at the moment.
                 </p>
                 <Link to="/origin">
-                  <Button className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-xs sm:text-sm touch-manipulation">
+                  <Button className="bg-primary hover:bg-primary/90 active:bg-primary/80 text-xs sm:text-sm touch-manipulation">
                     <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     Back to Origins
                   </Button>
@@ -248,13 +248,13 @@ const Origin = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Products by Origin - Drinks Avenue</title>
-        <meta name="description" content="Browse all products by country of origin. Discover premium drinks and spirits from around the world." />
+        <title>Products by Origin - Spares Avenue</title>
+        <meta name="description" content="Browse all products by country of origin. Discover premium Spares and spirits from around the world." />
       </Helmet>
       <Navigation />
       
       {/* Header Section */}
-      <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-wine/10 to-primary/10">
+      <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-Component/10 to-primary/10">
         <div className="container mx-auto px-3 sm:px-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
             <Link to="/">
@@ -264,18 +264,18 @@ const Origin = () => {
                 <span className="sm:hidden text-xs">Back</span>
               </Button>
             </Link>
-            <div className="inline-flex items-center gap-2 bg-wine text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
+            <div className="inline-flex items-center gap-2 bg-primary text-white px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold">
               <Globe className="h-3 w-3 sm:h-4 sm:w-4" />
               All Origins
             </div>
           </div>
           
           <div className="text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-wine mb-2 sm:mb-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-2 sm:mb-3">
               Browse by Origin
             </h1>
             <p className="text-sm sm:text-base text-muted-foreground">
-              Discover premium drinks from {allOrigins.length} {allOrigins.length === 1 ? 'country' : 'countries'}
+              Discover premium Spares from {allOrigins.length} {allOrigins.length === 1 ? 'country' : 'countries'}
             </p>
           </div>
         </div>
@@ -308,7 +308,7 @@ const Origin = () => {
                   to={`/origin/${encodeURIComponent(origin.name)}`}
                   className="group"
                 >
-                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-2 border-wine/20 hover:border-wine/40 touch-manipulation flex flex-col h-full">
+                  <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-105 group-active:scale-95 border-2 border-primary/20 hover:border-primary/40 touch-manipulation flex flex-col h-full">
                     <div className="relative overflow-hidden bg-white p-4 sm:p-6 flex items-center justify-center min-h-[120px] sm:min-h-[140px]">
                       {origin.image ? (
                         <img
@@ -319,13 +319,13 @@ const Origin = () => {
                           decoding="async"
                         />
                       ) : (
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-wine/10 flex items-center justify-center">
-                          <Globe className="h-10 w-10 sm:h-12 sm:w-12 text-wine" />
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Globe className="h-10 w-10 sm:h-12 sm:w-12 text-primary" />
                         </div>
                       )}
                     </div>
                     <CardContent className="p-3 sm:p-4 text-center">
-                      <h3 className="font-semibold text-sm sm:text-base mb-1 sm:mb-2 group-hover:text-wine transition-colors line-clamp-2">
+                      <h3 className="font-semibold text-sm sm:text-base mb-1 sm:mb-2 group-hover:text-primary transition-colors line-clamp-2">
                         {origin.name}
                       </h3>
                       <Badge variant="secondary" className="text-xs">
@@ -351,7 +351,7 @@ const Origin = () => {
               {searchQuery && (
                 <Button 
                   onClick={() => setSearchQuery("")}
-                  className="bg-wine hover:bg-wine/90 active:bg-wine/80 text-xs sm:text-sm touch-manipulation"
+                  className="bg-primary hover:bg-primary/90 active:bg-primary/80 text-xs sm:text-sm touch-manipulation"
                 >
                   Clear Search
                 </Button>

@@ -26,6 +26,7 @@ const Offers = createLazyComponent(() => import("./pages/Offers"), "Loading offe
 const Featured = createLazyComponent(() => import("./pages/Featured"), "Loading featured products...");
 const Brands = createLazyComponent(() => import("./pages/Brands"), "Loading brands...");
 const Origin = createLazyComponent(() => import("./pages/Origin"), "Loading origins...");
+const Catalog = createLazyComponent(() => import("./pages/Catalog"), "Loading catalog...");
 const Sitemap = createLazyComponent(() => import("./pages/Sitemap"), "Loading...");
 const NotFound = createLazyComponent(() => import("./pages/NotFound"), "Loading...");
 
@@ -99,6 +100,7 @@ const App = () => {
                 <Route path="/brands" element={<Brands />} />
                 <Route path="/origin/:country" element={<Origin />} />
                 <Route path="/origin" element={<Origin />} />
+                <Route path="/catalog" element={<Catalog />} />
                 <Route path="/sitemap.xml" element={<Sitemap />} />
                 {/* Redirect /login to home page to fix refresh issue */}
                 <Route path="/login" element={<LoginRedirect />} />

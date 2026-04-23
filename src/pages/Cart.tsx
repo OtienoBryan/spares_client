@@ -103,12 +103,12 @@ const Cart = () => {
             <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 sm:mb-6 bg-muted rounded-full flex items-center justify-center">
               <ShoppingCart className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-wine mb-3 sm:mb-4">Your cart is empty</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-3 sm:mb-4">Your cart is empty</h1>
             <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base">
-              Looks like you haven't added any drinks to your cart yet. Start shopping to fill it up!
+              Looks like you haven't added any Spares to your cart yet. Start shopping to fill it up!
             </p>
             <Link to="/">
-              <Button size="lg" className="bg-wine hover:bg-wine-light text-white">
+              <Button size="lg" className="bg-primary hover:bg-primary-light text-white">
                 Start Shopping
               </Button>
             </Link>
@@ -134,7 +134,7 @@ const Cart = () => {
               </Button>
             </Link>
             <div>
-              <h1 className="text-xl sm:text-3xl md:text-4xl font-bold text-wine">Shopping Cart</h1>
+              <h1 className="text-xl sm:text-3xl md:text-4xl font-bold text-primary">Shopping Cart</h1>
               <p className="text-xs sm:text-base text-muted-foreground mt-1 sm:mt-2">
                 {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'} in your cart
               </p>
@@ -170,9 +170,9 @@ const Cart = () => {
                   <div className="flex-1 p-3 sm:p-6">
                     <div className="flex justify-between items-start mb-2 sm:mb-2">
                       <div className="flex-1">
-                        <h3 className="text-sm sm:text-lg font-semibold text-wine mb-1 leading-tight">{item.name}</h3>
+                        <h3 className="text-sm sm:text-lg font-semibold text-primary mb-1 leading-tight">{item.name}</h3>
                         {item.selectedSku && (
-                          <Badge variant="secondary" className="text-xs mb-1 bg-wine/10 text-wine border-wine/20">
+                          <Badge variant="secondary" className="text-xs mb-1 bg-primary/10 text-primary border-primary/20">
                             SKU: {item.selectedSku}
                           </Badge>
                         )}
@@ -224,7 +224,7 @@ const Cart = () => {
                       
                       <div className="text-right">
                         <div className="flex items-center gap-2">
-                          <span className="text-base sm:text-xl font-bold text-wine">
+                          <span className="text-base sm:text-xl font-bold text-primary">
                             {(item.price * item.quantity).toFixed(2)}
                           </span>
                           {item.originalPrice && item.originalPrice > item.price && (
@@ -310,15 +310,15 @@ const Cart = () => {
                 {/* Delivery Info */}
                 <div className="space-y-2 p-3 bg-muted/30 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-wine" />
+                    <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                     <span className="text-xs sm:text-sm font-medium">24 hour delivery services</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-wine" />
+                    <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                     <span className="text-xs sm:text-sm text-muted-foreground">Deliver to 10001</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-wine" />
+                    <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                     <span className="text-xs sm:text-sm text-muted-foreground">Age verification required</span>
                   </div>
                 </div>
@@ -327,7 +327,7 @@ const Cart = () => {
                 <Button 
                   onClick={handleCheckout}
                   size="sm" 
-                  className="w-full bg-wine hover:bg-wine-light text-white text-sm sm:text-base py-5"
+                  className="w-full bg-primary hover:bg-primary-light text-white text-sm sm:text-base py-5"
                 >
                   <CreditCard className="h-4 w-4 mr-2" />
                   Proceed to Checkout
@@ -350,17 +350,17 @@ const Cart = () => {
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardContent className="p-6 text-center">
-              <Truck className="h-8 w-8 text-wine mx-auto mb-3" />
+              <Truck className="h-8 w-8 text-primary mx-auto mb-3" />
               <h3 className="font-semibold mb-2">Fast Delivery</h3>
               <p className="text-sm text-muted-foreground">
-                Get your drinks delivered in 30 minutes or less
+                Get your Spares delivered in 30 minutes or less
               </p>
             </CardContent>
           </Card>
           
           <Card>
             <CardContent className="p-6 text-center">
-              <Shield className="h-8 w-8 text-wine mx-auto mb-3" />
+              <Shield className="h-8 w-8 text-primary mx-auto mb-3" />
               <h3 className="font-semibold mb-2">Secure Payment</h3>
               <p className="text-sm text-muted-foreground">
                 Your payment information is protected and encrypted
@@ -370,7 +370,7 @@ const Cart = () => {
           
           <Card>
             <CardContent className="p-6 text-center">
-              <Gift className="h-8 w-8 text-wine mx-auto mb-3" />
+              <Gift className="h-8 w-8 text-primary mx-auto mb-3" />
               <h3 className="font-semibold mb-2">Easy Returns</h3>
               <p className="text-sm text-muted-foreground">
                 Not satisfied? Return within 30 days for a full refund

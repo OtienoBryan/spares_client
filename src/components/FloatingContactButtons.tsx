@@ -1,19 +1,20 @@
 import { Phone, MessageCircle } from "lucide-react";
-
-const PHONE_DISPLAY = "0790 831798";
-const PHONE_TEL = "0790831798";
-const WHATSAPP_NUMBER = "254790831798";
+import {
+  CONTACT_PHONE_DISPLAY,
+  CONTACT_PHONE_TEL,
+  WHATSAPP_ORDER_NUMBER,
+} from "@/config/site";
 
 export default function FloatingContactButtons() {
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}`;
+  const whatsappUrl = `https://wa.me/${WHATSAPP_ORDER_NUMBER}`;
 
   return (
     <div className="fixed right-4 bottom-20 sm:bottom-6 z-50 flex flex-col gap-3">
       <a
-        href={`tel:${PHONE_TEL}`}
-        className="h-12 w-12 rounded-full bg-wine text-white shadow-lg hover:shadow-xl hover:bg-wine/90 active:scale-95 transition flex items-center justify-center"
-        aria-label={`Call ${PHONE_DISPLAY}`}
-        title={`Call ${PHONE_DISPLAY}`}
+        href={`tel:${CONTACT_PHONE_TEL}`}
+        className="h-12 w-12 rounded-full bg-header text-header-foreground shadow-lg hover:shadow-xl hover:bg-header/90 active:scale-95 transition flex items-center justify-center"
+        aria-label={`Call ${CONTACT_PHONE_DISPLAY}`}
+        title={`Call ${CONTACT_PHONE_DISPLAY}`}
       >
         <Phone className="h-5 w-5" />
       </a>

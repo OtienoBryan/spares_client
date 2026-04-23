@@ -1,1 +1,24 @@
 /// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_COMPANY_NAME?: string;
+  readonly VITE_COMPANY_SHORT_NAME?: string;
+  readonly VITE_COMPANY_TAGLINE?: string;
+  readonly VITE_SITE_DEFAULT_TITLE?: string;
+  readonly VITE_SITE_DEFAULT_DESCRIPTION?: string;
+  readonly VITE_HERO_TITLE?: string;
+  readonly VITE_HERO_SUBTITLE?: string;
+  readonly VITE_CONTACT_PHONE_DISPLAY?: string;
+  readonly VITE_CONTACT_PHONE_TEL?: string;
+  readonly VITE_WHATSAPP_ORDER_NUMBER?: string;
+  readonly VITE_SUPPORT_EMAIL?: string;
+  readonly VITE_ORDERS_EMAIL?: string;
+  readonly VITE_PAYSTACK_PUBLIC_KEY?: string;
+  readonly VITE_API_BASE_URL?: string;
+  readonly VITE_SITE_URL?: string;
+  readonly VITE_DEV_API_PROXY_TARGET?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}

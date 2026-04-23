@@ -1,9 +1,10 @@
 import type { Product } from "@/services/api";
 import { productSlug } from "@/lib/utils";
 import { formatPrice } from "@/data/products";
+import { WHATSAPP_ORDER_NUMBER } from "@/config/site";
 
 /** E.164 without + (Kenya), matches site contact */
-export const WHATSAPP_ORDER_NUMBER = "254790831798";
+export { WHATSAPP_ORDER_NUMBER };
 
 /**
  * Opens WhatsApp with a prefilled order message for a product (listing / card context).

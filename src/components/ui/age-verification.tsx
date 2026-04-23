@@ -35,10 +35,10 @@ export function AgeVerification({ open, onVerify }: AgeVerificationProps) {
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-wine/10">
-            <ShieldCheck className="h-6 w-6 text-wine" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+            <ShieldCheck className="h-6 w-6 text-primary" />
           </div>
-          <DialogTitle className="text-2xl font-bold text-wine">Age Verification</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-primary">Age Verification</DialogTitle>
           <p className="text-muted-foreground">
             You must be 21 years or older to access this website
           </p>
@@ -55,7 +55,7 @@ export function AgeVerification({ open, onVerify }: AgeVerificationProps) {
               type="date"
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
-              className="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-wine focus:border-transparent"
+              className="w-full px-3 py-2 border border-input rounded-md focus:ring-2 focus:ring-Component focus:border-transparent"
               required
             />
           </div>
@@ -64,7 +64,7 @@ export function AgeVerification({ open, onVerify }: AgeVerificationProps) {
             <Button
               onClick={handleVerify}
               disabled={!birthDate}
-              className="flex-1 bg-wine hover:bg-wine-light text-white"
+              className="flex-1 bg-primary hover:bg-primary-light text-white"
             >
               Verify Age
             </Button>
@@ -78,7 +78,7 @@ export function AgeVerification({ open, onVerify }: AgeVerificationProps) {
           </div>
           
           <p className="text-xs text-muted-foreground text-center">
-            By proceeding, you confirm that you are of legal drinking age and agree to our terms.
+            By proceeding, you confirm that you are of legal Spareing age and agree to our terms.
           </p>
         </div>
       </DialogContent>

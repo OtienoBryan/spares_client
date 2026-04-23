@@ -479,10 +479,10 @@ const Checkout = () => {
           <div className="max-w-md mx-auto text-center">
             <div className="mb-8">
               <AlertCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h1 className="text-2xl font-bold text-wine mb-2">Your cart is empty</h1>
+              <h1 className="text-2xl font-bold text-primary mb-2">Your cart is empty</h1>
               <p className="text-muted-foreground">Add some items to your cart before checking out.</p>
             </div>
-            <Button onClick={() => navigate("/")} className="bg-wine hover:bg-wine-light text-white">
+            <Button onClick={() => navigate("/")} className="bg-primary hover:bg-primary-light text-white">
               Continue Shopping
             </Button>
           </div>
@@ -503,14 +503,14 @@ const Checkout = () => {
               variant="ghost" 
               size="sm" 
               onClick={() => navigate("/cart")}
-              className="text-wine hover:text-wine-light p-2 sm:p-3"
+              className="text-primary hover:text-primary-light p-2 sm:p-3"
             >
               <ArrowLeft className="h-4 w-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Back to Cart</span>
               <span className="sm:hidden">Back</span>
             </Button>
             <div>
-              <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-wine">Checkout</h1>
+              <h1 className="text-lg sm:text-2xl md:text-3xl font-bold text-primary">Checkout</h1>
               <p className="text-xs sm:text-base text-muted-foreground">Complete your order</p>
             </div>
           </div>
@@ -523,7 +523,7 @@ const Checkout = () => {
                   <CardContent className="p-3 sm:p-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                       <div>
-                        <p className="text-sm sm:text-base font-semibold text-wine">Have an account?</p>
+                        <p className="text-sm sm:text-base font-semibold text-primary">Have an account?</p>
                         <p className="text-xs sm:text-sm text-muted-foreground">Sign in to autofill your details and track your order easily.</p>
                       </div>
                       <Button
@@ -544,11 +544,11 @@ const Checkout = () => {
               <Card>
                 <CardHeader className="pb-3 sm:pb-6">
                   <CardTitle className="flex items-center gap-2 text-base sm:text-xl">
-                    <Truck className="h-4 w-4 sm:h-5 sm:w-5 text-wine" />
+                    <Truck className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                     Delivery Information
                   </CardTitle>
-                  <div className="bg-wine/10 border border-wine/20 rounded-lg p-2 sm:p-3">
-                    <div className="flex items-center gap-2 text-wine">
+                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-2 sm:p-3">
+                    <div className="flex items-center gap-2 text-primary">
                       <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                       <span className="text-xs sm:text-sm font-medium">Name, email, phone, and address are required to place your order</span>
                     </div>
@@ -644,7 +644,7 @@ const Checkout = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="h-5 w-5 text-wine" />
+                    <CreditCard className="h-5 w-5 text-primary" />
                     Payment Method
                   </CardTitle>
                 </CardHeader>
@@ -731,8 +731,8 @@ const Checkout = () => {
 
                   {/* Loyalty Points Info */}
                   {isAuthenticated && (
-                    <div className="bg-wine/10 border border-wine/20 rounded-lg p-3">
-                      <div className="flex items-center gap-2 text-wine">
+                    <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-primary">
                         <Star className="h-4 w-4" />
                         <span className="text-sm font-medium">Loyalty Points</span>
                       </div>
@@ -767,7 +767,7 @@ const Checkout = () => {
                   <Button
                     onClick={handleSubmit}
                     disabled={isProcessing || !isFormValid()}
-                    className="w-full bg-wine hover:bg-wine-light text-white disabled:opacity-50 disabled:cursor-not-allowed py-2.5 sm:py-4 text-xs sm:text-base"
+                    className="w-full bg-primary hover:bg-primary-light text-white disabled:opacity-50 disabled:cursor-not-allowed py-2.5 sm:py-4 text-xs sm:text-base"
                     size="sm"
                   >
                     {isProcessing ? (
