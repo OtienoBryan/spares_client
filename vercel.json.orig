@@ -1,0 +1,40 @@
+{
+    "rewrites": [
+      {
+        "source": "/api/:path*",
+<<<<<<< HEAD
+        "destination": "http://159.203.188.25:3000/api/:path*"
+=======
+        "destination": "http://143.198.2.220:5000/api/:path*"
+>>>>>>> 8f0bd12e47878800bad6b425ea8f39d766fc4a83
+      },
+      {
+        "source": "/sitemap.xml",
+        "destination": "/api/sitemap.xml"
+      },
+      {
+        "source": "/(.*)",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "/(.*)",
+        "headers": [
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "SAMEORIGIN"
+          },
+          {
+            "key": "X-XSS-Protection",
+            "value": "1; mode=block"
+          }
+        ]
+      }
+    ]
+  }
+  
