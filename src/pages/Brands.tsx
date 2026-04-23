@@ -224,7 +224,7 @@ const Brands = () => {
               </div>
             ) : (
               <div className="text-center py-12 sm:py-16 md:py-24">
-                <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🏷️</div>
+                <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">???</div>
                 <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-muted-foreground mb-3 sm:mb-4">
                   No products found for {selectedBrandName}
                 </h3>
@@ -343,7 +343,7 @@ const Brands = () => {
             </div>
           ) : (
             <div className="text-center py-12 sm:py-16 md:py-24">
-              <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🔍</div>
+              <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">??</div>
               <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-muted-foreground mb-3 sm:mb-4">
                 No brands found
               </h3>

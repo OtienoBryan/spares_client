@@ -61,7 +61,7 @@ export function ProductGridCardActions({ product, onAddToCart, compact = true }:
           onClick={handleAdd}
         >
           <ShoppingCart className="h-3 w-3 shrink-0" />
-          {loading ? "â€¦" : "Add to cart"}
+          {loading ? "…" : "Add to cart"}
         </Button>
       ) : (
         <div

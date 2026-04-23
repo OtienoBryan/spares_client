@@ -395,7 +395,7 @@ const Orders = () => {
                                         <div className="flex-1 min-w-0">
                                           <p className="text-sm font-medium truncate">{item.product.name}</p>
                                           <p className="text-xs text-muted-foreground">
-                                            {item.quantity} Ã— {formatPrice(typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0)}
+                                            {item.quantity} × {formatPrice(typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0)}
                                           </p>
                                         </div>
                                         <p className="text-sm font-semibold">

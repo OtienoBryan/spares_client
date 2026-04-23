@@ -3,7 +3,7 @@ function resolveApiBaseUrl(): string {
   const fromEnv = import.meta.env.VITE_API_BASE_URL?.trim();
   if (fromEnv) return fromEnv.replace(/\/$/, "");
 
-  // Vite dev: use same-origin /api (proxied in vite.config.ts ‚Äî no local :3001 needed)
+  // Vite dev: use same-origin /api (proxied in vite.config.ts ó no local :3001 needed)
   if (import.meta.env.DEV) return "/api";
 
   if (typeof window !== "undefined") {
@@ -39,9 +39,9 @@ export interface Category {
   createdAt: string;
   updatedAt: string;
   /**
-   * When set (along with isActive), category appears on home ‚ÄúShop by parts‚Äù.
-   * Sort ascending (1, 2, 3‚Ä¶). Omitted categories are not shown there.
-   * Backend may send snake_case `shop_by_parts_sort` ‚Äî see `categoryShopTiles.ts`.
+   * When set (along with isActive), category appears on home ìShop by partsî.
+   * Sort ascending (1, 2, 3Ö). Omitted categories are not shown there.
+   * Backend may send snake_case `shop_by_parts_sort` ó see `categoryShopTiles.ts`.
    */
   shopByPartsSort?: number | null;
   /** Optional shorter label on the tile; defaults to category name. */

@@ -384,7 +384,7 @@ const Contact = () => {
               Premium Spares delivered fast to your doorstep
             </p>
             <p className="text-sm text-primary-light">
-              Â© 2026 {COMPANY_NAME}. All rights reserved.
+              © 2026 {COMPANY_NAME}. All rights reserved.
             </p>
           </div>
         </div>

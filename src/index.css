@@ -62,7 +62,7 @@
   }
 }
 
-/* Spare-parts storefront â€” light theme only (no dark mode). All colors HSL. */
+/* Spare-parts storefront — light theme only (no dark mode). All colors HSL. */
 
 @layer base {
   :root {
@@ -92,7 +92,7 @@
     --accent: 220 14% 91%;
     --accent-foreground: 220 18% 18%;
 
-    /* Legacy token names â€” map to CTA red for minimal churn */
+    /* Legacy token names — map to CTA red for minimal churn */
     --wine: 0 72% 47%;
     --wine-light: 0 72% 42%;
     /* Steel accent (replaces gold) */

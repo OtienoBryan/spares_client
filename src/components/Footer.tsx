@@ -81,7 +81,7 @@ const Footer = () => {
                 <span className="text-header-foreground/75 text-xs">Nairobi, Kenya</span>
               </div>
               <div className="flex items-start space-x-2">
-                <span className="h-3 w-3 text-header-foreground/60 flex-shrink-0 mt-0.5">â€¢</span>
+                <span className="h-3 w-3 text-header-foreground/60 flex-shrink-0 mt-0.5">•</span>
                 <div className="text-header-foreground/75 text-xs">
                   <p>WhatsApp & phone orders accepted</p>
                   <p className="opacity-60">Verified Fitment available</p>
@@ -95,7 +95,7 @@ const Footer = () => {
         <div className="border-t border-header-foreground/15 mt-4 pt-4">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
             <p className="text-header-foreground/55 text-xs text-center sm:text-left">
-              Â© 2026 {COMPANY_NAME}. All rights reserved.
+              © 2026 {COMPANY_NAME}. All rights reserved.
             </p>
             <div className="flex gap-4">
               <a href="#" className="text-header-foreground/55 hover:text-header-foreground transition-colors text-xs">Privacy</a>

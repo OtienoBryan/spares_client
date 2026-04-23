@@ -30,27 +30,27 @@ const Navigation = () => {
   // Helper function to get appropriate icon for category
   function getCategoryIcon(categoryName: string): string {
     const name = categoryName.toLowerCase();
-    if (name.includes('engine')) return "⚙️";
-    if (name.includes('suspension')) return "🔧";
-    if (name.includes('brake') || name.includes('braking')) return "🛑";
-    if (name.includes('electric') || name.includes('battery')) return "⚡";
-    if (name.includes('filter')) return "🌀";
-    if (name.includes('lighting')) return "💡";
-    return "⚙️"; 
+    if (name.includes('engine')) return "??";
+    if (name.includes('suspension')) return "??";
+    if (name.includes('brake') || name.includes('braking')) return "??";
+    if (name.includes('electric') || name.includes('battery')) return "?";
+    if (name.includes('filter')) return "??";
+    if (name.includes('lighting')) return "??";
+    return "??"; 
   }
 
   // Create categories array with API data and fallback to static data
   const categories = useMemo(() => {
     const baseCategories = [
-      { name: "Engine", path: "/category/engine", icon: "⚙️", id: undefined },
+      { name: "Engine", path: "/category/engine", icon: "??", id: undefined },
       { 
         name: "Suspension", 
         path: "/category/suspension", 
-        icon: "🔧",
+        icon: "??",
         id: undefined
       },
-      { name: "Braking", path: "/category/braking", icon: "🛑", id: undefined },
-      { name: "Electrical", path: "/category/electrical", icon: "⚡", id: undefined }
+      { name: "Braking", path: "/category/braking", icon: "??", id: undefined },
+      { name: "Electrical", path: "/category/electrical", icon: "?", id: undefined }
     ];
 
     const apiCategoriesList = apiCategories

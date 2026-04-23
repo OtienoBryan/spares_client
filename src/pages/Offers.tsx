@@ -437,7 +437,7 @@ const Offers = () => {
             </>
           ) : (
             <div className="text-center py-12 sm:py-16 md:py-24">
-              <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">🎉</div>
+              <div className="text-4xl sm:text-6xl mb-4 sm:mb-6">??</div>
               <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-muted-foreground mb-3 sm:mb-4">No offers found</h3>
               <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">
                 {filterCategory === 'all' 
