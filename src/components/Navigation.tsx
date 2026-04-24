@@ -37,7 +37,7 @@ const Navigation = () => {
 
       <nav className="bg-white sticky top-0 z-50 border-b border-gray-100 shadow-sm">
         {/* Row 1: Main Header */}
-        <div className="container mx-auto px-4 py-4 sm:py-5">
+        <div className="w-full px-4 md:px-6 py-4 sm:py-5">
           <div className="flex items-center justify-between gap-8 md:gap-12">
             <NavLogo />
             
@@ -74,7 +74,7 @@ const Navigation = () => {
 
         {/* Row 2: Secondary Navigation */}
         <div className="hidden md:block border-t border-gray-100">
-          <div className="container mx-auto px-4">
+          <div className="w-full px-4 md:px-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <NavSystemDropdown categories={categories} />
