@@ -37,7 +37,7 @@ const Navigation = () => {
 
       <nav className="bg-white sticky top-0 z-50 border-b border-gray-100 shadow-sm">
         {/* Row 1: Main Header */}
-        <div className="container mx-auto px-4 py-4 sm:py-5">
+        <div className="w-full px-4 md:px-6 py-4 sm:py-5">
           <div className="flex items-center justify-between gap-8 md:gap-12">
             <NavLogo />
             
@@ -72,43 +72,40 @@ const Navigation = () => {
           </div>
         </div>
 
-        {/* Row 2: Secondary Navigation */}
-        <div className="hidden md:block border-t border-gray-100">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
+        {/* Row 2: Secondary Navigation (Automotive Category Bar) */}
+        <div className="hidden md:block bg-[#003B95] text-white">
+          <div className="w-full">
+            <div className="flex items-stretch overflow-hidden">
+              {/* All Systems Dropdown (Integrated into the bar) */}
+              <div className="flex items-center bg-primary px-6 hover:bg-primary/90 transition-colors cursor-pointer border-r border-white/10">
                 <NavSystemDropdown categories={categories} />
-                <div className="h-10 w-px bg-gray-100 mx-6"></div>
-                
-                <div className="flex items-center gap-8">
-                   <Link to="/catalog" className={`text-sm font-bold transition-all flex items-center gap-1.5 ${location.pathname === '/catalog' ? 'text-primary' : 'text-gray-700 hover:text-primary'}`}>
-                     Parts Catalog
-                     <span className="bg-emerald-50 text-emerald-600 text-[9px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-wider">New</span>
-                   </Link>
-                   <Link to="/" className={`text-sm font-bold transition-colors ${location.pathname === '/' ? 'text-primary' : 'text-gray-700 hover:text-primary'}`}>
-                     Dashboard
-                   </Link>
-                   <Link to="/category/offers" className="text-sm font-bold text-gray-700 hover:text-primary transition-all flex items-center gap-1.5">
-                     Deals of the Week
-                     <span className="bg-red-50 text-red-500 text-[9px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-wider animate-pulse">Hot</span>
-                   </Link>
-                   <Link to="/featured" className="text-sm font-bold text-gray-700 hover:text-primary transition-colors">
-                     Verified Spares
-                   </Link>
-                   <Link to="/brands" className="text-sm font-bold text-gray-700 hover:text-primary transition-colors">
-                     Browse Brands
-                   </Link>
-                   <Link to="/category/sale" className="text-sm font-bold text-gray-700 hover:text-primary transition-all flex items-center gap-1.5">
-                     Clearance
-                     <span className="bg-blue-50 text-blue-500 text-[9px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-wider">Sale</span>
-                   </Link>
-                </div>
               </div>
+              
+              {/* Main Categories */}
+              {[
+                { label: "Exterior Car Accessories", path: "/catalog?cat=Exterior" },
+                { label: "Interior Car Accessories", path: "/catalog?cat=Interior" },
+                { label: "Car Service Parts", path: "/catalog?cat=Service" },
+                { label: "Batteries & Bulbs", path: "/catalog?cat=Electrical" },
+                { label: "Car Safety Accessories", path: "/catalog?cat=Safety" },
+                { label: "Car Security Systems", path: "/catalog?cat=Security" },
+                { label: "Other Spare Parts", path: "/catalog?cat=Spares" },
+                { label: "Other Car Accessories", path: "/catalog?cat=Accessories" }
+              ].map((item, index) => (
+                <Link 
+                  key={index}
+                  to={item.path} 
+                  className="flex-1 flex items-center justify-center text-center px-2 py-3.5 text-[11px] lg:text-[13px] font-black uppercase tracking-tight hover:bg-white/10 transition-colors border-r border-white/10 last:border-r-0"
+                >
+                  {item.label}
+                </Link>
+              ))}
 
-              <div className="flex items-center gap-2">
+              {/* Expert Help (Moved into the bar or right-aligned) */}
+              <div className="hidden lg:flex items-center gap-2 px-6 bg-black/10 border-l border-white/10 ml-auto">
                 <div className="flex flex-col items-end">
-                   <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Expert Help</span>
-                   <a href="tel:+254123456789" className="text-sm font-black text-gray-900 flex items-center gap-1 hover:text-primary transition-colors">
+                   <span className="text-[9px] text-white/60 font-bold uppercase tracking-widest">Expert Help</span>
+                   <a href="tel:+254712345678" className="text-xs font-black text-white flex items-center gap-1 hover:text-primary transition-colors">
                      <PhoneCall className="h-3 w-3" />
                      +254 712 345 678
                    </a>
