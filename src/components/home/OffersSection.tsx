@@ -34,20 +34,16 @@ export const OffersSection = ({ products, addToCart }: OffersSectionProps) => {
       aria-label="Special Offers on Parts"
     >
       <div className="container mx-auto px-3 sm:px-4">
-        <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-12">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-3 sm:mb-4 md:mb-6 lg:mb-8">
-            <div className="text-center md:text-left">
-              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold text-primary mb-2 sm:mb-3 md:mb-4">
-                Offers of the Week
-              </h2>
-            </div>
-            <Link to="/offers" className="mt-2 sm:mt-3 md:mt-0">
-              <Button size="sm" className="bg-primary hover:bg-primary/90 active:bg-primary/80 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-2 lg:px-8 lg:py-3 text-xs sm:text-sm md:text-base touch-manipulation">
-                View All Offers
-                <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-            </Link>
-          </div>
+        <div className="flex items-center justify-between mb-4 sm:mb-6 md:mb-8">
+          <h2 className="text-base sm:text-xl md:text-2xl font-bold text-primary">
+            Offers of the Week
+          </h2>
+          <Link to="/offers">
+            <Button size="sm" className="bg-primary hover:bg-primary/90 active:bg-primary/80 text-white px-3 py-2 sm:px-4 md:px-6 text-xs sm:text-sm touch-manipulation">
+              View All
+              <ArrowRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
+            </Button>
+          </Link>
         </div>
         
         {products.length > 0 ? (
@@ -60,7 +56,7 @@ export const OffersSection = ({ products, addToCart }: OffersSectionProps) => {
                       <img
                         src={product.image || '/placeholder-product.jpg'}
                         alt={product.name}
-                        className="h-48 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
+                        className="h-36 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
                         loading="lazy"
                         decoding="async"
                       />

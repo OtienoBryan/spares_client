@@ -50,7 +50,7 @@ export const CategoryGrid = ({
   if (isLoading) {
     return (
       <div className="flex-1">
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
           {[...Array(itemsPerPage)].map((_, index) => (
             <div key={index} className="animate-pulse">
               <div className="bg-muted rounded-xl h-56 sm:h-64 md:h-72 mb-3"></div>
@@ -108,7 +108,7 @@ export const CategoryGrid = ({
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
         {paginatedProducts.map((product) => (
           <Suspense key={product.id} fallback={<div className="h-64 bg-gray-100 animate-pulse rounded-lg" />}>
             <LazyProductCard

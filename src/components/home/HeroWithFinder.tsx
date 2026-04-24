@@ -86,7 +86,7 @@ export function HeroWithFinder({
                 className="mx-auto max-w-4xl marketplace-card elevation-high p-4 sm:p-6 md:p-8 animate-slide-up"
                 aria-label="Part finder"
               >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
                   <div className="text-left">
                     <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight">
                       Find parts for your vehicle
@@ -95,7 +95,7 @@ export function HeroWithFinder({
                       Select your vehicle details for a guaranteed fitment.
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 bg-primary/5 px-4 py-2 rounded-full border border-primary/10">
+                  <div className="flex items-center gap-2 bg-primary/5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-primary/10 self-start sm:self-auto">
                     <LoadingGear size="sm" className="h-5 w-5" />
                     <span className="text-[10px] uppercase tracking-widest font-black text-primary">Precision Verified</span>
                   </div>
@@ -129,7 +129,7 @@ export function HeroWithFinder({
                   ))}
                 </div>
 
-                <div className="mt-8 flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center pt-2">
+                <div className="mt-4 sm:mt-6 md:mt-8 flex flex-col items-stretch justify-between gap-3 sm:gap-4 sm:flex-row sm:items-center pt-1 sm:pt-2">
                   <div className="flex-1 flex flex-col sm:flex-row gap-3">
                     <Button
                       asChild

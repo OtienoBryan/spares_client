@@ -81,33 +81,31 @@ export const FeaturedSection = ({
       aria-label="Featured Spares"
     >
       <div className="container mx-auto px-3 sm:px-4">
-        <div className="text-center mb-3 sm:mb-4 md:mb-6 lg:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-            <div className="text-center sm:text-left">
-              <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-bold text-primary mb-1 sm:mb-2 md:mb-3">
-                {isBrandSearch 
-                  ? `${brandName} Products` 
-                  : searchQuery 
-                    ? `Search Results for "${searchQuery}"` 
-                    : 'Featured Spares'}
-              </h2>
-              <p className="text-[10px] sm:text-xs md:text-sm lg:text-sm text-muted-foreground">
-                {isBrandSearch 
-                  ? `All parts from ${brandName}`
-                  : searchQuery 
-                    ? `Products matching your parts search`
-                    : 'Discover our handpicked selection of quality spare parts'}
-              </p>
-            </div>
-            {!searchQuery && (
-              <Link to="/featured" className="mt-2 sm:mt-0">
-                <Button size="sm" className="bg-primary hover:bg-primary/90 active:bg-primary/80 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-2 lg:px-8 lg:py-3 text-xs sm:text-sm md:text-base touch-manipulation">
-                   View All Featured
-                  <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                </Button>
-              </Link>
-            )}
+        <div className="flex items-start sm:items-center justify-between gap-3 mb-3 sm:mb-4 md:mb-6 lg:mb-8">
+          <div>
+            <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-primary mb-0.5 sm:mb-1 md:mb-2">
+              {isBrandSearch 
+                ? `${brandName} Products` 
+                : searchQuery 
+                  ? `Results: "${searchQuery}"` 
+                  : 'Featured Spares'}
+            </h2>
+            <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
+              {isBrandSearch 
+                ? `All parts from ${brandName}`
+                : searchQuery 
+                  ? `Products matching your search`
+                  : 'Handpicked quality spare parts'}
+            </p>
           </div>
+          {!searchQuery && (
+            <Link to="/featured" className="shrink-0">
+              <Button size="sm" className="bg-primary hover:bg-primary/90 active:bg-primary/80 text-white px-3 py-2 sm:px-4 md:px-6 text-xs sm:text-sm touch-manipulation">
+                View All
+                <ArrowRight className="ml-1 h-3 w-3 sm:h-4 sm:w-4" />
+              </Button>
+            </Link>
+          )}
         </div>
 
         {products.length > 0 ? (
@@ -120,7 +118,7 @@ export const FeaturedSection = ({
                       <img
                         src={product.image || '/placeholder-product.jpg'}
                         alt={product.name}
-                        className="h-48 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
+                        className="h-36 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-full object-contain bg-white"
                         loading="lazy"
                         decoding="async"
                       />

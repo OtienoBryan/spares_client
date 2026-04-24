@@ -280,7 +280,7 @@ const CatalogPage = () => {
 
       {/* ─── Hero Search Bar ─────────────────────────────────── */}
       <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
-        <div className="container mx-auto px-4 py-10 sm:py-14">
+        <div className="w-full px-3 sm:px-4 md:px-8 py-10 sm:py-14">
           <div className="max-w-3xl mx-auto text-center mb-8">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full mb-4">
               <Package className="h-4 w-4 text-primary" />
@@ -345,7 +345,7 @@ const CatalogPage = () => {
       </section>
 
       {/* ─── Main Content ────────────────────────────────────── */}
-      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+      <div className="w-full px-3 sm:px-4 md:px-8 py-6 sm:py-8">
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
           <div className="flex items-center gap-3">
@@ -603,7 +603,7 @@ const CatalogPage = () => {
                 </Button>
               </div>
             ) : viewMode === "grid" ? (
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                 {paginatedProducts.map((product) => (
                   <CatalogGridCard key={product.id} product={product} onAddToCart={addToCart} />
                 ))}

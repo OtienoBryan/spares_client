@@ -44,8 +44,9 @@ const CategoryPage = () => {
   const { data: searchResults } = useSearchProductsDebounced(initialSearch, 300);
   
   const baseProducts = useMemo(() => {
-    if (initialSearch && searchResults) return searchResults;
-    return categoryProducts;
+    // Some API hooks can yield `null` before data arrives; normalize to array.
+    if (initialSearch) return (searchResults ?? []);
+    return (categoryProducts ?? []);
   }, [initialSearch, searchResults, categoryProducts]);
 
   // Derived filter options
@@ -154,7 +155,7 @@ const CategoryPage = () => {
       
       <Navigation />
 
-      <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 md:py-12">
+      <main className="w-full px-3 sm:px-4 md:px-8 py-6 sm:py-8 md:py-12">
         <CategoryHeader categoryDisplayName={categoryDisplayName} />
 
         <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">

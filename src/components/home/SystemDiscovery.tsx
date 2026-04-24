@@ -1,11 +1,23 @@
 import { Link } from "react-router-dom";
 
 export function SystemDiscovery() {
+  // Importing assets is more reliable than referencing `/src/...` at runtime.
+  // It also lets Vite fingerprint & optimize these icons for production.
+  // (Kept local to this component to avoid impacting other sections.)
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const engineIcon = new URL("../../assets/engine.svg", import.meta.url).toString();
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const electricalIcon = new URL("../../assets/electrical.svg", import.meta.url).toString();
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const brakeIcon = new URL("../../assets/brake.svg", import.meta.url).toString();
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const suspensionIcon = new URL("../../assets/suspension.svg", import.meta.url).toString();
+
   const systems = [
     {
       name: "Engine Systems",
       description: "Blocks, heads, pistons & more",
-      iconSrc: "/src/assets/engine.svg",
+      iconSrc: engineIcon,
       path: "/category/engine",
       color: "from-blue-500/20 to-blue-600/5",
       accent: "text-blue-600",
@@ -13,7 +25,7 @@ export function SystemDiscovery() {
     {
       name: "Electrical & Ignition",
       description: "Batteries, starters & plugs",
-      iconSrc: "/src/assets/electrical.svg",
+      iconSrc: electricalIcon,
       path: "/category/electrical",
       color: "from-yellow-500/20 to-yellow-600/5",
       accent: "text-amber-600",
@@ -21,7 +33,7 @@ export function SystemDiscovery() {
     {
       name: "Braking & Safety",
       description: "Pads, discs & ABS units",
-      iconSrc: "/src/assets/brake.svg",
+      iconSrc: brakeIcon,
       path: "/category/braking",
       color: "from-red-500/20 to-red-600/5",
       accent: "text-red-600",
@@ -29,7 +41,7 @@ export function SystemDiscovery() {
     {
       name: "Suspension & Steering",
       description: "Shocks, struts & arms",
-      iconSrc: "/src/assets/suspension.svg",
+      iconSrc: suspensionIcon,
       path: "/category/suspension",
       color: "from-green-500/20 to-green-600/5",
       accent: "text-emerald-600",
@@ -37,35 +49,36 @@ export function SystemDiscovery() {
   ];
 
   return (
-    <section className="py-12 sm:py-16 bg-white overflow-hidden">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-12">
+    <section className="py-8 sm:py-12 bg-white overflow-hidden">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-10">
           <div className="text-left">
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight flex items-center gap-3">
-              <span className="material-icons text-primary text-3xl">precision_manufacturing</span>
+            <h2 className="text-xl sm:text-2xl md:text-4xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2 sm:gap-3">
+              <span className="material-icons text-primary text-2xl sm:text-3xl">precision_manufacturing</span>
               Explore by Vehicle System
             </h2>
-            <p className="mt-2 text-muted-foreground max-w-xl font-medium">
-              Professional-grade components categorized by system for accurate fitment and discovery.
+            <p className="mt-1.5 sm:mt-2 text-sm sm:text-base text-muted-foreground max-w-xl font-medium">
+              Professional-grade components categorized by system for accurate fitment.
             </p>
           </div>
-          <Link to="/featured" className="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold transition-all">
-            Browse all components
+          <Link to="/featured" className="self-start sm:self-auto inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all touch-manipulation">
+            Browse all
             <span className="material-icons text-sm">arrow_forward</span>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
           {systems.map((system) => (
             <Link
               key={system.name}
               to={system.path}
-              className="group relative marketplace-card p-6 overflow-hidden hover:-translate-y-1.5"
+              className="group relative marketplace-card p-3.5 sm:p-5 md:p-6 overflow-hidden active:scale-[0.97] touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              aria-label={`Explore ${system.name}`}
             >
               <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${system.color} -mr-12 -mt-12 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
               
-              <div className="relative space-y-4">
-                <div className="h-16 w-16 p-3 bg-gray-50 rounded-2xl flex items-center justify-center group-hover:bg-primary transition-all duration-300 shadow-inner">
+              <div className="relative space-y-2.5 sm:space-y-4">
+                <div className="h-10 w-10 sm:h-14 sm:w-14 md:h-16 md:w-16 p-2 sm:p-3 bg-gray-50 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:bg-primary transition-all duration-300 shadow-inner">
                   <img 
                     src={system.iconSrc} 
                     alt={system.name} 
@@ -73,14 +86,14 @@ export function SystemDiscovery() {
                   />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-gray-900 text-lg sm:text-xl mb-1 group-hover:text-primary transition-colors">
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base md:text-lg mb-0.5 sm:mb-1 group-hover:text-primary transition-colors leading-tight">
                     {system.name}
                   </h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+                  <p className="text-[11px] sm:text-xs md:text-sm text-muted-foreground font-medium leading-snug line-clamp-2">
                     {system.description}
                   </p>
                 </div>
-                <div className="flex items-center gap-1.5 text-primary text-xs font-bold opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                <div className="hidden sm:flex items-center gap-1.5 text-primary text-xs font-bold opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                   Explore Components
                   <span className="material-icons text-[14px]">chevron_right</span>
                 </div>
