@@ -73,7 +73,7 @@ const Navigation = () => {
         </div>
 
         {/* Row 2: Secondary Navigation (Automotive Category Bar) */}
-        <div className="hidden md:block bg-[#003B95] text-white">
+        <div className="hidden md:block bg-[#1d2736] text-white">
           <div className="w-full">
             <div className="flex items-stretch overflow-hidden">
               {/* All Systems Dropdown (Integrated into the bar) */}
@@ -105,9 +105,9 @@ const Navigation = () => {
               <div className="hidden lg:flex items-center gap-2 px-6 bg-black/10 border-l border-white/10 ml-auto">
                 <div className="flex flex-col items-end">
                    <span className="text-[9px] text-white/60 font-bold uppercase tracking-widest">Expert Help</span>
-                   <a href="tel:+254712345678" className="text-xs font-black text-white flex items-center gap-1 hover:text-primary transition-colors">
+                   <a href="tel:254790831798" className="text-xs font-black text-white flex items-center gap-1 hover:text-primary transition-colors">
                      <PhoneCall className="h-3 w-3" />
-                     +254 712 345 678
+                     254790 831798
                    </a>
                 </div>
               </div>
