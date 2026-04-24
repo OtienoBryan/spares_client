@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useUser } from "@/contexts/UserContext";
 import { useNavigationCategories } from "@/hooks/useNavigationCategories";
@@ -72,34 +72,93 @@ const Navigation = () => {
           </div>
         </div>
 
+        {/* Mobile: search (desktop search lives in row 1) */}
+        <div className="border-b border-gray-100 bg-white md:hidden">
+          <div className="px-3 pb-3 pt-1">
+            <NavSearch layout="toolbar" />
+          </div>
+        </div>
+
+        {/* Mobile: category badges (desktop uses left sidebar + blue bar) */}
+        <div className="border-b border-gray-100 bg-slate-50 md:hidden">
+          <div className="px-3 py-2">
+            <p className="mb-1.5 text-[9px] font-bold uppercase tracking-wider text-slate-500">
+              Shop by category
+            </p>
+            <div className="-mx-1 flex gap-2 overflow-x-auto pb-0.5 scrollbar-hide">
+              {categoriesLoading
+                ? [...Array(8)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-8 w-20 shrink-0 animate-pulse rounded-full bg-slate-200/90"
+                      aria-hidden
+                    />
+                  ))
+                : (categories ?? []).map((cat) => {
+                    const Icon = cat.icon;
+                    const active =
+                      cat.path === "/"
+                        ? location.pathname === "/"
+                        : location.pathname.startsWith(cat.path);
+                    return (
+                      <Link
+                        key={cat.path}
+                        to={cat.path}
+                        className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1.5 text-[10px] font-semibold leading-none shadow-sm transition-colors ${
+                          active
+                            ? "border-primary/50 bg-primary text-white"
+                            : "border-slate-200 bg-white text-slate-800 hover:border-primary/40 hover:bg-primary/[0.06] hover:text-primary"
+                        }`}
+                      >
+                        {Icon ? (
+                          <Icon
+                            className={`h-3 w-3 shrink-0 ${active ? "text-white" : "text-primary"}`}
+                            aria-hidden
+                          />
+                        ) : null}
+                        <span className="max-w-[6.5rem] truncate">{cat.name}</span>
+                      </Link>
+                    );
+                  })}
+            </div>
+          </div>
+        </div>
+
         {/* Row 2: Secondary Navigation (Automotive Category Bar) */}
         <div className="hidden md:block bg-[#003B95] text-white">
           <div className="w-full">
-            <div className="flex items-stretch overflow-hidden">
+            <div className="flex min-w-0 items-stretch">
               {/* All Systems Dropdown (Integrated into the bar) */}
               <div className="flex items-center bg-primary px-6 hover:bg-primary/90 transition-colors cursor-pointer border-r border-white/10">
                 <NavSystemDropdown categories={categories} />
               </div>
               
-              {/* Main Categories */}
-              {[
-                { label: "Exterior Car Accessories", path: "/catalog?cat=Exterior" },
-                { label: "Interior Car Accessories", path: "/catalog?cat=Interior" },
-                { label: "Car Service Parts", path: "/catalog?cat=Service" },
-                { label: "Batteries & Bulbs", path: "/catalog?cat=Electrical" },
-                { label: "Car Safety Accessories", path: "/catalog?cat=Safety" },
-                { label: "Car Security Systems", path: "/catalog?cat=Security" },
-                { label: "Other Spare Parts", path: "/catalog?cat=Spares" },
-                { label: "Other Car Accessories", path: "/catalog?cat=Accessories" }
-              ].map((item, index) => (
-                <Link 
-                  key={index}
-                  to={item.path} 
-                  className="flex-1 flex items-center justify-center text-center px-2 py-3.5 text-[11px] lg:text-[13px] font-black uppercase tracking-tight hover:bg-white/10 transition-colors border-r border-white/10 last:border-r-0"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {/* Main categories — same routes as sidebar / All Systems (`/category/:slug`) */}
+              {categoriesLoading ? (
+                [...Array(6)].map((_, index) => (
+                  <div
+                    key={index}
+                    className="flex-1 border-r border-white/10 px-2 py-3.5"
+                    aria-hidden
+                  >
+                    <div className="mx-auto h-3 w-20 animate-pulse rounded bg-white/20" />
+                  </div>
+                ))
+              ) : (
+                categories.slice(0, 8).map((category, index, arr) => (
+                  <Link
+                    key={category.path}
+                    to={category.path}
+                    className={`flex min-w-0 flex-1 items-center justify-center px-2 py-3.5 text-center text-[10px] font-black uppercase leading-tight tracking-tight text-white transition-colors hover:bg-white/10 lg:text-[12px] ${
+                      index < arr.length - 1
+                        ? "border-r border-white/10"
+                        : "border-r-0 lg:border-r lg:border-white/10"
+                    }`}
+                  >
+                    <span className="line-clamp-2">{category.name}</span>
+                  </Link>
+                ))
+              )}
 
               {/* Expert Help (Moved into the bar or right-aligned) */}
               <div className="hidden lg:flex items-center gap-2 px-6 bg-black/10 border-l border-white/10 ml-auto">
