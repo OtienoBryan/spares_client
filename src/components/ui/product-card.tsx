@@ -68,7 +68,7 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
       onClick={handleLinkClick}
     >
       <Card className={
-        `group overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.05] active:scale-95 border-0 flex flex-col touch-manipulation cursor-pointer relative ${isNavigating ? 'pointer-events-none' : ''}`
+        `group overflow-hidden transition-all duration-300 ${compact ? 'hover:shadow-lg' : 'hover:shadow-xl hover:scale-[1.05]'} active:scale-95 border-0 flex flex-col touch-manipulation cursor-pointer relative ${isNavigating ? 'pointer-events-none' : ''}`
       }>
         {isNavigating && (
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-50 rounded-lg">
@@ -82,7 +82,7 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
           <img
             src={product.image || '/placeholder-product.jpg'}
             alt={product.name}
-            className={`${compact ? 'h-64 sm:h-40 md:h-48 lg:h-64 xl:h-72' : 'h-72 sm:h-44 md:h-52 lg:h-72 xl:h-80'} w-full object-contain bg-white transition-transform duration-300 group-hover:scale-105`}
+            className={`${compact ? 'h-36 sm:h-40 md:h-44 lg:h-48 xl:h-52 w-[82%] sm:w-[84%] md:w-[86%]' : 'h-72 sm:h-44 md:h-52 lg:h-72 xl:h-80 w-full'} mx-auto object-contain bg-white transition-transform duration-300 group-hover:scale-105`}
             loading="lazy"
             decoding="async"
           />
@@ -105,21 +105,21 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
           </Badge>
         </div>
         
-        <CardContent className={`${compact ? 'p-2 sm:p-2 md:p-3 lg:p-3' : 'p-3 sm:p-4 md:p-5'} flex flex-col h-full`}>
-          <div className={`${compact ? 'space-y-1 sm:space-y-2' : 'space-y-2 sm:space-y-3'} flex-1`}>
-            <h3 className={`${compact ? 'text-[10px] sm:text-xs md:text-sm' : 'text-base sm:text-lg md:text-xl'} font-bold line-clamp-1 group-hover:text-primary transition-colors tracking-tight`}>
+        <CardContent className={`${compact ? 'p-2' : 'p-3 sm:p-4 md:p-5'} flex flex-col h-full`}>
+          <div className={`${compact ? 'space-y-1' : 'space-y-2 sm:space-y-3'} flex-1`}>
+            <h3 className={`${compact ? 'text-[11px] sm:text-xs' : 'text-base sm:text-lg md:text-xl'} font-bold line-clamp-1 group-hover:text-primary transition-colors tracking-tight`}>
               {product.name}
             </h3>
           
-          <div className={`flex flex-col gap-1 ${compact ? 'text-[9px] sm:text-xs' : 'text-xs sm:text-sm'} text-muted-foreground`}>
+          <div className={`flex flex-col gap-1 ${compact ? 'text-[10px]' : 'text-xs sm:text-sm'} text-muted-foreground`}>
             <div className={`flex items-center flex-wrap ${compact ? 'gap-1' : 'gap-2 sm:gap-3'}`}>
-              <div className="flex items-center gap-1 font-bold text-gray-700 bg-gray-100 px-1.5 py-0.5 rounded-md">
-                <span className="material-icons text-[12px] sm:text-[14px] text-gray-500">settings_suggest</span>
+              <div className={`flex items-center gap-1 font-bold text-gray-700 bg-gray-100 rounded-md ${compact ? 'px-1 py-0.5' : 'px-1.5 py-0.5'}`}>
+                <span className={`material-icons text-gray-500 ${compact ? 'text-[11px]' : 'text-[12px] sm:text-[14px]'}`}>settings_suggest</span>
                 <span>Specs: {product.specifications || product.alcoholContent || 'N/A'}</span>
               </div>
               {product.origin && (
                 <div className="flex items-center gap-1 font-bold text-primary group-hover:underline">
-                  <span className="material-icons text-[12px] sm:text-[14px]">verified</span>
+                  <span className={`material-icons ${compact ? 'text-[11px]' : 'text-[12px] sm:text-[14px]'}`}>verified</span>
                   <span>{product.origin}</span>
                 </div>
               )}
@@ -129,11 +129,11 @@ export function ProductCard({ product, onAddToCart, compact = false, hideAddToCa
           <div className={`flex flex-col gap-2 ${compact ? 'mt-1' : 'mt-3'}`}>
             <div className={`flex flex-col ${compact ? 'gap-1' : 'gap-2'}`}>
                 <div className={`flex items-center ${compact ? 'gap-1 sm:gap-2' : 'gap-2 sm:gap-3'}`}>
-                  <span className={`${compact ? 'text-xs sm:text-sm md:text-base' : 'text-lg sm:text-xl md:text-2xl'} font-black text-gray-900`}>
+                  <span className={`${compact ? 'text-sm sm:text-base' : 'text-lg sm:text-xl md:text-2xl'} font-black text-gray-900`}>
                     {formatPrice(product.price)}
                   </span>
                   {product.originalPrice && (
-                    <span className={`${compact ? 'text-xs sm:text-sm' : 'text-sm sm:text-base'} text-muted-foreground line-through`}>
+                    <span className={`${compact ? 'text-xs' : 'text-sm sm:text-base'} text-muted-foreground line-through`}>
                       {formatPrice(product.originalPrice)}
                     </span>
                   )}

@@ -27,9 +27,9 @@ export function HeroWithFinder({
       itemType="https://schema.org/WebPageElement"
     >
       <div className="relative w-full min-h-[500px] sm:min-h-[450px] lg:min-h-[550px] flex flex-col">
-        {/* Background Image Container */}
-        <div className="absolute inset-0 z-0">
-          <picture>
+        {/* Background image — contain so artwork isn’t cropped like object-cover */}
+        <div className="absolute inset-0 z-0 flex items-center justify-center bg-muted">
+          <picture className="block h-full w-full max-h-full">
             <source media="(max-width: 640px)" srcSet={imageSrc} type="image/png" sizes="100vw" />
             <source
               media="(min-width: 641px) and (max-width: 1024px)"
@@ -41,7 +41,7 @@ export function HeroWithFinder({
             <img
               src={imageSrc}
               alt={imageAlt}
-              className="w-full h-full object-cover object-center transition-opacity duration-700"
+              className="h-full w-full max-h-full object-contain object-center transition-opacity duration-700"
               loading="eager"
               decoding="async"
               fetchPriority="high"
@@ -55,7 +55,7 @@ export function HeroWithFinder({
               }}
             />
           </picture>
-          <div className="absolute inset-0 bg-gradient-to-t from-header/90 via-header/50 to-header/20" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-header/90 via-header/50 to-header/20" />
         </div>
 
         {/* Content Layer (Relative to drive height) */}

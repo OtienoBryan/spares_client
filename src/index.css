@@ -106,6 +106,21 @@
 }
 
 @layer base {
+<<<<<<< HEAD
   * { @apply border-border; }
   body { @apply bg-background text-foreground; }
+=======
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  /* Site content maintains standard centering without permanent sidebar shifts */
+>>>>>>> c09963fafc7e1acd83e9bc77eb37b948b3663d4b
 }
