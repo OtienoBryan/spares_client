@@ -49,36 +49,36 @@ export function SystemDiscovery() {
   ];
 
   return (
-    <section className="py-8 sm:py-12 bg-white overflow-hidden">
+    <section className="py-6 sm:py-8 bg-white overflow-hidden">
       <div className="container mx-auto px-3 sm:px-4">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 sm:gap-3 mb-4 sm:mb-6">
           <div className="text-left">
-            <h2 className="text-xl sm:text-2xl md:text-4xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2 sm:gap-3">
-              <span className="material-icons text-primary text-2xl sm:text-3xl">precision_manufacturing</span>
+            <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-1.5 sm:gap-2">
+              <span className="material-icons text-primary text-xl sm:text-2xl">precision_manufacturing</span>
               Explore by Vehicle System
             </h2>
-            <p className="mt-1.5 sm:mt-2 text-sm sm:text-base text-muted-foreground max-w-xl font-medium">
+            <p className="mt-1 sm:mt-1.5 text-xs sm:text-sm text-muted-foreground max-w-xl font-medium">
               Professional-grade components categorized by system for accurate fitment.
             </p>
           </div>
-          <Link to="/featured" className="self-start sm:self-auto inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all touch-manipulation">
+          <Link to="/featured" className="self-start sm:self-auto inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all touch-manipulation">
             Browse all
-            <span className="material-icons text-sm">arrow_forward</span>
+            <span className="material-icons text-xs">arrow_forward</span>
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
           {systems.map((system) => (
             <Link
               key={system.name}
               to={system.path}
-              className="group relative marketplace-card p-3.5 sm:p-5 md:p-6 overflow-hidden active:scale-[0.97] touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="group relative marketplace-card p-2.5 sm:p-3.5 md:p-4 overflow-hidden active:scale-[0.97] touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               aria-label={`Explore ${system.name}`}
             >
-              <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${system.color} -mr-12 -mt-12 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+              <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${system.color} -mr-10 -mt-10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
               
-              <div className="relative space-y-2.5 sm:space-y-4">
-                <div className="h-10 w-10 sm:h-14 sm:w-14 md:h-16 md:w-16 p-2 sm:p-3 bg-gray-50 rounded-xl sm:rounded-2xl flex items-center justify-center group-hover:bg-primary transition-all duration-300 shadow-inner">
+              <div className="relative space-y-2 sm:space-y-3">
+                <div className="h-8 w-8 sm:h-10 sm:w-10 md:h-11 md:w-11 p-1.5 sm:p-2 bg-gray-50 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:bg-primary transition-all duration-300 shadow-inner">
                   <img 
                     src={system.iconSrc} 
                     alt={system.name} 
@@ -86,16 +86,16 @@ export function SystemDiscovery() {
                   />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-gray-900 text-sm sm:text-base md:text-lg mb-0.5 sm:mb-1 group-hover:text-primary transition-colors leading-tight">
+                  <h3 className="font-bold text-gray-900 text-xs sm:text-sm md:text-base mb-0.5 group-hover:text-primary transition-colors leading-tight">
                     {system.name}
                   </h3>
-                  <p className="text-[11px] sm:text-xs md:text-sm text-muted-foreground font-medium leading-snug line-clamp-2">
+                  <p className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground font-medium leading-snug line-clamp-2">
                     {system.description}
                   </p>
                 </div>
-                <div className="hidden sm:flex items-center gap-1.5 text-primary text-xs font-bold opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                <div className="hidden sm:flex items-center gap-1 text-primary text-[11px] font-bold opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
                   Explore Components
-                  <span className="material-icons text-[14px]">chevron_right</span>
+                  <span className="material-icons text-xs">chevron_right</span>
                 </div>
               </div>
             </Link>

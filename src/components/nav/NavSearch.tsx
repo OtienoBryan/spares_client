@@ -7,7 +7,14 @@ import { formatPrice } from "@/data/products";
 import { productSlug } from "@/lib/utils";
 import { apiService } from "@/services/api";
 
-export const NavSearch = () => {
+/** `toolbar` = full-width row (e.g. mobile nav); `default` = centered max width (desktop header) */
+export type NavSearchLayout = "default" | "toolbar";
+
+interface NavSearchProps {
+  layout?: NavSearchLayout;
+}
+
+export const NavSearch = ({ layout = "default" }: NavSearchProps) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -92,30 +99,46 @@ export const NavSearch = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const isToolbar = layout === "toolbar";
+
   return (
-    <div className="relative w-full max-w-2xl mx-auto px-4 sm:px-0">
+    <div
+      className={
+        isToolbar
+          ? "relative w-full"
+          : "relative mx-auto w-full max-w-2xl px-4 sm:px-0"
+      }
+    >
       <form onSubmit={handleSearch} className="relative group">
         <input
           ref={searchInputRef}
           type="text"
-          placeholder="Search for genuine spare parts, brands, or SKUs..."
+          placeholder={
+            isToolbar
+              ? "Search parts, brands, SKUs…"
+              : "Search for genuine spare parts, brands, or SKUs..."
+          }
           value={searchQuery}
           onChange={handleSearchChange}
           onKeyDown={handleKeyDown}
-          className="w-full pl-5 pr-12 py-3 border-2 border-gray-100 rounded-xl bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary/30 focus:bg-white transition-all text-sm shadow-sm"
+          className={`w-full rounded-xl border-2 border-gray-100 bg-gray-50 pr-12 text-gray-900 placeholder-gray-400 shadow-sm transition-all focus:border-primary/30 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 ${
+            isToolbar ? "py-2.5 pl-4 text-sm" : "py-3 pl-5 text-sm"
+          }`}
         />
         <button 
           type="submit"
           className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-lg transition-colors group-focus-within:text-primary"
         >
-          <Search className="text-gray-400 h-5 w-5" />
+          <Search className={`text-gray-400 ${isToolbar ? "h-4 w-4" : "h-5 w-5"}`} />
         </button>
       </form>
       
       {showSuggestions && searchQuery.length > 0 && (
         <div 
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
+          className={`absolute top-full left-0 right-0 mt-1 rounded-lg border border-gray-200 bg-white shadow-xl max-h-80 overflow-y-auto ${
+            isToolbar ? "z-[110]" : "z-50"
+          }`}
         >
           {suggestionsLoading ? (
             <div className="p-4 text-center text-gray-500">

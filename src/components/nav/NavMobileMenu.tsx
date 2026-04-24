@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { X, User, Phone, MapPin, Package, LogOut, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LoadingSpares } from "@/components/ui/lottie-loader";
 import { COMPANY_SHORT_NAME, LOGO_ALT, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "@/config/site";
 
 interface NavMobileMenuProps {
@@ -31,7 +30,7 @@ export const NavMobileMenu = ({
 
   return (
     <div
-      className="fixed inset-0 z-[60] bg-slate-900/45 backdrop-blur-[3px] md:hidden animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] bg-slate-900/45 backdrop-blur-[3px] md:hidden animate-in fade-in duration-200"
       onClick={onClose}
       role="presentation"
     >
@@ -66,38 +65,90 @@ export const NavMobileMenu = ({
           <div className="h-0.5 w-12 rounded-full bg-gradient-to-r from-primary to-primary/50" aria-hidden />
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4 pt-5">
-          {isAuthenticated && (
-            <div className="mb-5 rounded-2xl border border-slate-200/80 bg-white/80 p-4 shadow-sm">
-              <div className="mb-3 flex items-center gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
-                  {user?.firstName?.charAt(0)}
-                </div>
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-bold text-slate-900">Hello, {user?.firstName}</div>
-                  <div className="truncate text-xs text-slate-500">{user?.email}</div>
-                </div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 pb-4 pt-4">
+          {/* Categories first so they’re visible without scrolling past other blocks */}
+          <div className="mb-5 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+            <h3 className="mb-1 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500">
+              Categories
+            </h3>
+            <p className="mb-2 text-[10px] text-slate-500">Tap a badge to browse parts.</p>
+            {categoriesLoading ? (
+              <div className="flex flex-wrap gap-2">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div
+                    key={i}
+                    className="h-8 w-20 animate-pulse rounded-full bg-slate-200/90"
+                    aria-hidden
+                  />
+                ))}
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <Link
-                  to="/account"
-                  onClick={onClose}
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200/80 bg-slate-50/80 py-2.5 text-xs font-semibold text-slate-800 transition-colors hover:border-primary/25 hover:bg-primary/[0.06] hover:text-primary"
-                >
-                  <User className="h-3.5 w-3.5" /> Profile
-                </Link>
-                <Link
-                  to="/orders"
-                  onClick={onClose}
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200/80 bg-slate-50/80 py-2.5 text-xs font-semibold text-slate-800 transition-colors hover:border-primary/25 hover:bg-primary/[0.06] hover:text-primary"
-                >
-                  <Package className="h-3.5 w-3.5" /> Orders
-                </Link>
+            ) : categoriesError ? (
+              <div className="rounded-lg border border-red-100 bg-red-50/60 px-2 py-2 text-center text-[11px] text-destructive">
+                Could not load categories
               </div>
-            </div>
-          )}
+            ) : !(categories && categories.length) ? (
+              <p className="text-center text-[11px] text-slate-500">No categories available.</p>
+            ) : (
+              <nav className="flex flex-wrap gap-2" aria-label="Shop by category">
+                {(categories ?? []).map((category) => {
+                  const active = isActiveCategory(category.path);
+                  const Icon = category.icon;
+                  return (
+                    <Link
+                      key={category.path}
+                      to={category.path}
+                      onClick={onClose}
+                      className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-3 py-2 text-[11px] font-semibold leading-tight text-slate-800 shadow-sm transition-colors ${
+                        active
+                          ? "border-primary/50 bg-primary text-white"
+                          : "border-slate-300 bg-slate-50 hover:border-primary/40 hover:bg-primary/[0.08] hover:text-primary"
+                      }`}
+                    >
+                      {Icon ? (
+                        <Icon
+                          className={`h-3.5 w-3.5 shrink-0 ${active ? "text-white" : "text-primary"}`}
+                          aria-hidden
+                        />
+                      ) : null}
+                      <span className="min-w-0 max-w-[10.5rem] truncate">{category.name}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            )}
+          </div>
 
           <div className="space-y-5">
+            {isAuthenticated && (
+              <div className="rounded-2xl border border-slate-200/80 bg-white/80 p-4 shadow-sm">
+                <div className="mb-3 flex items-center gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
+                    {user?.firstName?.charAt(0)}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-bold text-slate-900">Hello, {user?.firstName}</div>
+                    <div className="truncate text-xs text-slate-500">{user?.email}</div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Link
+                    to="/account"
+                    onClick={onClose}
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200/80 bg-slate-50/80 py-2.5 text-xs font-semibold text-slate-800 transition-colors hover:border-primary/25 hover:bg-primary/[0.06] hover:text-primary"
+                  >
+                    <User className="h-3.5 w-3.5" /> Profile
+                  </Link>
+                  <Link
+                    to="/orders"
+                    onClick={onClose}
+                    className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200/80 bg-slate-50/80 py-2.5 text-xs font-semibold text-slate-800 transition-colors hover:border-primary/25 hover:bg-primary/[0.06] hover:text-primary"
+                  >
+                    <Package className="h-3.5 w-3.5" /> Orders
+                  </Link>
+                </div>
+              </div>
+            )}
+
             <Link
               to="/"
               onClick={onClose}
@@ -130,49 +181,6 @@ export const NavMobileMenu = ({
                 New
               </span>
             </Link>
-
-            <div>
-              <h3 className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Categories</h3>
-              {categoriesLoading ? (
-                <div className="flex items-center gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50/60 px-3 py-4 text-sm text-slate-500">
-                  <LoadingSpares size="sm" />
-                  <span>Loading…</span>
-                </div>
-              ) : categoriesError ? (
-                <div className="rounded-xl border border-red-100 bg-red-50/50 px-3 py-4 text-center text-xs text-destructive">
-                  Could not load categories
-                </div>
-              ) : (
-                <nav className="flex flex-col gap-1">
-                  {categories.map((category) => {
-                    const active = isActiveCategory(category.path);
-                    return (
-                      <Link
-                        key={category.path}
-                        to={category.path}
-                        className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all ${
-                          active
-                            ? "border-primary/25 bg-white text-primary shadow-sm ring-1 ring-primary/10"
-                            : "border-transparent text-slate-600 hover:border-slate-200/90 hover:bg-white hover:text-primary hover:shadow-sm"
-                        }`}
-                        onClick={onClose}
-                      >
-                        <span
-                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-lg ${
-                            active ? "bg-primary/15" : "bg-slate-100/90"
-                          }`}
-                          role="img"
-                          aria-hidden
-                        >
-                          {category.icon}
-                        </span>
-                        <span className="min-w-0 truncate">{category.name}</span>
-                      </Link>
-                    );
-                  })}
-                </nav>
-              )}
-            </div>
 
             <div className="border-t border-slate-200/80 pt-5">
               <h3 className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Support</h3>
