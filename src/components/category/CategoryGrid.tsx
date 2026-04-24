@@ -80,7 +80,7 @@ export const CategoryGrid = ({
   }
 
   return (
-    <div className="flex-1 space-y-6 sm:space-y-8">
+    <div className="flex-1 space-y-6 sm:space-y-8 overflow-x-hidden">
       {/* Grid Controls */}
       <div className="flex items-center justify-between bg-white border rounded-lg px-3 py-2 sm:px-4 sm:py-3 shadow-sm">
         <div className="text-xs sm:text-sm font-medium text-muted-foreground text-center sm:text-left">
@@ -108,12 +108,13 @@ export const CategoryGrid = ({
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 overflow-x-clip">
         {paginatedProducts.map((product) => (
           <Suspense key={product.id} fallback={<div className="h-64 bg-gray-100 animate-pulse rounded-lg" />}>
             <LazyProductCard
               product={product}
               onAddToCart={addToCart}
+              compact
             />
           </Suspense>
         ))}

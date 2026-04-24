@@ -13,18 +13,18 @@ export default function GlobalLayout({ children }: GlobalLayoutProps) {
   const { categories, loading } = useNavigationCategories();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50 overflow-x-hidden">
       <Navigation />
-      <div className="flex flex-1 relative">
+      <div className="flex flex-1 relative overflow-x-hidden">
         <CategoriesSidebarPermanent 
           categories={categories} 
           isLoading={loading} 
         />
-        <main className="flex-1 w-full lg:ml-64 transition-all duration-300">
+        <main className="flex-1 w-full min-w-0 lg:ml-64 transition-all duration-300 overflow-x-hidden">
           {children || <Outlet />}
         </main>
       </div>
-      <div className="lg:ml-64 transition-all duration-300">
+      <div className="lg:ml-64 transition-all duration-300 overflow-x-hidden">
         <Footer />
       </div>
     </div>

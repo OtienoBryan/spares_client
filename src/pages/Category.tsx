@@ -2,10 +2,11 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 
 
-import { useProductsByCategory, useCategories, useSearchProductsDebounced } from "@/hooks/useApi";
-import { Product, Category } from "@/services/api";
+import { useProductsByCategory, useCategories, useSearchProductsDebounced, useSubCategories } from "@/hooks/useApi";
+import { Product, Category, SubCategory } from "@/services/api";
 import { useCart } from "@/contexts/CartContext";
 import { LoadingComponent } from "@/components/ui/lottie-loader";
+import { Badge } from "@/components/ui/badge";
 import { CategorySeo } from "@/components/category/CategorySeo";
 import { CategoryHeader } from "@/components/category/CategoryHeader";
 import { CategorySidebar } from "@/components/category/CategorySidebar";
@@ -13,9 +14,17 @@ import { CategoryGrid } from "@/components/category/CategoryGrid";
 
 const CategoryPage = () => {
   const { category: categorySlug } = useParams<{ category: string }>();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
   const subcategoryParam = searchParams.get('subcategory');
+
+  const toSlug = (value: string) =>
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
   
   const { addToCart } = useCart();
   const { data: categories } = useCategories();
@@ -45,7 +54,8 @@ const CategoryPage = () => {
   // Find the current category ID from the slug
   const currentCategory = useMemo(() => {
     if (!categories || !categorySlug) return null;
-    return (categories as Category[]).find(c => c.name.toLowerCase() === categorySlug.toLowerCase());
+    const normalizedSlug = toSlug(decodeURIComponent(categorySlug));
+    return (categories as Category[]).find(c => toSlug(c.name) === normalizedSlug);
   }, [categories, categorySlug]);
 
   const categoryId = currentCategory?.id || 0;
@@ -53,6 +63,9 @@ const CategoryPage = () => {
 
   // Fetch products
   const { data: categoryProducts = [], loading: productsLoading, error: productsError } = useProductsByCategory(categoryId);
+
+  // Fetch subcategories for this category (used for badges + filters)
+  const { data: apiSubCategories } = useSubCategories(categoryId);
   
   // Search logic if applicable
   const { data: searchResults } = useSearchProductsDebounced(initialSearch, 300);
@@ -89,9 +102,9 @@ const CategoryPage = () => {
   }, [maxPrice]);
 
   const subCategories = useMemo(() => {
-    if (!currentCategory || !categories) return [];
-    return (categories as Category[]).filter(c => c.parentId === currentCategory.id);
-  }, [currentCategory, categories]);
+    const subs = (apiSubCategories ?? []) as SubCategory[];
+    return subs.filter(sc => sc.isActive !== false);
+  }, [apiSubCategories]);
 
   // Filtration logic
   const filteredProducts = useMemo(() => {
@@ -113,7 +126,7 @@ const CategoryPage = () => {
       if (showInStockOnly && product.stock === 0) return false;
       
       // Subcategories filter
-      if (selectedSubcategories.length > 0 && !selectedSubcategories.includes(product.categoryId)) return false;
+      if (selectedSubcategories.length > 0 && !selectedSubcategories.includes(product.subcategoryId || 0)) return false;
       
       return true;
     });
@@ -168,39 +181,101 @@ const CategoryPage = () => {
       />
       
       
-        <CategoryHeader categoryDisplayName={categoryDisplayName} />
+        <div className="w-full overflow-x-hidden">
+          <CategoryHeader categoryDisplayName={categoryDisplayName} />
 
-        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
-          <CategorySidebar 
-            priceRange={priceRange}
-            setPriceRange={setPriceRange}
-            maxPrice={maxPrice}
-            allBrands={allBrands}
-            selectedBrands={selectedBrands}
-            setSelectedBrands={setSelectedBrands}
-            allOrigins={allOrigins}
-            selectedOrigins={selectedOrigins}
-            setSelectedOrigins={setSelectedOrigins}
-            showInStockOnly={showInStockOnly}
-            setShowInStockOnly={setShowInStockOnly}
-            subCategories={subCategories}
-            selectedSubcategories={selectedSubcategories}
-            handleSubcategoryToggle={handleSubcategoryToggle}
-            clearFilters={clearFilters}
-            isMobileFilterOpen={isMobileFilterOpen}
-            setIsMobileFilterOpen={setIsMobileFilterOpen}
-          />
+        {subCategories.length > 0 && (
+          <div className="mb-4 sm:mb-6">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              <button
+                type="button"
+                onClick={() => {
+                  const next = new URLSearchParams(searchParams);
+                  next.delete("subcategory");
+                  setSearchParams(next);
+                  setSelectedSubcategories([]);
+                  setCurrentPage(1);
+                }}
+                className="shrink-0"
+              >
+                <Badge
+                  variant={selectedSubcategories.length === 0 ? "default" : "secondary"}
+                  className="cursor-pointer whitespace-nowrap"
+                >
+                  All
+                </Badge>
+              </button>
 
-          <CategoryGrid 
-            products={sortedProducts}
-            itemsPerPage={itemsPerPage}
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            isLoading={productsLoading}
-            addToCart={addToCart}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-          />
+              {subCategories.map((sc) => {
+                const active = selectedSubcategories.includes(sc.id);
+                return (
+                  <button
+                    key={sc.id}
+                    type="button"
+                    onClick={() => {
+                      const next = new URLSearchParams(searchParams);
+                      if (active) {
+                        next.delete("subcategory");
+                        setSearchParams(next);
+                        setSelectedSubcategories([]);
+                      } else {
+                        next.set("subcategory", String(sc.id));
+                        setSearchParams(next);
+                        setSelectedSubcategories([sc.id]);
+                      }
+                      setCurrentPage(1);
+                    }}
+                    className="shrink-0"
+                  >
+                    <Badge
+                      variant={active ? "default" : "outline"}
+                      className={`cursor-pointer whitespace-nowrap ${active ? "" : "hover:bg-primary/10 hover:border-primary/30 hover:text-primary"}`}
+                    >
+                      {sc.name}
+                    </Badge>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+          <div className="flex flex-col lg:flex-row lg:items-start gap-6 sm:gap-8">
+            <div className="w-full lg:w-64 xl:w-72 shrink-0">
+              <CategorySidebar 
+                priceRange={priceRange}
+                setPriceRange={setPriceRange}
+                maxPrice={maxPrice}
+                allBrands={allBrands}
+                selectedBrands={selectedBrands}
+                setSelectedBrands={setSelectedBrands}
+                allOrigins={allOrigins}
+                selectedOrigins={selectedOrigins}
+                setSelectedOrigins={setSelectedOrigins}
+                showInStockOnly={showInStockOnly}
+                setShowInStockOnly={setShowInStockOnly}
+                subCategories={subCategories}
+                selectedSubcategories={selectedSubcategories}
+                handleSubcategoryToggle={handleSubcategoryToggle}
+                clearFilters={clearFilters}
+                isMobileFilterOpen={isMobileFilterOpen}
+                setIsMobileFilterOpen={setIsMobileFilterOpen}
+              />
+            </div>
+
+            <div className="min-w-0 flex-1 overflow-x-hidden">
+              <CategoryGrid 
+                products={sortedProducts}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                isLoading={productsLoading}
+                addToCart={addToCart}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+              />
+            </div>
+          </div>
         </div>
       </>
   );
