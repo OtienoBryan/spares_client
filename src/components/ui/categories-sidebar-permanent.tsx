@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from "react";
 interface Category {
   name: string;
   path: string;
-  icon?: string;
+  icon?: any;
   subcategories?: Array<{ name: string; path: string }>;
 }
 
@@ -94,15 +94,22 @@ export function CategoriesSidebarPermanent({ categories, isLoading }: Categories
                 >
                   <Link
                     to={category.path}
-                    className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-150 shadow-sm ${
+                    className={`flex items-center justify-start px-3 py-2.5 rounded-lg transition-all duration-150 shadow-sm ${
                       isActiveCategory(category.path)
                         ? "bg-primary text-white shadow-md"
                         : "text-gray-700 hover:bg-primary/5 hover:text-primary hover:shadow-md"
                     }`}
                   >
-                    <span className="font-medium text-sm">
-                      {category.name}
-                    </span>
+                    <div className="flex items-center flex-1">
+                      {category.icon && (
+                        <category.icon className={`h-4 w-4 mr-3 transition-colors ${
+                          isActiveCategory(category.path) ? "text-white" : "text-primary/70"
+                        }`} />
+                      )}
+                      <span className="font-medium text-sm">
+                        {category.name}
+                      </span>
+                    </div>
                     {category.subcategories && category.subcategories.length > 0 && (
                       <ChevronRight className={`h-4 w-4 transition-transform duration-150 ${hoveredCategory === category.path ? 'rotate-90' : ''} ${
                         isActiveCategory(category.path) ? "text-white" : "text-gray-400"
@@ -113,35 +120,41 @@ export function CategoriesSidebarPermanent({ categories, isLoading }: Categories
                   {/* Subcategories - Only visible on hover, positioned to the right using fixed positioning */}
                   {category.subcategories && category.subcategories.length > 0 && hoveredCategory === category.path && (
                     <div 
-                      className="fixed w-56 bg-white border border-gray-200 rounded-lg shadow-xl transition-all duration-200 z-[9999]"
+                      className="fixed w-64 bg-white border border-gray-100 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] transition-all duration-300 z-[9999] animate-in fade-in slide-in-from-left-2"
                       style={{
-                        left: '272px', // 256px sidebar + 16px margin
-                        top: `${topPosition}px`
+                        left: '264px', // 256px sidebar + 8px gap
+                        top: `${topPosition + 64}px` // Add 64px offset for the header
                       }}
                       onMouseEnter={() => handleSubcategoryMouseEnter(category.path)}
                       onMouseLeave={handleSubcategoryMouseLeave}
                     >
-                      <div className="py-2">
-                        {category.subcategories.map((subcategory) => (
-                          <Link
-                            key={subcategory.path}
-                            to={subcategory.path}
-                            onClick={() => {
-                              setHoveredCategory(null);
-                              if (hoverTimeoutRef.current) {
-                                clearTimeout(hoverTimeoutRef.current);
-                                hoverTimeoutRef.current = null;
-                              }
-                            }}
-                            className={`block px-4 py-2.5 text-sm rounded-md transition-all duration-150 shadow-sm mx-2 cursor-pointer ${
-                              location.pathname === subcategory.path
-                                ? "bg-primary/10 text-primary font-medium shadow-md"
-                                : "text-gray-600 hover:text-primary hover:bg-primary/5 hover:shadow-md"
-                            }`}
-                          >
-                            {subcategory.name}
-                          </Link>
-                        ))}
+                      <div className="p-3">
+                        <div className="px-3 py-2 mb-2 border-b border-gray-50">
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{category.name}</p>
+                        </div>
+                        <div className="space-y-1">
+                          {category.subcategories.map((subcategory) => (
+                            <Link
+                              key={subcategory.path}
+                              to={subcategory.path}
+                              onClick={() => {
+                                setHoveredCategory(null);
+                                if (hoverTimeoutRef.current) {
+                                  clearTimeout(hoverTimeoutRef.current);
+                                  hoverTimeoutRef.current = null;
+                                }
+                              }}
+                              className={`flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-150 ${
+                                location.pathname === subcategory.path || location.search.includes(`subcategory=${subcategory.path.split('=')[1]}`)
+                                  ? "bg-primary/10 text-primary font-bold"
+                                  : "text-gray-600 hover:text-primary hover:bg-primary/5"
+                              }`}
+                            >
+                              <ChevronRight className="h-3 w-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                              {subcategory.name}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   )}

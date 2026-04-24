@@ -126,7 +126,7 @@ const Home = memo(() => {
       <HeroWithFinder
         companyName={COMPANY_NAME}
         title="Genuine Parts. Precision Fit."
-        subtitle="OEM-quality spares � search, order by phone, or checkout online."
+        subtitle="OEM-quality spares — search, order by phone, or checkout online."
         imageSrc="/hero-parts.png"
         imageAlt="Precision Parts Kenya - Automotive Spares"
         whatsappNumber={WHATSAPP_ORDER_NUMBER}

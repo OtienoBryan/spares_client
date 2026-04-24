@@ -3,6 +3,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 
 
 import { useProductsByCategory, useCategories, useSearchProductsDebounced } from "@/hooks/useApi";
+import { Product, Category } from "@/services/api";
 import { useCart } from "@/contexts/CartContext";
 import { LoadingComponent } from "@/components/ui/lottie-loader";
 import { CategorySeo } from "@/components/category/CategorySeo";
@@ -14,6 +15,7 @@ const CategoryPage = () => {
   const { category: categorySlug } = useParams<{ category: string }>();
   const [searchParams] = useSearchParams();
   const initialSearch = searchParams.get('search') || '';
+  const subcategoryParam = searchParams.get('subcategory');
   
   const { addToCart } = useCart();
   const { data: categories } = useCategories();
@@ -28,10 +30,22 @@ const CategoryPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 12;
 
+  // Sync subcategory from URL
+  useEffect(() => {
+    if (subcategoryParam) {
+      const id = parseInt(subcategoryParam);
+      if (!isNaN(id)) {
+        setSelectedSubcategories([id]);
+      }
+    } else {
+      setSelectedSubcategories([]);
+    }
+  }, [subcategoryParam]);
+
   // Find the current category ID from the slug
   const currentCategory = useMemo(() => {
     if (!categories || !categorySlug) return null;
-    return categories.find(c => c.name.toLowerCase() === categorySlug.toLowerCase());
+    return (categories as Category[]).find(c => c.name.toLowerCase() === categorySlug.toLowerCase());
   }, [categories, categorySlug]);
 
   const categoryId = currentCategory?.id || 0;
@@ -43,10 +57,10 @@ const CategoryPage = () => {
   // Search logic if applicable
   const { data: searchResults } = useSearchProductsDebounced(initialSearch, 300);
   
-  const baseProducts = useMemo(() => {
+  const baseProducts = useMemo((): Product[] => {
     // Some API hooks can yield `null` before data arrives; normalize to array.
-    if (initialSearch) return (searchResults ?? []);
-    return (categoryProducts ?? []);
+    if (initialSearch) return (searchResults ?? []) as Product[];
+    return (categoryProducts ?? []) as Product[];
   }, [initialSearch, searchResults, categoryProducts]);
 
   // Derived filter options
@@ -76,7 +90,7 @@ const CategoryPage = () => {
 
   const subCategories = useMemo(() => {
     if (!currentCategory || !categories) return [];
-    return categories.filter(c => c.parentId === currentCategory.id);
+    return (categories as Category[]).filter(c => c.parentId === currentCategory.id);
   }, [currentCategory, categories]);
 
   // Filtration logic
@@ -96,7 +110,7 @@ const CategoryPage = () => {
       if (selectedBrands.length > 0 && (!product.brand || !selectedBrands.includes(product.brand))) return false;
       
       // Stock filter
-      if (showInStockOnly && (product.stock === 0 || product.stock === "0")) return false;
+      if (showInStockOnly && product.stock === 0) return false;
       
       // Subcategories filter
       if (selectedSubcategories.length > 0 && !selectedSubcategories.includes(product.categoryId)) return false;

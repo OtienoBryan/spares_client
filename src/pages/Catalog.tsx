@@ -1,8 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
 import { useProducts, useCategories } from "@/hooks/useApi";
 import { useCart } from "@/contexts/CartContext";
 import { formatPrice } from "@/data/products";
@@ -235,7 +233,6 @@ const CatalogPage = () => {
   if (productsLoading && !allProducts) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="flex items-center justify-center py-24">
           <div className="text-center">
             <LoadingWave size="xl" className="mx-auto mb-4" />
@@ -243,7 +240,6 @@ const CatalogPage = () => {
             <p className="text-muted-foreground">Indexing parts database</p>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -251,7 +247,6 @@ const CatalogPage = () => {
   if (!isOnline || isNetworkError(productsError)) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation />
         <div className="flex items-center justify-center py-24">
           <div className="text-center">
             <LoadingNetworkError size="xl" className="mx-auto mb-4" />
@@ -260,7 +255,6 @@ const CatalogPage = () => {
             <Button onClick={() => window.location.reload()}>Try Again</Button>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -275,8 +269,6 @@ const CatalogPage = () => {
           content={`Search our complete catalog of genuine automotive spare parts. Find parts by name, SKU, brand, or vehicle compatibility. ${COMPANY_NAME}.`}
         />
       </Helmet>
-
-      <Navigation />
 
       {/* ─── Hero Search Bar ─────────────────────────────────── */}
       <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
@@ -667,8 +659,6 @@ const CatalogPage = () => {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 };

@@ -3,7 +3,7 @@ function resolveApiBaseUrl(): string {
   const fromEnv = import.meta.env.VITE_API_BASE_URL?.trim();
   if (fromEnv) return fromEnv.replace(/\/$/, "");
 
-  // Vite dev: use same-origin /api (proxied in vite.config.ts — no local :3001 needed)
+  // Vite dev: use same-origin /api (proxied in vite.config.ts ï¿½ no local :3001 needed)
   if (import.meta.env.DEV) return "/api";
 
   if (typeof window !== "undefined") {
@@ -18,19 +18,20 @@ function resolveApiBaseUrl(): string {
 
 const API_BASE_URL = resolveApiBaseUrl();
 
-/** Helper to map legacy drink fields to automotive terms */
-const mapProductFields = (product: any): Product => {
-  if (!product) return product;
+/** Helper to map technical specifications and dimensions from available data fields */
+const mapProductFields = (product: Record<string, unknown>): Product => {
+  if (!product) return product as unknown as Product;
   return {
     ...product,
-    specifications: product.specifications || product.alcoholContent || "N/A",
-    dimensions: product.dimensions || product.volume || "Standard",
-    requiresSpecialHandling: product.requiresSpecialHandling ?? product.requiresAgeVerification ?? false
+    // Support multiple field names for specifications and dimensions
+    specifications: (product.specifications as string) || (product.alcoholContent as string) || "N/A",
+    dimensions: (product.dimensions as string) || (product.volume as string) || "Standard",
+    requiresSpecialHandling: (product.requiresSpecialHandling as boolean) ?? false
   } as Product;
 };
 
 export interface Category {
-// ... existing Category interface ...
+  [x: string]: number;
   id: number;
   name: string;
   description: string;
@@ -39,9 +40,9 @@ export interface Category {
   createdAt: string;
   updatedAt: string;
   /**
-   * When set (along with isActive), category appears on home “Shop by parts”.
-   * Sort ascending (1, 2, 3…). Omitted categories are not shown there.
-   * Backend may send snake_case `shop_by_parts_sort` — see `categoryShopTiles.ts`.
+   * When set (along with isActive), category appears on home ï¿½Shop by partsï¿½.
+   * Sort ascending (1, 2, 3ï¿½). Omitted categories are not shown there.
+   * Backend may send snake_case `shop_by_parts_sort` ï¿½ see `categoryShopTiles.ts`.
    */
   shopByPartsSort?: number | null;
   /** Optional shorter label on the tile; defaults to category name. */
@@ -201,31 +202,32 @@ class ApiService {
       const data = await response.json();
       console.log('Response data:', data);
       return data;
-    } catch (error) {
-      console.error(`API request failed for ${endpoint}:`, error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error(`API request failed for ${endpoint}:`, err);
       console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
+        message: err.message,
+        stack: err.stack,
+        name: err.name
       });
       
       // Enhance error with network information
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        const networkError = new Error('Network connection failed. Please check your internet connection.');
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        const networkError = new Error('Network connection failed. Please check your internet connection.') as Error & { code?: string };
         networkError.name = 'NetworkError';
-        (networkError as any).code = 'NETWORK_ERROR';
+        networkError.code = 'NETWORK_ERROR';
         throw networkError;
       }
       
       // Handle 502 Bad Gateway errors specifically
-      if (error.message.includes('502')) {
-        const gatewayError = new Error('Backend service is temporarily unavailable. Please try again later.');
+      if (err.message.includes('502')) {
+        const gatewayError = new Error('Backend service is temporarily unavailable. Please try again later.') as Error & { code?: string };
         gatewayError.name = 'GatewayError';
-        (gatewayError as any).code = 'GATEWAY_ERROR';
+        gatewayError.code = 'GATEWAY_ERROR';
         throw gatewayError;
       }
       
-      throw error;
+      throw err;
     }
   }
 
@@ -240,37 +242,37 @@ class ApiService {
 
   // Products
   async getProducts(): Promise<Product[]> {
-    const data = await this.request<Product[]>('/products');
+    const data = await this.request<Record<string, unknown>[]>('/products');
     return data.map(mapProductFields);
   }
 
   async getProductById(id: number): Promise<Product> {
-    const data = await this.request<Product>(`/products/${id}`);
+    const data = await this.request<Record<string, unknown>>(`/products/${id}`);
     return mapProductFields(data);
   }
 
   async getFeaturedProducts(): Promise<Product[]> {
-    const data = await this.request<Product[]>('/products/featured');
+    const data = await this.request<Record<string, unknown>[]>('/products/featured');
     return data.map(mapProductFields);
   }
 
   async getNewArrivals(): Promise<Product[]> {
-    const data = await this.request<Product[]>('/products/new-arrivals');
+    const data = await this.request<Record<string, unknown>[]>('/products/new-arrivals');
     return data.map(mapProductFields);
   }
 
   async searchProducts(query: string): Promise<Product[]> {
-    const data = await this.request<Product[]>(`/products/search?q=${encodeURIComponent(query)}`);
+    const data = await this.request<Record<string, unknown>[]>(`/products/search?q=${encodeURIComponent(query)}`);
     return data.map(mapProductFields);
   }
 
   async getProductsByCategory(categoryId: number): Promise<Product[]> {
-    const data = await this.request<Product[]>(`/products/category/${categoryId}`);
+    const data = await this.request<Record<string, unknown>[]>(`/products/category/${categoryId}`);
     return data.map(mapProductFields);
   }
 
   async getPopularParts(): Promise<Product[]> {
-    const data = await this.request<Product[]>('/products/popular-wines');
+    const data = await this.request<Record<string, unknown>[]>('/products/popular-wines');
     return data.map(mapProductFields);
   }
 
@@ -331,31 +333,26 @@ class ApiService {
       console.log('=== ORDER API RESPONSE SUCCESS ===');
       console.log('Order API response:', JSON.stringify(response, null, 2));
       return response;
-    } catch (error) {
+    } catch (error: unknown) {
+      const err = error as Error;
       console.error('=== API CREATE ORDER ERROR ===');
-      console.error('API createOrder error:', error);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
+      console.error('API createOrder error:', err);
+      console.error('Error message:', err.message);
+      console.error('Error stack:', err.stack);
       console.error('Order data that failed:', JSON.stringify(orderData, null, 2));
-      console.error('User ID sent:', userId);
-      console.error('Request body that failed:', requestBody);
-      console.error('Items in order data:', orderData.items);
-      console.error('Items type:', typeof orderData.items);
-      console.error('Items length:', orderData.items?.length);
-      console.error('Items is array:', Array.isArray(orderData.items));
+      console.log('User ID sent:', userId);
+      console.log('Request body that failed:', requestBody);
       
       // Log specific error types
-      if (error.message?.includes('500')) {
+      if (err.message?.includes('500')) {
         console.error('Server returned 500 - Internal Server Error');
-        console.error('This usually means the backend has a bug or database issue');
-      } else if (error.message?.includes('400')) {
+      } else if (err.message?.includes('400')) {
         console.error('Server returned 400 - Bad Request');
-        console.error('The order data format is invalid');
-      } else if (error.message?.includes('Failed to fetch')) {
+      } else if (err.message?.includes('Failed to fetch')) {
         console.error('Network error - cannot reach backend server');
       }
       
-      throw error;
+      throw err;
     }
   }
 

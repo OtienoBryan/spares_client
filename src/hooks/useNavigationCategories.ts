@@ -1,54 +1,72 @@
 import { useMemo } from "react";
-import { useCategories } from "@/hooks/useApi";
+import { useCategories, useSubCategories } from "@/hooks/useApi";
+import { Category, SubCategory } from "@/services/api";
+import { 
+  Settings, 
+  ArrowDownUp, 
+  Disc, 
+  Zap, 
+  Filter, 
+  Lightbulb, 
+  Box,
+  LucideIcon 
+} from "lucide-react";
 
 export interface NavigationCategory {
   name: string;
   path: string;
-  icon?: string;
+  icon?: LucideIcon;
   id?: string | number;
+  subcategories?: Array<{ name: string; path: string }>;
 }
 
 export function useNavigationCategories() {
-  const { data: apiCategories = [], loading, error } = useCategories();
+  const { data: apiCategories = [], loading: categoriesLoading, error: categoriesError } = useCategories();
+  const { data: allSubCategories = [], loading: subCategoriesLoading } = useSubCategories();
 
   // Helper function to get appropriate icon for category
-  function getCategoryIcon(categoryName: string): string {
+  function getCategoryIcon(categoryName: string): LucideIcon {
     const name = categoryName.toLowerCase();
-    if (name.includes('engine')) return "⚙️";
-    if (name.includes('suspension')) return "🔧";
-    if (name.includes('brake') || name.includes('braking')) return "🛑";
-    if (name.includes('electric') || name.includes('battery')) return "⚡";
-    if (name.includes('filter')) return "🌪️";
-    if (name.includes('lighting')) return "💡";
-    return "📦"; 
+    if (name.includes('engine')) return Settings;
+    if (name.includes('suspension')) return ArrowDownUp;
+    if (name.includes('brake') || name.includes('braking')) return Disc;
+    if (name.includes('electric') || name.includes('battery')) return Zap;
+    if (name.includes('filter')) return Filter;
+    if (name.includes('lighting')) return Lightbulb;
+    return Box; 
   }
 
   const categories = useMemo(() => {
-    const baseCategories: NavigationCategory[] = [
-      { name: "Engine", path: "/category/engine", icon: "⚙️" },
-      { name: "Suspension", path: "/category/suspension", icon: "🔧" },
-      { name: "Braking", path: "/category/braking", icon: "🛑" },
-      { name: "Electrical", path: "/category/electrical", icon: "⚡" }
-    ];
+    const apiCats = (apiCategories || []) as Category[];
+    const subCats = (allSubCategories || []) as SubCategory[];
 
-    const apiCategoriesList = apiCategories
-      ?.filter(cat => {
-        const name = cat.name.toLowerCase();
-        return !['engine', 'suspension', 'home', 'braking', 'brake', 'electrical', 'electric'].includes(name);
-      })
-      .map(category => ({
+    // Showing all categories as requested (transitioning backend to cars data)
+    const automotiveCategories = apiCats.filter(cat => cat.name.toLowerCase() !== 'home');
+
+    return automotiveCategories.map(category => {
+      const catId = category.id;
+      const path = `/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`;
+      
+      const subcategories = subCats
+        ?.filter(sub => sub.categoryId === catId)
+        .map(sub => ({
+          name: sub.name,
+          path: `${path}?subcategory=${sub.id}`
+        }));
+
+      return {
         name: category.name,
-        path: `/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`,
+        path: path,
         icon: getCategoryIcon(category.name),
-        id: category.id
-      })) || [];
-
-    return [...baseCategories, ...apiCategoriesList];
-  }, [apiCategories]);
+        id: catId,
+        subcategories: subcategories && subcategories.length > 0 ? subcategories : undefined
+      };
+    });
+  }, [apiCategories, allSubCategories]);
 
   return {
     categories,
-    loading,
-    error
+    loading: categoriesLoading || subCategoriesLoading,
+    error: categoriesError
   };
 }
