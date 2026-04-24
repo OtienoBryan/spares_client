@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+
+
 import { useProductsByCategory, useCategories, useSearchProductsDebounced } from "@/hooks/useApi";
 import { useCart } from "@/contexts/CartContext";
 import { LoadingComponent } from "@/components/ui/lottie-loader";
@@ -136,26 +136,24 @@ const CategoryPage = () => {
 
   if (productsLoading && baseProducts.length === 0) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <>
         <div className="text-center">
           <LoadingComponent size="xl" className="mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-primary mb-4">Loading Parts...</h1>
         </div>
-      </div>
-    );
+      </>
+  );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <CategorySeo 
         categoryDisplayName={categoryDisplayName} 
         categorySlug={categorySlug} 
         products={sortedProducts} 
       />
       
-      <Navigation />
-
-      <main className="w-full px-3 sm:px-4 md:px-8 py-6 sm:py-8 md:py-12">
+      
         <CategoryHeader categoryDisplayName={categoryDisplayName} />
 
         <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
@@ -190,10 +188,7 @@ const CategoryPage = () => {
             setSortBy={setSortBy}
           />
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </>
   );
 };
 

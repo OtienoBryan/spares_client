@@ -12,8 +12,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+
+
 import { 
   ArrowLeft,
   Filter,
@@ -107,8 +107,7 @@ const Featured = () => {
   // Show loading state
   if (featuredLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <>
         <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
           <div className="text-center">
             <LoadingWave size="xl" className="mx-auto mb-3 sm:mb-4" />
@@ -116,8 +115,8 @@ const Featured = () => {
             <p className="text-sm sm:text-base">Discovering our premium selection...</p>
           </div>
         </div>
-      </div>
-    );
+      </>
+  );
   }
 
   // Check for network errors
@@ -126,8 +125,7 @@ const Featured = () => {
   // Show network error state
   if (hasNetworkError) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <>
         <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
           <div className="text-center">
             <LoadingNetworkError size="xl" className="mx-auto mb-3 sm:mb-4" />
@@ -138,14 +136,12 @@ const Featured = () => {
             </Button>
           </div>
         </div>
-      </div>
-    );
+      </>
+  );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
+    <>
       {/* Header Section */}
       <section className="py-4 sm:py-5 md:py-6 bg-gradient-to-br from-Component/10 to-primary/10">
         <div className="container mx-auto px-3 sm:px-4">
@@ -422,8 +418,7 @@ const Featured = () => {
       </section>
 
       {/* Footer */}
-      <Footer />
-    </div>
+      </>
   );
 };
 

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import Navigation from "@/components/Navigation";
+
 import {
   COMPANY_NAME,
   CONTACT_PHONE_DISPLAY,
@@ -108,10 +108,8 @@ const Contact = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       {/* Navigation */}
-      <Navigation />
-
       {/* Hero Section */}
       <section className="relative py-20 bg-gradient-to-br from-Component/10 to-gold/10">
         <div className="container mx-auto px-4">
@@ -384,12 +382,12 @@ const Contact = () => {
               Premium Spares delivered fast to your doorstep
             </p>
             <p className="text-sm text-primary-light">
-              © 2026 {COMPANY_NAME}. All rights reserved.
+              ï¿½ 2026 {COMPANY_NAME}. All rights reserved.
             </p>
           </div>
         </div>
       </footer>
-    </div>
+    </>
   );
 };
 

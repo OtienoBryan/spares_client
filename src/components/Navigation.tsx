@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useUser } from "@/contexts/UserContext";
-import { useCategories } from "@/hooks/useApi";
+import { useNavigationCategories } from "@/hooks/useNavigationCategories";
 import { LoginModal } from "@/components/auth/LoginModal";
 import { RegisterModal } from "@/components/auth/RegisterModal";
 
@@ -24,49 +24,7 @@ const Navigation = () => {
   
   const { cartItems, updateQuantity, removeItem } = useCart();
   const { user, isAuthenticated, logout } = useUser();
-  const { data: apiCategories = [], loading: categoriesLoading, error: categoriesError } = useCategories();
-
-
-  // Helper function to get appropriate icon for category
-  function getCategoryIcon(categoryName: string): string {
-    const name = categoryName.toLowerCase();
-    if (name.includes('engine')) return "??";
-    if (name.includes('suspension')) return "??";
-    if (name.includes('brake') || name.includes('braking')) return "??";
-    if (name.includes('electric') || name.includes('battery')) return "?";
-    if (name.includes('filter')) return "??";
-    if (name.includes('lighting')) return "??";
-    return "??"; 
-  }
-
-  // Create categories array with API data and fallback to static data
-  const categories = useMemo(() => {
-    const baseCategories = [
-      { name: "Engine", path: "/category/engine", icon: "??", id: undefined },
-      { 
-        name: "Suspension", 
-        path: "/category/suspension", 
-        icon: "??",
-        id: undefined
-      },
-      { name: "Braking", path: "/category/braking", icon: "??", id: undefined },
-      { name: "Electrical", path: "/category/electrical", icon: "?", id: undefined }
-    ];
-
-    const apiCategoriesList = apiCategories
-      ?.filter(cat => {
-        const name = cat.name.toLowerCase();
-        return !['engine', 'suspension', 'home', 'braking', 'brake', 'electrical', 'electric'].includes(name);
-      })
-      .map(category => ({
-        name: category.name,
-        path: `/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`,
-        icon: getCategoryIcon(category.name),
-        id: category.id
-      })) || [];
-
-    return [...baseCategories, ...apiCategoriesList];
-  }, [apiCategories]);
+  const { categories, loading: categoriesLoading, error: categoriesError } = useNavigationCategories();
 
   const isActiveCategory = (path: string) => {
     if (path === "/") return location.pathname === "/";

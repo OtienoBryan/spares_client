@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, memo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+
+
 import { useCart } from "@/contexts/CartContext";
 import { useProducts, useFeaturedProducts, useCategories, useSearchProductsDebounced, usePopularParts } from "@/hooks/useApi";
 import { LoadingWave, LoadingNetworkError } from "@/components/ui/lottie-loader";
@@ -92,13 +92,13 @@ const Home = memo(() => {
   // Loading and Error states
   if (categoriesLoading && !categories) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <>
         <div className="text-center">
           <LoadingWave size="xl" className="mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-primary mb-4">Calibrating Systems...</h1>
         </div>
-      </div>
-    );
+      </>
+  );
   }
 
   const hasNetworkError = !isOnline || 
@@ -108,27 +108,25 @@ const Home = memo(() => {
 
   if (hasNetworkError) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <>
         <div className="text-center">
           <LoadingNetworkError size="xl" className="mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-primary mb-4">Connection Error</h1>
           <p className="text-muted-foreground mb-4">Unable to connect to Precision Parts servers.</p>
           <button onClick={() => window.location.reload()} className="bg-primary text-white px-6 py-2 rounded-lg">Try Again</button>
         </div>
-      </div>
-    );
+      </>
+  );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <HomeSeo featuredProducts={featuredProducts || []} />
       
-      <Navigation />
-
       <HeroWithFinder
         companyName={COMPANY_NAME}
         title="Genuine Parts. Precision Fit."
-        subtitle="OEM-quality spares — search, order by phone, or checkout online."
+        subtitle="OEM-quality spares ï¿½ search, order by phone, or checkout online."
         imageSrc="/hero-parts.png"
         imageAlt="Precision Parts Kenya - Automotive Spares"
         whatsappNumber={WHATSAPP_ORDER_NUMBER}
@@ -166,8 +164,7 @@ const Home = memo(() => {
 
       <ContactCta />
 
-      <Footer />
-    </div>
+      </>
   );
 });
 

@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductCard } from "@/components/ui/product-card";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+
+
 import { useCart } from "@/contexts/CartContext";
 import { 
   ArrowLeft,
@@ -99,8 +99,7 @@ const Origin = () => {
   // Show loading state
   if (productsLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <>
         <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
           <div className="text-center">
             <LoadingWave size="xl" className="mx-auto mb-3 sm:mb-4" />
@@ -110,9 +109,8 @@ const Origin = () => {
             <p className="text-sm sm:text-base">Discovering our products...</p>
           </div>
         </div>
-        <Footer />
-      </div>
-    );
+        </>
+  );
   }
 
   // Check for network errors
@@ -121,8 +119,7 @@ const Origin = () => {
   // Show network error state
   if (hasNetworkError) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <>
         <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
           <div className="text-center">
             <LoadingNetworkError size="xl" className="mx-auto mb-3 sm:mb-4" />
@@ -133,21 +130,18 @@ const Origin = () => {
             </Button>
           </div>
         </div>
-        <Footer />
-      </div>
-    );
+        </>
+  );
   }
 
   // If an origin is selected, show products from that origin
   if (isShowingOriginProducts) {
     return (
-      <div className="min-h-screen bg-background">
+      <>
         <Helmet>
           <title>{selectedOriginName} Products - Spares Avenue</title>
           <meta name="description" content={`Browse all products from ${selectedOriginName}. Premium Spares and spirits.`} />
         </Helmet>
-        <Navigation />
-        
         {/* Header Section */}
         <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-Component/10 to-primary/10">
           <div className="container mx-auto px-3 sm:px-4">
@@ -239,20 +233,17 @@ const Origin = () => {
           </div>
         </section>
 
-        <Footer />
-      </div>
-    );
+        </>
+  );
   }
 
   // Show all origins list
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <Helmet>
         <title>Products by Origin - Spares Avenue</title>
         <meta name="description" content="Browse all products by country of origin. Discover premium Spares and spirits from around the world." />
       </Helmet>
-      <Navigation />
-      
       {/* Header Section */}
       <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-Component/10 to-primary/10">
         <div className="container mx-auto px-3 sm:px-4">
@@ -361,8 +352,7 @@ const Origin = () => {
         </div>
       </section>
 
-      <Footer />
-    </div>
+      </>
   );
 };
 

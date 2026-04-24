@@ -10,8 +10,8 @@ import { Label } from "@/components/ui/label";
 import { useCart } from "@/contexts/CartContext";
 import { useUser } from "@/contexts/UserContext";
 import { useToast } from "@/hooks/use-toast";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+
+
 import { LoginModal } from "@/components/auth/LoginModal";
 import { 
   CreditCard, 
@@ -473,8 +473,7 @@ const Checkout = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <>
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-md mx-auto text-center">
             <div className="mb-8">
@@ -487,14 +486,12 @@ const Checkout = () => {
             </Button>
           </div>
         </div>
-      </div>
-    );
+      </>
+  );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
+    <>
       <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -811,14 +808,12 @@ const Checkout = () => {
       </div>
       
       {/* Footer */}
-      <Footer />
-
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
         onSwitchToRegister={() => setIsLoginModalOpen(false)}
       />
-    </div>
+    </>
   );
 };
 

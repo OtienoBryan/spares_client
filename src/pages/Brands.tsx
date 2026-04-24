@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductCard } from "@/components/ui/product-card";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+
+
 import { useCart } from "@/contexts/CartContext";
 import { 
   ArrowLeft,
@@ -102,8 +102,7 @@ const Brands = () => {
   // Show loading state
   if (productsLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <>
         <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
           <div className="text-center">
             <LoadingWave size="xl" className="mx-auto mb-3 sm:mb-4" />
@@ -113,9 +112,8 @@ const Brands = () => {
             <p className="text-sm sm:text-base">Discovering our brands...</p>
           </div>
         </div>
-        <Footer />
-      </div>
-    );
+        </>
+  );
   }
 
   // Check for network errors
@@ -124,8 +122,7 @@ const Brands = () => {
   // Show network error state
   if (hasNetworkError) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <>
         <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
           <div className="text-center">
             <LoadingNetworkError size="xl" className="mx-auto mb-3 sm:mb-4" />
@@ -136,21 +133,18 @@ const Brands = () => {
             </Button>
           </div>
         </div>
-        <Footer />
-      </div>
-    );
+        </>
+  );
   }
 
   // If a brand is selected, show products for that brand
   if (isShowingBrandProducts) {
     return (
-      <div className="min-h-screen bg-background">
+      <>
         <Helmet>
           <title>{selectedBrandName} Products - Spares Avenue</title>
           <meta name="description" content={`Browse all products from ${selectedBrandName}. Premium Spares and spirits.`} />
         </Helmet>
-        <Navigation />
-        
         {/* Header Section */}
         <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-Component/10 to-primary/10">
           <div className="container mx-auto px-3 sm:px-4">
@@ -242,20 +236,17 @@ const Brands = () => {
           </div>
         </section>
 
-        <Footer />
-      </div>
-    );
+        </>
+  );
   }
 
   // Show all brands list
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <Helmet>
         <title>Brands - Spares Avenue</title>
         <meta name="description" content="Browse all brands available at Spares Avenue. Discover premium Spares and spirits from your favorite brands." />
       </Helmet>
-      <Navigation />
-      
       {/* Header Section */}
       <section className="py-8 sm:py-12 md:py-16 bg-gradient-to-br from-Component/10 to-primary/10">
         <div className="container mx-auto px-3 sm:px-4">
@@ -366,8 +357,7 @@ const Brands = () => {
         </div>
       </section>
 
-      <Footer />
-    </div>
+      </>
   );
 };
 

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Navigation from '@/components/Navigation';
+
 import { 
   User, 
   Package, 
@@ -26,16 +26,15 @@ const Account = () => {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <>
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-primary mb-4">Please login</h1>
             <p className="text-muted-foreground">You need to be logged in to view your account.</p>
           </div>
         </div>
-      </div>
-    );
+      </>
+  );
   }
 
   const getStatusColor = (status: string) => {
@@ -73,9 +72,7 @@ const Account = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
+    <>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">My Account</h1>
@@ -201,7 +198,7 @@ const Account = () => {
                                 <div className="flex-1">
                                   <p className="font-medium">{item.name}</p>
                                   <p className="text-sm text-muted-foreground">
-                                    Qty: {item.quantity} × ${item.price.toFixed(2)}
+                                    Qty: {item.quantity} ï¿½ ${item.price.toFixed(2)}
                                   </p>
                                 </div>
                               </div>
@@ -269,7 +266,7 @@ const Account = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </>
   );
 };
 

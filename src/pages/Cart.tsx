@@ -6,8 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+
+
 import { useCart } from "@/contexts/CartContext";
 import { 
   ArrowLeft, 
@@ -95,9 +95,7 @@ const Cart = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        
+      <>
         <div className="container mx-auto px-4 py-8 sm:py-12 md:py-16">
           <div className="text-center max-w-md mx-auto">
             <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 sm:mb-6 bg-muted rounded-full flex items-center justify-center">
@@ -114,14 +112,12 @@ const Cart = () => {
             </Link>
           </div>
         </div>
-      </div>
-    );
+      </>
+  );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
+    <>
       <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-6 md:py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-8">
@@ -381,8 +377,7 @@ const Cart = () => {
       </div>
       
       {/* Footer */}
-      <Footer />
-    </div>
+      </>
   );
 };
 

@@ -12,6 +12,7 @@ import { resourcePreloader, CRITICAL_IMAGES, CRITICAL_ROUTES } from "@/services/
 import PerformanceMonitor from "@/components/PerformanceMonitor";
 import { DevTools } from "@/components/DevTools";
 import FloatingContactButtons from "@/components/FloatingContactButtons";
+import GlobalLayout from "@/components/GlobalLayout";
 
 // Lazy load all pages with optimized loading states
 const Home = createLazyComponent(() => import("./pages/Home"), "Loading home...", true);
@@ -86,26 +87,28 @@ const App = () => {
           <CartProvider>
             <BrowserRouter>
               <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/category/:category" element={<Category />} />
-                <Route path="/product/:slug" element={<Product />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/account" element={<Account />} />
-                <Route path="/orders" element={<Orders />} />
-                <Route path="/offers" element={<Offers />} />
-                <Route path="/featured" element={<Featured />} />
-                <Route path="/brands/:brandName" element={<Brands />} />
-                <Route path="/brands" element={<Brands />} />
-                <Route path="/origin/:country" element={<Origin />} />
-                <Route path="/origin" element={<Origin />} />
-                <Route path="/catalog" element={<Catalog />} />
-                <Route path="/sitemap.xml" element={<Sitemap />} />
-                {/* Redirect /login to home page to fix refresh issue */}
-                <Route path="/login" element={<LoginRedirect />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
+                <Route element={<GlobalLayout />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/category/:category" element={<Category />} />
+                  <Route path="/product/:slug" element={<Product />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/account" element={<Account />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/offers" element={<Offers />} />
+                  <Route path="/featured" element={<Featured />} />
+                  <Route path="/brands/:brandName" element={<Brands />} />
+                  <Route path="/brands" element={<Brands />} />
+                  <Route path="/origin/:country" element={<Origin />} />
+                  <Route path="/origin" element={<Origin />} />
+                  <Route path="/catalog" element={<Catalog />} />
+                  <Route path="/sitemap.xml" element={<Sitemap />} />
+                  {/* Redirect /login to home page to fix refresh issue */}
+                  <Route path="/login" element={<LoginRedirect />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Route>
               </Routes>
               <FloatingContactButtons />
               <PerformanceMonitor showMetrics={process.env.NODE_ENV === 'development'} />

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, memo } from "react";
 import { useParams, Link } from "react-router-dom";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+
+
 import { useCart } from "@/contexts/CartContext";
 import { useProduct, useProductsByCategory } from "@/hooks/useApi";
 import { ProductPageSkeleton } from "@/components/ui/loading-skeleton";
@@ -98,32 +98,28 @@ const ProductPage = memo(() => {
 
   if (productLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <>
         <ProductPageSkeleton />
-        <Footer />
-      </div>
-    );
+        </>
+  );
   }
 
   if (productError || !product) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <>
         <div className="text-center">
           <h1 className="text-xl font-bold text-primary mb-4">Part Not Found</h1>
           <p className="text-muted-foreground mb-6">The component you're looking for doesn't exist.</p>
           <Link to="/" className="bg-primary text-white px-6 py-2 rounded-lg">Return Home</Link>
         </div>
-      </div>
-    );
+      </>
+  );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
       <ProductSeo product={product} />
       
-      <Navigation />
-
       <div className="container mx-auto px-3 sm:px-4 py-4 md:py-8">
         {/* Breadcrumbs */}
         <nav className="mb-4 text-xs sm:text-sm text-muted-foreground">
@@ -179,8 +175,7 @@ const ProductPage = memo(() => {
         />
       </div>
 
-      <Footer />
-    </div>
+      </>
   );
 });
 

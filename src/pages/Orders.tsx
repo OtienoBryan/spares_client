@@ -10,8 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+
+
 import { 
   Package, 
   Search, 
@@ -183,37 +183,31 @@ const Orders = () => {
 
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <>
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
             <h1 className="text-xl font-bold text-primary mb-2">Please log in</h1>
             <p className="text-sm text-muted-foreground">You need to be logged in to view your orders.</p>
           </div>
         </div>
-        <Footer />
-      </div>
-    );
+        </>
+  );
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <>
         <div className="container mx-auto px-4 py-16">
           <div className="flex items-center justify-center">
             <LoadingWave />
           </div>
         </div>
-        <Footer />
-      </div>
-    );
+        </>
+  );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
+    <>
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         {/* Simple Header */}
         <div className="mb-6">
@@ -395,7 +389,7 @@ const Orders = () => {
                                         <div className="flex-1 min-w-0">
                                           <p className="text-sm font-medium truncate">{item.product.name}</p>
                                           <p className="text-xs text-muted-foreground">
-                                            {item.quantity} × {formatPrice(typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0)}
+                                            {item.quantity} ï¿½ {formatPrice(typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0)}
                                           </p>
                                         </div>
                                         <p className="text-sm font-semibold">
@@ -553,8 +547,7 @@ const Orders = () => {
         )}
       </div>
       
-      <Footer />
-    </div>
+      </>
   );
 };
 
