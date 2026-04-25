@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { Product } from "@/services/api";
-import { formatPrice, getDiscountPercentage, isProductInStock } from "@/data/products";
+import { coerceNumber, formatPrice, getDiscountPercentage, getProductListPrice, isProductInStock } from "@/data/products";
 import { productSlug } from "@/lib/utils";
 import { buildWhatsAppProductOrderUrl } from "@/lib/whatsapp";
 
@@ -66,6 +66,10 @@ export function ProductCard({
 
   const discountPercentage = getDiscountPercentage(product);
   const inStock = isProductInStock(product);
+  const { amount: listPrice, fromMultipleSkus } = getProductListPrice(product);
+  const listOriginal = coerceNumber(product.originalPrice);
+  const showStrike =
+    Number.isFinite(listOriginal) && listOriginal > listPrice && listPrice > 0;
 
   const handleLinkClick = () => {
     setIsNavigating(true);
@@ -146,13 +150,16 @@ export function ProductCard({
           
           <div className={`flex flex-col gap-2 ${dense ? 'mt-1' : 'mt-3'}`}>
             <div className={`flex flex-col ${dense ? 'gap-1' : 'gap-2'}`}>
-                <div className={`flex items-center ${dense ? 'gap-1 sm:gap-2' : 'gap-2 sm:gap-3'}`}>
+                <div className={`flex items-center flex-wrap ${dense ? 'gap-1 sm:gap-2' : 'gap-2 sm:gap-3'}`}>
                   <span className={`${
                     related ? 'text-xs sm:text-sm' : compact ? 'text-sm sm:text-base' : 'text-lg sm:text-xl md:text-2xl'
                   } font-black text-gray-900`}>
-                    {formatPrice(product.price)}
+                    {fromMultipleSkus && (
+                      <span className="text-muted-foreground font-semibold text-[10px] sm:text-xs mr-1">From</span>
+                    )}
+                    KES {formatPrice(listPrice)}
                   </span>
-                  {product.originalPrice && (
+                  {showStrike && (
                     <span className={`${related ? 'text-[10px]' : compact ? 'text-xs' : 'text-sm sm:text-base'} text-muted-foreground line-through`}>
                       {formatPrice(product.originalPrice)}
                     </span>

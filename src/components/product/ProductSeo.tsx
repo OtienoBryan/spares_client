@@ -9,7 +9,8 @@ interface ProductSeoProps {
 }
 
 export const ProductSeo = ({ product }: ProductSeoProps) => {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const baseUrl = (import.meta.env.VITE_SITE_URL?.trim() ||
+    (typeof window !== "undefined" ? window.location.origin : "")).replace(/\/+$/, "");
   const productUrl = `${baseUrl}/product/${productSlug(product)}`;
   
   const categoryName = typeof product.category === 'object'
@@ -121,7 +122,7 @@ export const ProductSeo = ({ product }: ProductSeoProps) => {
       <meta name="keywords" content={`${product.name}, ${product.brand}, ${categoryName}, spare parts Kenya, car parts Nairobi, genuine auto parts, ${COMPANY_NAME}`} />
       <meta property="og:title" content={`${product.name} | ${COMPANY_NAME}`} />
       <meta property="og:description" content={`Get genuine ${product.name} at ${COMPANY_NAME}. Fast delivery and guaranteed quality for your automotive needs.`} />
-      <meta property="og:image" content={productImages[0] || `${baseUrl}/logo.png`} />
+      <meta property="og:image" content={productImages[0] || `${baseUrl}/icon.svg`} />
       <meta property="og:url" content={productUrl} />
       <meta property="og:type" content="product" />
       

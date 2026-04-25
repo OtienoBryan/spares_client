@@ -10,7 +10,8 @@ interface CategorySeoProps {
 }
 
 export const CategorySeo = ({ categoryDisplayName, categorySlug, products }: CategorySeoProps) => {
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const baseUrl = (import.meta.env.VITE_SITE_URL?.trim() ||
+    (typeof window !== "undefined" ? window.location.origin : "")).replace(/\/+$/, "");
   
   const categoryStructuredData = useMemo(() => {
     const categoryUrl = `${baseUrl}/category/${categorySlug?.toLowerCase()}`;
@@ -108,7 +109,7 @@ export const CategorySeo = ({ categoryDisplayName, categorySlug, products }: Cat
       {/* Open Graph */}
       <meta property="og:title" content={`${categoryDisplayName} - Genuine Spare Parts | ${COMPANY_NAME}`} />
       <meta property="og:description" content={`Explore our range of ${categoryDisplayName.toLowerCase()} at ${COMPANY_NAME}. Quality spare parts for your vehicle with fast delivery.`} />
-      <meta property="og:image" content={`${baseUrl}/logo.png`} />
+      <meta property="og:image" content={`${baseUrl}/icon.svg`} />
       <meta property="og:url" content={`${baseUrl}/category/${categorySlug?.toLowerCase()}`} />
       <meta property="og:type" content="website" />
       

@@ -16,6 +16,8 @@ import { QualityCollections } from "@/components/home/QualityCollections";
 import { ContactCta } from "@/components/home/ContactCta";
 import {
   COMPANY_NAME,
+  HERO_SUBTITLE,
+  HERO_TITLE,
 } from "@/config/site";
 import { WHATSAPP_ORDER_NUMBER } from "@/lib/whatsapp";
 import type { Category } from "@/services/api";
@@ -125,8 +127,8 @@ const Home = memo(() => {
       
       <HeroWithFinder
         companyName={COMPANY_NAME}
-        title="Genuine Parts. Precision Fit."
-        subtitle="OEM-quality spares — search, order by phone, or checkout online."
+        title={HERO_TITLE}
+        subtitle={HERO_SUBTITLE}
         imageSrc="/hero-parts.png"
         imageAlt="Precision Parts Kenya - Automotive Spares"
         whatsappNumber={WHATSAPP_ORDER_NUMBER}
@@ -163,8 +165,7 @@ const Home = memo(() => {
       <QualityCollections allProducts={allProducts || []} />
 
       <ContactCta />
-
-      </>
+    </>
   );
 });
 

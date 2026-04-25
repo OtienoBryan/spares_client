@@ -76,6 +76,39 @@ export const isProductInStock = (product: Product): boolean => {
   return product.stock > 0;
 };
 
+export function coerceNumber(value: unknown): number {
+  if (value === null || value === undefined) return NaN;
+  if (typeof value === 'number') return Number.isFinite(value) ? value : NaN;
+  if (typeof value === 'string') {
+    const n = parseFloat(value.replace(/,/g, ''));
+    return Number.isFinite(n) ? n : NaN;
+  }
+  return NaN;
+}
+
+/**
+ * Unit price for grids/cards: uses product.price when > 0, otherwise the lowest SKU price.
+ * Handles string decimals from APIs/ORM.
+ */
+export function getProductListPrice(product: Product): { amount: number; fromMultipleSkus: boolean } {
+  const base = coerceNumber(product.price);
+  const skuAmounts =
+    product.skus?.map((s) => coerceNumber(s.price)).filter((n) => Number.isFinite(n) && n >= 0) ?? [];
+
+  if (Number.isFinite(base) && base > 0) {
+    return { amount: base, fromMultipleSkus: false };
+  }
+  if (skuAmounts.length > 0) {
+    const min = Math.min(...skuAmounts);
+    const max = Math.max(...skuAmounts);
+    return { amount: min, fromMultipleSkus: min < max };
+  }
+  if (Number.isFinite(base)) {
+    return { amount: base, fromMultipleSkus: false };
+  }
+  return { amount: 0, fromMultipleSkus: false };
+}
+
 // Helper function to get discount percentage
 export const getDiscountPercentage = (product: Product): number | null => {
   let maxDiscount = 0;
@@ -83,8 +116,10 @@ export const getDiscountPercentage = (product: Product): number | null => {
   // Check SKU discounts first
   if (product.skus && product.skus.length > 0) {
     product.skus.forEach((sku) => {
-      if (sku.originalPrice && sku.originalPrice > sku.price) {
-        const discount = ((sku.originalPrice - sku.price) / sku.originalPrice) * 100;
+      const op = coerceNumber(sku.originalPrice);
+      const p = coerceNumber(sku.price);
+      if (Number.isFinite(op) && Number.isFinite(p) && op > p) {
+        const discount = ((op - p) / op) * 100;
         if (discount > maxDiscount) {
           maxDiscount = discount;
         }
@@ -93,8 +128,10 @@ export const getDiscountPercentage = (product: Product): number | null => {
   }
   
   // Check general product discount
-  if (product.originalPrice && product.originalPrice > product.price) {
-    const discount = ((product.originalPrice - product.price) / product.originalPrice) * 100;
+  const listP = coerceNumber(product.price);
+  const listOp = coerceNumber(product.originalPrice);
+  if (Number.isFinite(listOp) && Number.isFinite(listP) && listOp > listP) {
+    const discount = ((listOp - listP) / listOp) * 100;
     if (discount > maxDiscount) {
       maxDiscount = discount;
     }
@@ -104,9 +141,13 @@ export const getDiscountPercentage = (product: Product): number | null => {
 };
 
 // Helper function to format price
-export const formatPrice = (price: number): string => {
+export const formatPrice = (price: number | string | null | undefined): string => {
+  const n = coerceNumber(price);
+  if (!Number.isFinite(n)) {
+    return '0.00';
+  }
   return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(price);
+  }).format(n);
 };

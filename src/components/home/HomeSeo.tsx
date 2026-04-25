@@ -48,7 +48,7 @@ export const HomeSeo = ({ featuredProducts }: HomeSeoProps) => {
         "url": canonicalUrl,
         "logo": {
           "@type": "ImageObject",
-          "url": `${siteUrl}/logo.png`,
+          "url": `${siteUrl}/icon.svg`,
           "width": 512,
           "height": 512
         }
@@ -68,11 +68,11 @@ export const HomeSeo = ({ featuredProducts }: HomeSeoProps) => {
       "url": canonicalUrl,
       "logo": {
         "@type": "ImageObject",
-        "url": `${siteUrl}/logo.png`,
+        "url": `${siteUrl}/icon.svg`,
         "width": 512,
         "height": 512
       },
-      "image": `${siteUrl}/logo.png`,
+      "image": `${siteUrl}/icon.svg`,
       "contactPoint": [
         {
           "@type": "ContactPoint",
@@ -116,7 +116,7 @@ export const HomeSeo = ({ featuredProducts }: HomeSeoProps) => {
       "@type": "AutoPartsStore",
       "name": COMPANY_NAME,
       "url": canonicalUrl,
-      "image": `${siteUrl}/logo.png`,
+      "image": `${siteUrl}/icon.svg`,
       "telephone": CONTACT_PHONE_DISPLAY,
       "priceRange": "$$",
       "areaServed": "Kenya",
@@ -231,16 +231,17 @@ export const HomeSeo = ({ featuredProducts }: HomeSeoProps) => {
       {/* Open Graph */}
       <meta property="og:title" content={SITE_DEFAULT_TITLE} />
       <meta property="og:description" content={SITE_DEFAULT_DESCRIPTION} />
-      <meta property="og:image" content={`${siteUrl}/logo.png`} />
+      <meta property="og:image" content={`${siteUrl}/icon.svg`} />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content={COMPANY_NAME} />
       
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content={import.meta.env.VITE_TWITTER_HANDLE?.trim() || ""} />
       <meta name="twitter:title" content={SITE_DEFAULT_TITLE} />
       <meta name="twitter:description" content={SITE_DEFAULT_DESCRIPTION} />
-      <meta name="twitter:image" content={`${siteUrl}/logo.png`} />
+      <meta name="twitter:image" content={`${siteUrl}/icon.svg`} />
       
       {/* Structured Data */}
       <script type="application/ld+json">{JSON.stringify(structuredData)}</script>

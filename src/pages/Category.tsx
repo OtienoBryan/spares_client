@@ -4,6 +4,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 
 import { useProductsByCategory, useCategories, useSearchProductsDebounced, useSubCategories } from "@/hooks/useApi";
 import { Product, Category, SubCategory } from "@/services/api";
+import { getProductListPrice } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { LoadingComponent } from "@/components/ui/lottie-loader";
 import { Badge } from "@/components/ui/badge";
@@ -91,7 +92,10 @@ const CategoryPage = () => {
 
   const maxPrice = useMemo(() => {
     if (baseProducts.length === 0) return 50000;
-    return Math.max(...baseProducts.map(p => p.price || 0), 1000);
+    return Math.max(
+      ...baseProducts.map((p) => getProductListPrice(p).amount || 0),
+      1000,
+    );
   }, [baseProducts]);
 
   // Handle price range update when base products change
@@ -112,8 +116,8 @@ const CategoryPage = () => {
       // Category filter (if searching globally)
       if (initialSearch && categoryId > 0 && product.categoryId !== categoryId) return false;
       
-      // Price filter
-      const price = product.price || 0;
+      // Price filter (align with card: base price or min SKU)
+      const price = getProductListPrice(product).amount || 0;
       if (price < priceRange[0] || price > priceRange[1]) return false;
       
       // Origins filter
@@ -136,8 +140,14 @@ const CategoryPage = () => {
   const sortedProducts = useMemo(() => {
     const products = [...filteredProducts];
     switch (sortBy) {
-      case "price-asc": return products.sort((a, b) => (a.price || 0) - (b.price || 0));
-      case "price-desc": return products.sort((a, b) => (b.price || 0) - (a.price || 0));
+      case "price-asc":
+        return products.sort(
+          (a, b) => getProductListPrice(a).amount - getProductListPrice(b).amount,
+        );
+      case "price-desc":
+        return products.sort(
+          (a, b) => getProductListPrice(b).amount - getProductListPrice(a).amount,
+        );
       case "newest": return products.sort((a, b) => b.id - a.id);
       default: return products;
     }

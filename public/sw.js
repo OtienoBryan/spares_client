@@ -1,14 +1,15 @@
-const CACHE_NAME = 'dalali-v4';
-const STATIC_CACHE = 'dalali-static-v4';
-const DYNAMIC_CACHE = 'dalali-dynamic-v4';
+const CACHE_NAME = 'precision-parts-v1';
+const STATIC_CACHE = 'precision-parts-static-v1';
+const DYNAMIC_CACHE = 'precision-parts-dynamic-v1';
 
 // Critical resources to cache immediately
 const CRITICAL_RESOURCES = [
   '/',
   '/index.html',
-  '/logo.png',
+  '/icon.svg',
   '/placeholder.svg',
-  '/favicon.png'
+  '/robots.txt',
+  '/sitemap.xml'
 ];
 
 // Install event - cache critical resources
