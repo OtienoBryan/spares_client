@@ -257,6 +257,7 @@ class ApiService {
   }
 
   async getNewArrivals(): Promise<Product[]> {
+
     const data = await this.request<Record<string, unknown>[]>('/products/new-arrivals');
     return data.map(mapProductFields);
   }

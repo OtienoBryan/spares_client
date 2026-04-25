@@ -126,7 +126,7 @@ const Navigation = () => {
         </div>
 
         {/* Row 2: Secondary Navigation (Automotive Category Bar) */}
-        <div className="hidden md:block bg-[#1d2736] text-white">
+        <div className="hidden md:block bg-[#003B95] text-white">
           <div className="w-full">
             <div className="flex min-w-0 items-stretch">
               {/* All Systems Dropdown (Integrated into the bar) */}

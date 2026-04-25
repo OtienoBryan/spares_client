@@ -1,4 +1,4 @@
-@tailwind base;
+ï»¿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -11,7 +11,6 @@
     display: none;
   }
 
-  /* Standard Material Icons Class */
   .material-icons {
     font-family: 'Material Icons';
     font-weight: normal;
@@ -60,76 +59,49 @@
   .animate-slide-up {
     animation: slideInUp 0.4s ease-out forwards;
   }
-}
 
-/* Spare-parts storefront — light theme only (no dark mode). All colors HSL. */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  
+  .animate-marquee {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marquee 30s linear infinite;
+  }
+}
 
 @layer base {
   :root {
     --background: 210 20% 98%;
     --foreground: 220 18% 12%;
-
     --card: 0 0% 100%;
     --card-foreground: 220 18% 12%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 220 18% 12%;
-
-    /* CTA / accent red */
     --primary: 0 72% 47%;
     --primary-foreground: 0 0% 100%;
-
-    /* Header / chrome charcoal */
     --header: 220 16% 14%;
     --header-foreground: 210 20% 98%;
-
     --secondary: 220 14% 92%;
     --secondary-foreground: 220 18% 18%;
-
     --muted: 220 14% 94%;
     --muted-foreground: 220 10% 40%;
-
     --accent: 220 14% 91%;
     --accent-foreground: 220 18% 18%;
-
-    /* Legacy token names — map to CTA red for minimal churn */
     --wine: 0 72% 47%;
     --wine-light: 0 72% 42%;
-    /* Steel accent (replaces gold) */
     --gold: 220 12% 42%;
     --gold-light: 220 10% 55%;
-
     --gradient-wine: linear-gradient(135deg, hsl(var(--wine)), hsl(var(--wine-light)));
     --gradient-gold: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-light)));
-    --gradient-hero: linear-gradient(
-      135deg,
-      hsl(var(--header)) 0%,
-      hsl(220 16% 20%) 45%,
-      hsl(220 14% 26%) 100%
-    );
-    --gradient-primary: linear-gradient(
-      135deg,
-      hsl(var(--primary)),
-      hsl(0 72% 40%)
-    );
-
-    --destructive: 0 84% 48%;
-    --destructive-foreground: 0 0% 100%;
-
+    --gradient-hero: linear-gradient(135deg, hsl(var(--header)) 0%, hsl(220 16% 20%) 45%, hsl(220 14% 26%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(0 72% 40%));
     --border: 220 14% 88%;
     --input: 220 14% 88%;
     --ring: 0 72% 47%;
-
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 18% 18%;
-    --sidebar-primary: 0 72% 47%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 95%;
-    --sidebar-accent-foreground: 220 18% 18%;
-    --sidebar-border: 220 14% 90%;
-    --sidebar-ring: 0 72% 47%;
   }
 }
 
@@ -142,8 +114,4 @@
     @apply bg-background text-foreground;
     overflow-x: hidden;
   }
-}
-
-@layer utilities {
-  /* Site content maintains standard centering without permanent sidebar shifts */
 }

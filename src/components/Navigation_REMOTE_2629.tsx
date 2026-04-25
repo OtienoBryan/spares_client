@@ -15,7 +15,6 @@ import { NavSearch } from "./nav/NavSearch";
 import { NavActions } from "./nav/NavActions";
 import { NavMobileMenu } from "./nav/NavMobileMenu";
 import { PhoneCall, Menu } from "lucide-react";
-import { CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "@/config/site";
 
 const Navigation = () => {
   const location = useLocation();
@@ -165,9 +164,9 @@ const Navigation = () => {
               <div className="hidden lg:flex items-center gap-2 px-6 bg-black/10 border-l border-white/10 ml-auto">
                 <div className="flex flex-col items-end">
                    <span className="text-[9px] text-white/60 font-bold uppercase tracking-widest">Expert Help</span>
-                   <a href={`tel:${CONTACT_PHONE_TEL}`} className="text-xs font-black text-white flex items-center gap-1 hover:text-primary transition-colors">
+                   <a href="tel:254790831798" className="text-xs font-black text-white flex items-center gap-1 hover:text-primary transition-colors">
                      <PhoneCall className="h-3 w-3" />
-                     {CONTACT_PHONE_DISPLAY}
+                     254790 831798
                    </a>
                 </div>
               </div>

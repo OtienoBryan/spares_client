@@ -165,9 +165,15 @@ const Navigation = () => {
               <div className="hidden lg:flex items-center gap-2 px-6 bg-black/10 border-l border-white/10 ml-auto">
                 <div className="flex flex-col items-end">
                    <span className="text-[9px] text-white/60 font-bold uppercase tracking-widest">Expert Help</span>
+<<<<<<< HEAD
                    <a href={`tel:${CONTACT_PHONE_TEL}`} className="text-xs font-black text-white flex items-center gap-1 hover:text-primary transition-colors">
                      <PhoneCall className="h-3 w-3" />
                      {CONTACT_PHONE_DISPLAY}
+=======
+                   <a href="tel:254790831798" className="text-xs font-black text-white flex items-center gap-1 hover:text-primary transition-colors">
+                     <PhoneCall className="h-3 w-3" />
+                     254790 831798
+>>>>>>> 11cac1840e9bb086daeb262be77a7a52384d6248
                    </a>
                 </div>
               </div>
