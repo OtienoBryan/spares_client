@@ -178,11 +178,34 @@ export function useSearchProductsDebounced(query: string, delay: number = 300) {
   return useSearchProducts(debouncedQuery);
 }
 
-// SubCategory hooks
+// SubCategory hooks — explicit stable query keys (same pattern as useCategories)
 export function useSubCategories(categoryId?: number) {
-  return useApi(() => apiService.getSubCategories(categoryId), [categoryId]);
+  const queryKey = categoryId
+    ? ['subcategories', categoryId]
+    : ['subcategories'];
+
+  const { data, isLoading: loading, error } = useQuery<SubCategory[]>({
+    queryKey,
+    queryFn: () => apiService.getSubCategories(categoryId),
+    staleTime: 10 * 60 * 1000,
+    cacheTime: 30 * 60 * 1000,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+
+  return { data: data || null, loading, error: error?.message || null };
 }
 
 export function useSubCategory(id: number) {
-  return useApi(() => apiService.getSubCategoryById(id), [id]);
+  const { data, isLoading: loading, error } = useQuery<SubCategory>({
+    queryKey: ['subcategory', id],
+    queryFn: () => apiService.getSubCategoryById(id),
+    enabled: id > 0,
+    staleTime: 10 * 60 * 1000,
+    cacheTime: 30 * 60 * 1000,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+
+  return { data: data || null, loading, error: error?.message || null };
 }

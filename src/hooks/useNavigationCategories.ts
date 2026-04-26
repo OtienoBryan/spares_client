@@ -48,11 +48,12 @@ export function useNavigationCategories() {
       const path = `/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`;
       
       const subcategories = subCats
-        ?.filter(sub => sub.categoryId === catId)
+        ?.filter(sub => sub.categoryId === catId && sub.isActive)
         .map(sub => ({
           name: sub.name,
           path: `${path}?subcategory=${sub.id}`
-        }));
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
 
       return {
         name: category.name,
