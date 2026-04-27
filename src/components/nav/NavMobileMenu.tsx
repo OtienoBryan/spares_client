@@ -45,7 +45,7 @@ export const NavMobileMenu = ({
           <div className="mb-3 flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200/80 bg-white p-1.5 shadow-sm">
-                <img src="/logo3.png" alt={LOGO_ALT} className="h-full w-full object-contain" />
+                <img src="/icon.svg" alt={LOGO_ALT} className="h-full w-full object-contain" />
               </div>
               <div className="min-w-0">
                 <div className="truncate text-base font-bold tracking-tight text-slate-900">{COMPANY_SHORT_NAME}</div>

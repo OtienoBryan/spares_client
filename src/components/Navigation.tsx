@@ -38,20 +38,36 @@ const Navigation = () => {
 
       <nav className="bg-white sticky top-0 z-50 border-b border-gray-100 shadow-sm">
         {/* Row 1: Main Header */}
-        <div className="w-full px-4 md:px-6 py-4 sm:py-5">
-          <div className="flex items-center justify-between gap-8 md:gap-12">
-            <NavLogo />
+        <div className="w-full px-3 sm:px-4 md:px-6 py-4 sm:py-5">
+          <div className="flex items-center justify-between gap-4 md:gap-12 relative">
+            {/* Mobile Menu Button - Far Left on Mobile */}
+            <div className="md:hidden flex items-center">
+              <button 
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="p-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors border border-gray-100"
+                aria-label="Open menu"
+              >
+                <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+            </div>
+
+            {/* Logo - Center on Mobile, Left on Desktop */}
+            <div className="md:flex-none md:flex justify-start overflow-hidden absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0">
+              <NavLogo />
+            </div>
             
+            {/* Desktop Search */}
             <div className="hidden md:flex flex-1">
               <NavSearch />
             </div>
             
-            <div className="flex items-center gap-4">
+            {/* Actions - Right Side */}
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
               <div className="hidden lg:block border-r border-gray-100 pr-4 mr-2">
                  <NavActions setIsLoginModalOpen={setIsLoginModalOpen} />
               </div>
               
-              <div className="md:hidden">
+              <div className="md:hidden flex items-center">
                 <NavActions setIsLoginModalOpen={setIsLoginModalOpen} />
               </div>
 
@@ -61,14 +77,6 @@ const Navigation = () => {
                 onUpdateQuantity={updateQuantity}
                 onRemoveItem={removeItem}
               />
-
-              <button 
-                onClick={() => setIsMobileMenuOpen(true)}
-                className="md:hidden p-2 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors border border-gray-100"
-                aria-label="Open menu"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
             </div>
           </div>
         </div>
