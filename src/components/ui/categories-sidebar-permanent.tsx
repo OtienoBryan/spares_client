@@ -49,7 +49,7 @@ export function CategoriesSidebarPermanent({
   };
 
   return (
-    <aside className="hidden lg:fixed lg:top-[114px] lg:bottom-0 lg:left-0 lg:z-30 lg:flex lg:w-64 lg:flex-col">
+    <aside className="hidden lg:fixed lg:top-[128px] lg:bottom-0 lg:left-0 lg:z-30 lg:flex lg:w-64 lg:flex-col">
       <div className="flex h-full flex-col overflow-hidden border-r border-slate-200/90 bg-gradient-to-b from-slate-50 via-white to-slate-50/90 shadow-[inset_-1px_0_0_rgba(15,23,42,0.04)]">
 
         {/* Fixed header */}
