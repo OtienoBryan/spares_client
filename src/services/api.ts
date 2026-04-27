@@ -103,6 +103,7 @@ export interface Product {
   subcategory?: SubCategory;
   subcategoryId?: number;
   skus?: ProductSKU[];
+  isOnOffer?: boolean | number | string;
   createdAt: string;
   updatedAt: string;
 }

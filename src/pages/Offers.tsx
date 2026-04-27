@@ -23,7 +23,9 @@ import {
 } from "lucide-react";
 import { useProducts } from "@/hooks/useApi";
 import { formatPrice } from "@/data/products";
+import { Product } from "@/services/api";
 import { LoadingWave, LoadingNetworkError } from "@/components/ui/lottie-loader";
+import { CategorySkeleton } from "@/components/ui/loading-skeleton";
 import { useNetworkStatus, isNetworkError } from "@/hooks/useNetworkStatus";
 
 const Offers = () => {
@@ -37,13 +39,13 @@ const Offers = () => {
   const { data: allProducts, loading: productsLoading, error: productsError } = useProducts();
 
   // Helper function to check DB offer flag (supports number/string/boolean shapes)
-  const isProductOnOffer = useCallback((product: any) => {
-    const offerFlag = product?.isOnOffer;
+  const isProductOnOffer = useCallback((product: Product) => {
+    const offerFlag = product?.isOnOffer as unknown;
     return offerFlag === 1 || offerFlag === "1" || offerFlag === true;
   }, []);
 
   // Helper function to get best discount percentage from SKUs only (matching homepage)
-  const getBestDiscountFromSKU = (product: any) => {
+  const getBestDiscountFromSKU = (product: Product) => {
     let maxDiscount = 0;
     
     // Only check SKU discounts
@@ -62,7 +64,7 @@ const Offers = () => {
   };
 
   // Helper function to get best discount percentage (for sorting)
-  const getBestDiscount = (product: any) => {
+  const getBestDiscount = (product: Product) => {
     let maxDiscount = 0;
     
     // Check SKU discounts
@@ -90,9 +92,10 @@ const Offers = () => {
 
   // Get all offer products from DB offer flag
   const offerProducts = useMemo(() => {
-    return allProducts?.filter(product => 
+    const products = (allProducts || []) as Product[];
+    return products.filter(product => 
       product && isProductOnOffer(product)
-    ) || [];
+    );
   }, [allProducts, isProductOnOffer]);
 
   // Filter products by category
@@ -131,7 +134,7 @@ const Offers = () => {
   }, [filterCategory, sortOrder]);
 
   // Get unique categories from offer products
-  const categories = ['all', ...new Set(offerProducts.map(product => product.category?.name).filter(Boolean))];
+  const categories: string[] = ['all', ...Array.from(new Set<string>(offerProducts.map(product => product.category?.name as string).filter((name): name is string => !!name)))];
 
   // Handle page change
   const handlePageChange = (page: number) => {
@@ -141,17 +144,7 @@ const Offers = () => {
 
   // Show loading state
   if (productsLoading) {
-    return (
-      <>
-        <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
-          <div className="text-center">
-            <LoadingWave size="xl" className="mx-auto mb-3 sm:mb-4" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary mb-2 sm:mb-4">Loading Offers...</h1>
-            <p className="text-sm sm:text-base">Finding the best deals for you...</p>
-          </div>
-        </div>
-      </>
-  );
+    return <CategorySkeleton />;
   }
 
   // Check for network errors

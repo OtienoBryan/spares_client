@@ -20,7 +20,9 @@ import {
 } from "lucide-react";
 import { useProducts } from "@/hooks/useApi";
 import { formatPrice } from "@/data/products";
+import { Product } from "@/services/api";
 import { LoadingWave, LoadingNetworkError } from "@/components/ui/lottie-loader";
+import { CategorySkeleton } from "@/components/ui/loading-skeleton";
 import { useNetworkStatus, isNetworkError } from "@/hooks/useNetworkStatus";
 
 const Origin = () => {
@@ -38,7 +40,7 @@ const Origin = () => {
     if (!allProducts || !Array.isArray(allProducts)) return [];
     const originsMap = new Map<string, { name: string; productCount: number; image?: string }>();
     
-    (allProducts as any[]).forEach((product: any) => {
+    (allProducts).forEach((product) => {
       if (product.origin) {
         const originLower = product.origin.toLowerCase();
         if (!originsMap.has(originLower)) {
@@ -60,6 +62,9 @@ const Origin = () => {
     return Array.from(originsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
   }, [allProducts]);
 
+  interface OriginInfo { name: string; productCount: number; image?: string }
+  const typedOrigins = allOrigins as OriginInfo[];
+
   // Filter origins by search query
   const filteredOrigins = useMemo(() => {
     if (!searchQuery) return allOrigins;
@@ -73,7 +78,7 @@ const Origin = () => {
   const originProducts = useMemo(() => {
     if (!country || !allProducts) return [];
     const lowerCountry = decodeURIComponent(country).toLowerCase();
-    return (allProducts as any[]).filter((product: any) => 
+    return (allProducts).filter((product) => 
       product.origin && product.origin.toLowerCase() === lowerCountry
     );
   }, [country, allProducts]);
@@ -98,19 +103,7 @@ const Origin = () => {
 
   // Show loading state
   if (productsLoading) {
-    return (
-      <>
-        <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
-          <div className="text-center">
-            <LoadingWave size="xl" className="mx-auto mb-3 sm:mb-4" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary mb-2 sm:mb-4">
-              {country ? `Loading ${decodeURIComponent(country)} Products...` : "Loading Origins..."}
-            </h1>
-            <p className="text-sm sm:text-base">Discovering our products...</p>
-          </div>
-        </div>
-        </>
-  );
+    return <CategorySkeleton />;
   }
 
   // Check for network errors
@@ -234,7 +227,7 @@ const Origin = () => {
         </section>
 
         </>
-  );
+    );
   }
 
   // Show all origins list
@@ -293,7 +286,7 @@ const Origin = () => {
         <div className="container mx-auto px-3 sm:px-4">
           {filteredOrigins.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-              {filteredOrigins.map((origin) => (
+              {(filteredOrigins as OriginInfo[]).map((origin) => (
                 <Link
                   key={origin.name}
                   to={`/origin/${encodeURIComponent(origin.name)}`}

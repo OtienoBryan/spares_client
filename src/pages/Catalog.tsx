@@ -7,8 +7,10 @@ import { formatPrice } from "@/data/products";
 import { productSlug } from "@/lib/utils";
 import { buildWhatsAppProductOrderUrl } from "@/lib/whatsapp";
 import { LoadingWave, LoadingNetworkError } from "@/components/ui/lottie-loader";
+import { CategorySkeleton } from "@/components/ui/loading-skeleton";
 import { useNetworkStatus, isNetworkError } from "@/hooks/useNetworkStatus";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { COMPANY_NAME } from "@/config/site";
@@ -34,23 +36,23 @@ import {
 } from "lucide-react";
 import type { Product, Category } from "@/services/api";
 
-// ─── Types ──────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type SortOption = "relevance" | "price-asc" | "price-desc" | "name-asc" | "name-desc" | "newest" | "rating";
 type ViewMode = "grid" | "list";
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: "relevance", label: "Relevance" },
-  { value: "price-asc", label: "Price: Low → High" },
-  { value: "price-desc", label: "Price: High → Low" },
-  { value: "name-asc", label: "Name: A → Z" },
-  { value: "name-desc", label: "Name: Z → A" },
+  { value: "price-asc", label: "Price: Low â†’ High" },
+  { value: "price-desc", label: "Price: High â†’ Low" },
+  { value: "name-asc", label: "Name: A â†’ Z" },
+  { value: "name-desc", label: "Name: Z â†’ A" },
   { value: "newest", label: "Newest First" },
   { value: "rating", label: "Top Rated" },
 ];
 
 const ITEMS_PER_PAGE = 24;
 
-// ─── Catalog Page ───────────────────────────────────────────────
+// â”€â”€â”€ Catalog Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const CatalogPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
@@ -111,14 +113,14 @@ const CatalogPage = () => {
     return Math.max(...(allProducts as Product[]).map((p) => p.price || 0), 1000);
   }, [allProducts]);
 
-  // ─── Filtering ────────────────────────────────────────────────
+  // â”€â”€â”€ Filtering â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const filteredProducts = useMemo(() => {
     if (!allProducts) return [];
     const products = allProducts as Product[];
     const query = activeQuery.toLowerCase().trim();
 
     return products.filter((product) => {
-      // Text search — matches name, brand, description, SKU codes, category, origin, tags
+      // Text search â€” matches name, brand, description, SKU codes, category, origin, tags
       if (query) {
         const searchFields = [
           product.name,
@@ -158,7 +160,7 @@ const CatalogPage = () => {
     });
   }, [allProducts, activeQuery, selectedCategory, selectedBrands, selectedOrigins, inStockOnly, priceRange]);
 
-  // ─── Sorting ──────────────────────────────────────────────────
+  // â”€â”€â”€ Sorting â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const sortedProducts = useMemo(() => {
     const arr = [...filteredProducts];
     switch (sortBy) {
@@ -179,14 +181,14 @@ const CatalogPage = () => {
     }
   }, [filteredProducts, sortBy]);
 
-  // ─── Pagination ───────────────────────────────────────────────
+  // â”€â”€â”€ Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
   const paginatedProducts = useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return sortedProducts.slice(start, start + ITEMS_PER_PAGE);
   }, [sortedProducts, currentPage]);
 
-  // ─── Handlers ─────────────────────────────────────────────────
+  // â”€â”€â”€ Handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const handleSearch = useCallback(
     (e?: React.FormEvent) => {
       e?.preventDefault();
@@ -229,19 +231,9 @@ const CatalogPage = () => {
     (inStockOnly ? 1 : 0) +
     (priceRange[0] > 0 || priceRange[1] < 999999 ? 1 : 0);
 
-  // ─── Loading / Error states ───────────────────────────────────
-  if (productsLoading && !allProducts) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="flex items-center justify-center py-24">
-          <div className="text-center">
-            <LoadingWave size="xl" className="mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-primary mb-2">Loading Catalog...</h1>
-            <p className="text-muted-foreground">Indexing parts database</p>
-          </div>
-        </div>
-      </div>
-    );
+  // â”€â”€â”€ Loading / Error states â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  if (productsLoading || categoriesLoading) {
+    return <CategorySkeleton />;
   }
 
   if (!isOnline || isNetworkError(productsError)) {
@@ -259,18 +251,18 @@ const CatalogPage = () => {
     );
   }
 
-  // ─── Render ───────────────────────────────────────────────────
+  // â”€â”€â”€ Render â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Parts Catalog — {COMPANY_NAME}</title>
+        <title>Parts Catalog â€” {COMPANY_NAME}</title>
         <meta
           name="description"
           content={`Search our complete catalog of genuine automotive spare parts. Find parts by name, SKU, brand, or vehicle compatibility. ${COMPANY_NAME}.`}
         />
       </Helmet>
 
-      {/* ─── Hero Search Bar ─────────────────────────────────── */}
+      {/* â”€â”€â”€ Hero Search Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
         <div className="w-full px-3 sm:px-4 md:px-8 py-10 sm:py-14">
           <div className="max-w-3xl mx-auto text-center mb-8">
@@ -282,7 +274,7 @@ const CatalogPage = () => {
               Find the Right Part
             </h1>
             <p className="text-white/70 text-sm sm:text-base max-w-xl mx-auto">
-              Search by part name, SKU number, brand, or vehicle make — we'll match you to the exact component.
+              Search by part name, SKU number, brand, or vehicle make â€” we'll match you to the exact component.
             </p>
           </div>
 
@@ -336,7 +328,7 @@ const CatalogPage = () => {
         </div>
       </section>
 
-      {/* ─── Main Content ────────────────────────────────────── */}
+      {/* â”€â”€â”€ Main Content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="w-full px-3 sm:px-4 md:px-8 py-6 sm:py-8">
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
@@ -416,7 +408,7 @@ const CatalogPage = () => {
         </div>
 
         <div className="flex gap-6">
-          {/* ─── Sidebar Filters ───────────────────────────────── */}
+          {/* â”€â”€â”€ Sidebar Filters â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <aside
             className={`${
               showFilters ? "fixed inset-0 z-50 bg-black/50 lg:static lg:bg-transparent" : "hidden"
@@ -552,7 +544,7 @@ const CatalogPage = () => {
                         }}
                         className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
                       />
-                      <span className="text-gray-400 text-xs">—</span>
+                      <span className="text-gray-400 text-xs">â€”</span>
                       <input
                         type="number"
                         placeholder="Max"
@@ -579,21 +571,20 @@ const CatalogPage = () => {
             </div>
           </aside>
 
-          {/* ─── Product Results ──────────────────────────────── */}
+          {/* â”€â”€â”€ Product Results â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <div className="flex-1 min-w-0">
             {paginatedProducts.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="text-6xl mb-6">🔍</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">No parts found</h3>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  {activeQuery
+              <EmptyState
+                title="No parts found"
+                description={
+                  activeQuery
                     ? `We couldn't find parts matching "${activeQuery}". Try a different search term or clear your filters.`
-                    : "No parts match the current filters. Try adjusting your criteria."}
-                </p>
-                <Button onClick={handleClearFilters} variant="outline">
-                  Clear All Filters
-                </Button>
-              </div>
+                    : "No parts match the current filters. Try adjusting your criteria."
+                }
+                icon={Search}
+                actionLabel="Clear All Filters"
+                onAction={handleClearFilters}
+              />
             ) : viewMode === "grid" ? (
               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                 {paginatedProducts.map((product) => (
@@ -663,7 +654,7 @@ const CatalogPage = () => {
   );
 };
 
-// ─── Filter Section Component ───────────────────────────────────
+// â”€â”€â”€ Filter Section Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function FilterSection({
   title,
   icon,
@@ -698,7 +689,7 @@ function FilterSection({
   );
 }
 
-// ─── Grid Card ──────────────────────────────────────────────────
+// â”€â”€â”€ Grid Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function CatalogGridCard({ product, onAddToCart }: { product: Product; onAddToCart: (p: Product) => void }) {
   const inStock = product.stock > 0;
 
@@ -808,7 +799,7 @@ function CatalogGridCard({ product, onAddToCart }: { product: Product; onAddToCa
   );
 }
 
-// ─── List Card ──────────────────────────────────────────────────
+// â”€â”€â”€ List Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function CatalogListCard({ product, onAddToCart }: { product: Product; onAddToCart: (p: Product) => void }) {
   const inStock = product.stock > 0;
 

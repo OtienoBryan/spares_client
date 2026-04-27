@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, AlertCircle, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductGridCardActions } from "@/components/ProductGridCardActions";
 import { productSlug } from "@/lib/utils";
@@ -65,11 +66,13 @@ export const FeaturedSection = ({
   if (error) {
     return (
       <section className="py-3 sm:py-4 md:py-6">
-        <div className="container mx-auto px-3 sm:px-4 text-center py-8 sm:py-12">
-          <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">⚠️</div>
-          <h3 className="text-lg sm:text-xl font-semibold text-muted-foreground mb-2 sm:mb-3">Unable to load products</h3>
-          <Button variant="outline" onClick={() => window.location.reload()}>Try Again</Button>
-        </div>
+        <EmptyState
+          title="Unable to load products"
+          description="We're having trouble connecting to the catalog. Please check your connection or try again."
+          icon={AlertCircle}
+          actionLabel="Try Again"
+          onAction={() => window.location.reload()}
+        />
       </section>
     );
   }
@@ -186,21 +189,13 @@ export const FeaturedSection = ({
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 sm:py-12">
-            <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">🔍</div>
-            <h3 className="text-lg sm:text-xl font-semibold text-muted-foreground mb-2 sm:mb-3">
-              {isBrandSearch ? `No parts found for ${brandName}` : searchQuery ? "No parts found matching your search." : "No featured parts available"}
-            </h3>
-            {searchQuery && (
-              <Button 
-                variant="outline" 
-                onClick={onClearSearch}
-                className="text-xs sm:text-sm touch-manipulation"
-              >
-                Clear Search
-              </Button>
-            )}
-          </div>
+          <EmptyState
+            title={isBrandSearch ? `No parts found for ${brandName}` : searchQuery ? "No parts found matching your search" : "No featured parts available"}
+            description={searchQuery ? "Try a different search term or check the spelling." : "Check back later for updated featured parts."}
+            icon={Search}
+            actionLabel={searchQuery ? "Clear Search" : undefined}
+            onAction={searchQuery ? onClearSearch : undefined}
+          />
         )}
       </div>
     </section>

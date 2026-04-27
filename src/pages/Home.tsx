@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts, useFeaturedProducts, useCategories, useSearchProductsDebounced, usePopularParts } from "@/hooks/useApi";
 import { LoadingWave, LoadingNetworkError } from "@/components/ui/lottie-loader";
+import { HomePageSkeleton } from "@/components/ui/loading-skeleton";
 import { useNetworkStatus, isNetworkError } from "@/hooks/useNetworkStatus";
 import { HeroWithFinder } from "@/components/home/HeroWithFinder";
 import { SystemDiscovery } from "@/components/home/SystemDiscovery";
@@ -93,14 +94,7 @@ const Home = memo(() => {
 
   // Loading and Error states
   if (categoriesLoading && !categories) {
-    return (
-      <>
-        <div className="text-center">
-          <LoadingWave size="xl" className="mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-primary mb-4">Calibrating Systems...</h1>
-        </div>
-      </>
-  );
+    return <HomePageSkeleton />;
   }
 
   const hasNetworkError = !isOnline || 

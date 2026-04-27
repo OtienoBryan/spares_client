@@ -24,7 +24,9 @@ import {
 } from "lucide-react";
 import { useFeaturedProducts } from "@/hooks/useApi";
 import { formatPrice } from "@/data/products";
+import { Product } from "@/services/api";
 import { LoadingWave, LoadingNetworkError } from "@/components/ui/lottie-loader";
+import { CategorySkeleton } from "@/components/ui/loading-skeleton";
 import { useNetworkStatus, isNetworkError } from "@/hooks/useNetworkStatus";
 
 const Featured = () => {
@@ -38,12 +40,12 @@ const Featured = () => {
   const { data: featuredProducts, loading: featuredLoading, error: featuredError } = useFeaturedProducts();
 
   // Helper function to get best discount percentage from SKUs only
-  const getBestDiscountFromSKU = (product: any) => {
+  const getBestDiscountFromSKU = (product: Product) => {
     let maxDiscount = 0;
     
     // Only check SKU discounts
     if (product.skus && product.skus.length > 0) {
-      product.skus.forEach((sku: any) => {
+      product.skus.forEach((sku) => {
         if (sku.originalPrice && sku.originalPrice > sku.price) {
           const discount = ((sku.originalPrice - sku.price) / sku.originalPrice) * 100;
           if (discount > maxDiscount) {
@@ -58,9 +60,10 @@ const Featured = () => {
 
   // Filter products by category
   const filteredProducts = useMemo(() => {
+    const products = (featuredProducts || []) as Product[];
     return filterCategory === 'all' 
-      ? (featuredProducts || [])
-      : (featuredProducts || []).filter(product => 
+      ? products
+      : products.filter(product => 
           product && product.category?.name && 
           product.category.name.toLowerCase() === filterCategory.toLowerCase()
         );
@@ -93,10 +96,11 @@ const Featured = () => {
   }, [filterCategory, sortOrder]);
 
   // Get unique categories from featured products
-  const availableCategories = ['all', ...new Set((featuredProducts || [])
-    .filter(product => product && product.category?.name)
-    .map(product => product.category.name)
-    .filter(Boolean))];
+  const productsList = (featuredProducts || []) as Product[];
+  const availableCategories: string[] = ['all', ...Array.from(new Set<string>(productsList
+    .filter((product): product is Product => !!(product && product.category?.name))
+    .map(product => product.category.name as string)
+    .filter((name): name is string => !!name)))];
 
   // Handle page change
   const handlePageChange = (page: number) => {
@@ -106,17 +110,7 @@ const Featured = () => {
 
   // Show loading state
   if (featuredLoading) {
-    return (
-      <>
-        <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
-          <div className="text-center">
-            <LoadingWave size="xl" className="mx-auto mb-3 sm:mb-4" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary mb-2 sm:mb-4">Loading Featured Products...</h1>
-            <p className="text-sm sm:text-base">Discovering our premium selection...</p>
-          </div>
-        </div>
-      </>
-  );
+    return <CategorySkeleton />;
   }
 
   // Check for network errors

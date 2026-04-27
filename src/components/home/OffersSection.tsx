@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductGridCardActions } from "@/components/ProductGridCardActions";
 import { productSlug } from "@/lib/utils";
@@ -124,11 +125,11 @@ export const OffersSection = ({ products, addToCart }: OffersSectionProps) => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔧</div>
-            <h3 className="text-xl font-semibold text-muted-foreground mb-2">No current offers</h3>
-            <p className="text-muted-foreground">Check back soon for amazing deals on genuine parts!</p>
-          </div>
+          <EmptyState
+            title="No current offers"
+            description="Check back soon for amazing deals on genuine parts!"
+            icon={Wrench}
+          />
         )}
       </div>
     </section>

@@ -26,6 +26,8 @@ import {
   ShoppingCart
 } from 'lucide-react';
 import { LoadingWave } from '@/components/ui/lottie-loader';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { OrdersSkeleton } from '@/components/ui/loading-skeleton';
 import { apiService, OrderResponse } from '@/services/api';
 import { formatPrice } from '@/data/products';
 import {
@@ -195,15 +197,7 @@ const Orders = () => {
   }
 
   if (loading) {
-    return (
-      <>
-        <div className="container mx-auto px-4 py-16">
-          <div className="flex items-center justify-center">
-            <LoadingWave />
-          </div>
-        </div>
-        </>
-  );
+    return <OrdersSkeleton />;
   }
 
   return (
@@ -270,27 +264,24 @@ const Orders = () => {
             </CardContent>
           </Card>
         ) : filteredOrders.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <Package className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-              <h3 className="text-base font-semibold mb-1">
-                {orders.length === 0 
-                  ? 'No orders yet'
-                  : searchTerm || statusFilter !== 'all' || startDate || endDate
-                    ? 'No orders found'
-                    : 'No orders yet'
-                }
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                {orders.length === 0
-                  ? 'Start shopping to see your orders here'
-                  : searchTerm || statusFilter !== 'all' || startDate || endDate
-                    ? 'Try adjusting your filters'
-                    : 'Start shopping to see your orders here'
-                }
-              </p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            title={orders.length === 0 
+              ? 'No orders yet'
+              : searchTerm || statusFilter !== 'all' || startDate || endDate
+                ? 'No orders found'
+                : 'No orders yet'
+            }
+            description={orders.length === 0
+              ? 'Start shopping to see your orders here'
+              : searchTerm || statusFilter !== 'all' || startDate || endDate
+                ? 'Try adjusting your filters'
+                : 'Start shopping to see your orders here'
+            }
+            icon={Package}
+            actionLabel={orders.length === 0 ? "Start Shopping" : undefined}
+            onAction={orders.length === 0 ? () => navigate('/catalog') : undefined}
+            className="bg-white border rounded-lg"
+          />
         ) : (
           <>
             <div className="space-y-3">
@@ -389,7 +380,7 @@ const Orders = () => {
                                         <div className="flex-1 min-w-0">
                                           <p className="text-sm font-medium truncate">{item.product.name}</p>
                                           <p className="text-xs text-muted-foreground">
-                                            {item.quantity} � {formatPrice(typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0)}
+                                            {item.quantity} Ã— {formatPrice(typeof item.price === 'number' ? item.price : parseFloat(item.price) || 0)}
                                           </p>
                                         </div>
                                         <p className="text-sm font-semibold">
@@ -552,3 +543,5 @@ const Orders = () => {
 };
 
 export default Orders;
+
+

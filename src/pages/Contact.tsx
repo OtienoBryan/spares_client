@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -382,7 +382,7 @@ const Contact = () => {
               Premium Spares delivered fast to your doorstep
             </p>
             <p className="text-sm text-primary-light">
-              � 2026 {COMPANY_NAME}. All rights reserved.
+              © 2026 {COMPANY_NAME}. All rights reserved.
             </p>
           </div>
         </div>
@@ -392,3 +392,4 @@ const Contact = () => {
 };
 
 export default Contact;
+

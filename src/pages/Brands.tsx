@@ -20,7 +20,9 @@ import {
 } from "lucide-react";
 import { useProducts } from "@/hooks/useApi";
 import { formatPrice } from "@/data/products";
+import { Product } from "@/services/api";
 import { LoadingWave, LoadingNetworkError } from "@/components/ui/lottie-loader";
+import { CategorySkeleton } from "@/components/ui/loading-skeleton";
 import { useNetworkStatus, isNetworkError } from "@/hooks/useNetworkStatus";
 
 const Brands = () => {
@@ -41,7 +43,7 @@ const Brands = () => {
     if (!allProducts || !Array.isArray(allProducts)) return [];
     const brandsMap = new Map<string, { name: string; productCount: number; image?: string }>();
     
-    (allProducts as any[]).forEach((product: any) => {
+    (allProducts).forEach((product) => {
       if (product.brand) {
         const brandLower = product.brand.toLowerCase();
         if (!brandsMap.has(brandLower)) {
@@ -62,6 +64,9 @@ const Brands = () => {
     
     return Array.from(brandsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
   }, [allProducts]);
+  
+  interface BrandInfo { name: string; productCount: number; image?: string }
+  const typedBrands = allBrands as BrandInfo[];
 
   // Filter brands by search query
   const filteredBrands = useMemo(() => {
@@ -76,7 +81,7 @@ const Brands = () => {
   const brandProducts = useMemo(() => {
     if (!brandName || !allProducts) return [];
     const lowerBrandName = decodeURIComponent(brandName).toLowerCase();
-    return (allProducts as any[]).filter((product: any) => 
+    return (allProducts).filter((product) => 
       product.brand && product.brand.toLowerCase() === lowerBrandName
     );
   }, [brandName, allProducts]);
@@ -101,19 +106,7 @@ const Brands = () => {
 
   // Show loading state
   if (productsLoading) {
-    return (
-      <>
-        <div className="flex items-center justify-center py-12 sm:py-16 md:py-24 px-4">
-          <div className="text-center">
-            <LoadingWave size="xl" className="mx-auto mb-3 sm:mb-4" />
-            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-primary mb-2 sm:mb-4">
-              {brandName ? `Loading ${decodeURIComponent(brandName)} Products...` : "Loading Brands..."}
-            </h1>
-            <p className="text-sm sm:text-base">Discovering our brands...</p>
-          </div>
-        </div>
-        </>
-  );
+    return <CategorySkeleton />;
   }
 
   // Check for network errors
@@ -237,7 +230,7 @@ const Brands = () => {
         </section>
 
         </>
-  );
+    );
   }
 
   // Show all brands list
@@ -296,7 +289,7 @@ const Brands = () => {
         <div className="container mx-auto px-3 sm:px-4">
           {filteredBrands.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
-              {filteredBrands.map((brand) => (
+              {(filteredBrands as BrandInfo[]).map((brand) => (
                 <Link
                   key={brand.name}
                   to={`/brands/${encodeURIComponent(brand.name)}`}

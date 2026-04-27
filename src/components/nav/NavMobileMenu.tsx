@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { X, User, Phone, MapPin, Package, LogOut, LayoutDashboard } from "lucide-react";
+import { X, User, Phone, MapPin, Package, LogOut, LayoutDashboard, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { COMPANY_SHORT_NAME, LOGO_ALT, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL } from "@/config/site";
 
@@ -173,8 +173,8 @@ export const NavMobileMenu = ({
               className="flex items-center gap-3 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/[0.08] to-transparent px-4 py-3.5 text-sm font-bold text-primary shadow-sm transition-all hover:border-primary/35 hover:from-primary/[0.12]"
               onClick={onClose}
             >
-              <span className="text-lg" role="img" aria-hidden>
-                📋
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                <ClipboardList className="h-4 w-4" />
               </span>
               <span className="flex-1">Parts catalog</span>
               <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-emerald-700">

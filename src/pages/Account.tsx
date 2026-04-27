@@ -18,6 +18,7 @@ import {
   XCircle
 } from 'lucide-react';
 import { LoadingWave } from '@/components/ui/lottie-loader';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 const Account = () => {
   const { user, isAuthenticated, logout, getOrderHistory } = useUser();
@@ -156,14 +157,13 @@ const Account = () => {
               </CardHeader>
               <CardContent>
                 {orders.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No orders yet</h3>
-                    <p className="text-muted-foreground mb-4">Start shopping to see your orders here</p>
-                    <Button className="bg-primary hover:bg-primary-light text-white">
-                      Start Shopping
-                    </Button>
-                  </div>
+                  <EmptyState
+                    title="No orders yet"
+                    description="Start shopping to see your orders here"
+                    icon={Package}
+                    actionLabel="Start Shopping"
+                    onAction={() => setActiveTab('profile')}
+                  />
                 ) : (
                   <div className="space-y-4">
                     {orders.map((order) => (
@@ -198,7 +198,7 @@ const Account = () => {
                                 <div className="flex-1">
                                   <p className="font-medium">{item.name}</p>
                                   <p className="text-sm text-muted-foreground">
-                                    Qty: {item.quantity} � ${item.price.toFixed(2)}
+                                    Qty: {item.quantity} × ${item.price.toFixed(2)}
                                   </p>
                                 </div>
                               </div>
@@ -271,3 +271,5 @@ const Account = () => {
 };
 
 export default Account;
+
+

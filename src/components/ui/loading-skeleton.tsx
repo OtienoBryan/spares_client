@@ -129,4 +129,43 @@ export const ProductPageSkeleton = () => (
   </div>
 );
 
+export const OrdersSkeleton = () => (
+  <div className="container mx-auto px-4 py-6 max-w-6xl space-y-6">
+    <div className="space-y-2">
+      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-4 w-32" />
+    </div>
+    <div className="flex flex-col sm:flex-row gap-3">
+      <Skeleton className="h-10 flex-1" />
+      <Skeleton className="h-10 w-40" />
+      <Skeleton className="h-10 w-36" />
+      <Skeleton className="h-10 w-36" />
+    </div>
+    <div className="space-y-4">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="border rounded-lg p-4 flex justify-between items-start animate-pulse bg-white/50">
+          <div className="space-y-3 flex-1">
+            <div className="flex gap-2">
+              <div className="h-6 w-24 bg-muted rounded" />
+              <div className="h-6 w-20 bg-muted rounded" />
+            </div>
+            <div className="flex gap-4">
+              <div className="h-4 w-32 bg-muted rounded" />
+              <div className="h-4 w-20 bg-muted rounded" />
+            </div>
+            <div className="flex gap-2">
+              <div className="h-10 w-32 bg-muted rounded" />
+              <div className="h-10 w-32 bg-muted rounded" />
+            </div>
+          </div>
+          <div className="space-y-2 text-right">
+            <div className="h-6 w-20 bg-muted rounded ml-auto" />
+            <div className="h-8 w-24 bg-muted rounded ml-auto" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 export default Skeleton;

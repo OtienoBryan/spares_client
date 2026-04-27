@@ -7,6 +7,7 @@ import { Product, Category, SubCategory } from "@/services/api";
 import { getProductListPrice } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { LoadingComponent } from "@/components/ui/lottie-loader";
+import { CategorySkeleton } from "@/components/ui/loading-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { CategorySeo } from "@/components/category/CategorySeo";
 import { CategoryHeader } from "@/components/category/CategoryHeader";
@@ -171,15 +172,8 @@ const CategoryPage = () => {
 
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-  if (productsLoading && baseProducts.length === 0) {
-    return (
-      <>
-        <div className="text-center">
-          <LoadingComponent size="xl" className="mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-primary mb-4">Loading Parts...</h1>
-        </div>
-      </>
-  );
+  if (productsLoading) {
+    return <CategorySkeleton />;
   }
 
   return (
