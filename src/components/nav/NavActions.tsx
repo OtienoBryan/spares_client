@@ -11,7 +11,7 @@ export const NavActions = ({ setIsLoginModalOpen }: { setIsLoginModalOpen: (open
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   return (
-    <div className="flex items-center gap-1 sm:gap-4 ml-auto">
+    <div className="flex items-center gap-1 sm:gap-2 ml-auto">
       {/* Wishlist Button */}
       <button className="hidden lg:flex flex-col items-center gap-0.5 group px-2">
         <div className="relative">

@@ -106,7 +106,7 @@ export const NavSearch = ({ layout = "default" }: NavSearchProps) => {
       className={
         isToolbar
           ? "relative w-full"
-          : "relative mx-auto w-full max-w-2xl px-4 sm:px-0"
+          : "relative mx-auto w-full max-w-2xl px-1 sm:px-0"
       }
     >
       <form onSubmit={handleSearch} className="relative group">
@@ -121,15 +121,15 @@ export const NavSearch = ({ layout = "default" }: NavSearchProps) => {
           value={searchQuery}
           onChange={handleSearchChange}
           onKeyDown={handleKeyDown}
-          className={`w-full rounded-xl border-2 border-gray-100 bg-gray-50 pr-12 text-gray-900 placeholder-gray-400 shadow-sm transition-all focus:border-primary/30 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 ${
-            isToolbar ? "py-2.5 pl-4 text-sm" : "py-3 pl-5 text-sm"
+          className={`w-full rounded-lg border-2 border-gray-100 bg-gray-50 pr-10 text-gray-900 placeholder-gray-400 shadow-sm transition-all focus:border-primary/30 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/10 ${
+            isToolbar ? "py-2 pl-3 text-sm" : "py-2 pl-4 text-sm"
           }`}
         />
         <button 
           type="submit"
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-lg transition-colors group-focus-within:text-primary"
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 rounded-md transition-colors group-focus-within:text-primary"
         >
-          <Search className={`text-gray-400 ${isToolbar ? "h-4 w-4" : "h-5 w-5"}`} />
+          <Search className={`text-gray-400 ${isToolbar ? "h-4 w-4" : "h-4 w-4"}`} />
         </button>
       </form>
       

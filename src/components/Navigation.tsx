@@ -39,16 +39,16 @@ const Navigation = () => {
 
       <nav className="bg-white border-b border-gray-100">
         {/* Row 1: Main Header */}
-        <div className="w-full px-4 md:px-6 py-4 sm:py-5">
-          <div className="flex items-center justify-between gap-8 md:gap-12">
+        <div className="w-full px-4 md:px-6 py-1">
+          <div className="flex items-center justify-between gap-3 md:gap-4">
             <NavLogo />
             
-            <div className="hidden md:flex flex-1">
+            <div className="hidden md:flex flex-1 min-w-0">
               <NavSearch />
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="hidden lg:block border-r border-gray-100 pr-4 mr-2">
+            <div className="flex items-center gap-2">
+              <div className="hidden lg:block border-r border-gray-100 pr-2 mr-1">
                  <NavActions setIsLoginModalOpen={setIsLoginModalOpen} />
               </div>
               
@@ -76,7 +76,7 @@ const Navigation = () => {
 
         {/* Mobile: search (desktop search lives in row 1) */}
         <div className="border-b border-gray-100 bg-white md:hidden">
-          <div className="px-3 pb-3 pt-1">
+          <div className="px-2 pb-1.5 pt-0.5">
             <NavSearch layout="toolbar" />
           </div>
         </div>
