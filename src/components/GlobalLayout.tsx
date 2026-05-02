@@ -13,7 +13,7 @@ export default function GlobalLayout({ children }: GlobalLayoutProps) {
   const { categories, loading } = useNavigationCategories();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-gray-50 overflow-x-clip">
       <Navigation />
       <div className="flex flex-1 relative overflow-x-hidden">
         <CategoriesSidebarPermanent 

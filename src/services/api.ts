@@ -6,14 +6,9 @@ function resolveApiBaseUrl(): string {
   // Vite dev: use same-origin /api (proxied in vite.config.ts � no local :3001 needed)
   if (import.meta.env.DEV) return "/api";
 
-  if (typeof window !== "undefined") {
-    const host = window.location.hostname;
-    if (host.endsWith("vercel.app") || host.includes("precisionparts.co.ke")) {
-      return "/api";
-    }
-  }
-
-  return "http://localhost:3001/api";
+  // Production: default to same-origin /api.
+  // This works on Vercel (rewrites), and avoids accidentally calling localhost in production.
+  return "/api";
 }
 
 const API_BASE_URL = resolveApiBaseUrl();
@@ -103,6 +98,14 @@ export interface Product {
   subcategory?: SubCategory;
   subcategoryId?: number;
   skus?: ProductSKU[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VehicleMake {
+  id: number;
+  name: string;
+  logo: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -381,6 +384,16 @@ class ApiService {
 
   async getSubCategoryById(id: number): Promise<SubCategory> {
     return this.request<SubCategory>(`/subcategories/${id}`);
+  }
+
+  // Vehicle Makes
+  async getVehicleMakes(): Promise<VehicleMake[]> {
+    return this.request<VehicleMake[]>('/vehicle-makes');
+  }
+
+  async getProductsByVehicleMake(makeId: number): Promise<Product[]> {
+    const data = await this.request<Record<string, unknown>[]>(`/products/vehicle-make/${makeId}`);
+    return data.map(mapProductFields);
   }
 }
 

@@ -34,9 +34,10 @@ const Navigation = () => {
 
   return (
     <>
+      <header className="sticky top-0 z-50 shadow-sm">
       <NavTopBar />
 
-      <nav className="bg-white sticky top-0 z-50 border-b border-gray-100 shadow-sm">
+      <nav className="bg-white border-b border-gray-100">
         {/* Row 1: Main Header */}
         <div className="w-full px-4 md:px-6 py-4 sm:py-5">
           <div className="flex items-center justify-between gap-8 md:gap-12">
@@ -175,6 +176,7 @@ const Navigation = () => {
           </div>
         </div>
       </nav>
+      </header>
 
       <NavMobileMenu 
         isOpen={isMobileMenuOpen}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { apiService, Product, Category, SubCategory } from '@/services/api';
+import { apiService, Product, Category, SubCategory, VehicleMake } from '@/services/api';
 
 // Generic hook for API calls using React Query
 export function useApi<T>(
@@ -203,6 +203,33 @@ export function useSubCategory(id: number) {
     enabled: id > 0,
     staleTime: 10 * 60 * 1000,
     cacheTime: 30 * 60 * 1000,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+
+  return { data: data || null, loading, error: error?.message || null };
+}
+
+export function useVehicleMakes() {
+  const { data, isLoading: loading, error } = useQuery<VehicleMake[]>({
+    queryKey: ['vehicle-makes'],
+    queryFn: () => apiService.getVehicleMakes(),
+    staleTime: 10 * 60 * 1000,
+    cacheTime: 30 * 60 * 1000,
+    retry: 1,
+    refetchOnWindowFocus: false,
+  });
+
+  return { data: data || null, loading, error: error?.message || null };
+}
+
+export function useProductsByVehicleMake(makeId: number) {
+  const { data, isLoading: loading, error } = useQuery<Product[]>({
+    queryKey: ['products-by-vehicle-make', makeId],
+    queryFn: () => apiService.getProductsByVehicleMake(makeId),
+    enabled: makeId > 0,
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 15 * 60 * 1000,
     retry: 1,
     refetchOnWindowFocus: false,
   });

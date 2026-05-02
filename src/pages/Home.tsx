@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 
 import { useCart } from "@/contexts/CartContext";
-import { useProducts, useFeaturedProducts, useCategories, useSearchProductsDebounced, usePopularParts } from "@/hooks/useApi";
+import { useProducts, useFeaturedProducts, useCategories, useSearchProductsDebounced, usePopularParts, useVehicleMakes } from "@/hooks/useApi";
 import { LoadingWave, LoadingNetworkError } from "@/components/ui/lottie-loader";
 import { useNetworkStatus, isNetworkError } from "@/hooks/useNetworkStatus";
 import { HeroWithFinder } from "@/components/home/HeroWithFinder";
@@ -14,6 +14,7 @@ import { FeaturedSection } from "@/components/home/FeaturedSection";
 import { PopularSparesSection } from "@/components/home/PopularSparesSection";
 import { QualityCollections } from "@/components/home/QualityCollections";
 import { ContactCta } from "@/components/home/ContactCta";
+import { ShopByMake } from "@/components/home/ShopByMake";
 import {
   COMPANY_NAME,
   HERO_SUBTITLE,
@@ -44,6 +45,7 @@ const Home = memo(() => {
   const { data: featuredProducts, loading: featuredLoading, error: featuredError } = useFeaturedProducts();
   const { data: allProducts, error: productsError } = useProducts();
   const { data: popularParts, loading: popularPartsLoading, error: popularPartsError } = usePopularParts();
+  const { data: vehicleMakes, loading: vehicleMakesLoading, error: vehicleMakesError } = useVehicleMakes();
   
   // Search logic
   const { data: searchResults } = useSearchProductsDebounced(
@@ -155,7 +157,13 @@ const Home = memo(() => {
         }}
       />
 
-      <PopularSparesSection 
+      <ShopByMake
+        makes={vehicleMakes || []}
+        loading={vehicleMakesLoading}
+        error={vehicleMakesError}
+      />
+
+      <PopularSparesSection
         products={popularParts || []} 
         addToCart={addToCart}
         loading={popularPartsLoading}
