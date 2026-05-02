@@ -1,7 +1,14 @@
 User-agent: *
 Allow: /
+Allow: /make/
+Allow: /makes
+Allow: /catalog
 Disallow: /checkout
 Disallow: /account
 Disallow: /orders
+Disallow: /cart
+
+# Crawl-delay for well-behaved bots
+Crawl-delay: 1
 
 Sitemap: https://precisionparts.co.ke/sitemap.xml

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,12 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-
 import {
   COMPANY_NAME,
   CONTACT_PHONE_DISPLAY,
   ORDERS_EMAIL,
   SUPPORT_EMAIL,
+  SITE_URL,
 } from "@/config/site";
 import { 
   Mail, 
@@ -107,8 +108,44 @@ const Contact = () => {
     { value: "partnership", label: "Partnership" }
   ];
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "AutoPartsStore",
+    "name": COMPANY_NAME,
+    "url": SITE_URL,
+    "telephone": "+254790831798",
+    "email": SUPPORT_EMAIL,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Nairobi",
+      "addressRegion": "Nairobi County",
+      "addressCountry": "KE"
+    },
+    "geo": { "@type": "GeoCoordinates", "latitude": -1.286389, "longitude": 36.817223 },
+    "openingHoursSpecification": [
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "08:00", "closes": "18:00" },
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "08:00", "closes": "14:00" }
+    ],
+    "contactPoint": [
+      { "@type": "ContactPoint", "telephone": "+254790831798", "contactType": "customer service", "areaServed": "KE", "availableLanguage": "English" },
+      { "@type": "ContactPoint", "telephone": "+254790831798", "contactType": "sales", "areaServed": "KE", "availableLanguage": "English" }
+    ],
+    "sameAs": []
+  };
+
   return (
     <>
+      <Helmet>
+        <title>Contact Us – {COMPANY_NAME} | Nairobi Auto Parts</title>
+        <meta name="description" content={`Contact ${COMPANY_NAME} for genuine automotive spare parts in Nairobi. Call, WhatsApp, or email us. Fast response guaranteed.`} />
+        <meta name="keywords" content="contact auto parts Kenya, spare parts shop Nairobi contact, automotive parts Nairobi phone, car parts WhatsApp Kenya" />
+        <link rel="canonical" href={`${SITE_URL}/contact`} />
+        <meta property="og:title" content={`Contact Us | ${COMPANY_NAME}`} />
+        <meta property="og:description" content="Get in touch with us for genuine spare parts, orders, and enquiries. Located in Nairobi, Kenya." />
+        <meta property="og:url" content={`${SITE_URL}/contact`} />
+        <meta property="og:type" content="website" />
+        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+      </Helmet>
       {/* Navigation */}
       {/* Hero Section */}
       <section className="relative py-20 bg-gradient-to-br from-Component/10 to-gold/10">

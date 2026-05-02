@@ -21,9 +21,14 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://precisionparts.co.ke/origin</loc>
+    <loc>https://precisionparts.co.ke/makes</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://precisionparts.co.ke/origin</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://precisionparts.co.ke/contact</loc>

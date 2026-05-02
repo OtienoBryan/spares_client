@@ -1,12 +1,42 @@
 import { useNavigate } from "react-router-dom";
 import { Wrench } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { useVehicleMakes } from "@/hooks/useApi";
+import { COMPANY_NAME, SITE_URL } from "@/config/site";
 
 const AllMakesPage = () => {
   const navigate = useNavigate();
   const { data: makes, loading, error } = useVehicleMakes();
 
+  const makeNames = makes?.slice(0, 6).map(m => m.name).join(', ');
+
   return (
+    <>
+    <Helmet>
+      <title>Shop by Vehicle Make – All Makes | {COMPANY_NAME}</title>
+      <meta name="description" content={`Browse genuine spare parts by vehicle make. ${makeNames ? `Shop parts for ${makeNames} and more.` : 'Find OEM-quality parts for all major brands.'} Fast delivery across Kenya.`} />
+      <meta name="keywords" content="vehicle make parts Kenya, car brand spare parts Nairobi, Toyota parts, Nissan parts, Honda parts, Subaru parts, automotive parts by make" />
+      <link rel="canonical" href={`${SITE_URL}/makes`} />
+      <meta property="og:title" content={`Shop by Vehicle Make | ${COMPANY_NAME}`} />
+      <meta property="og:description" content="Find genuine spare parts for all major vehicle makes. Fast delivery across Kenya." />
+      <meta property="og:url" content={`${SITE_URL}/makes`} />
+      <meta property="og:type" content="website" />
+      <meta name="twitter:card" content="summary" />
+      <script type="application/ld+json">{JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": `All Vehicle Makes | ${COMPANY_NAME}`,
+        "description": "Browse genuine spare parts by vehicle make.",
+        "url": `${SITE_URL}/makes`,
+        "breadcrumb": {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL },
+            { "@type": "ListItem", "position": 2, "name": "Vehicle Makes", "item": `${SITE_URL}/makes` },
+          ]
+        }
+      })}</script>
+    </Helmet>
     <div className="container mx-auto px-3 sm:px-4 py-6 md:py-10">
       <div className="mb-6 md:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-primary mb-1">
@@ -74,6 +104,7 @@ const AllMakesPage = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

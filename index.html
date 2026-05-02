@@ -1,34 +1,61 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-KE">
   <head>
     <meta charset="UTF-8" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>%VITE_SITE_DEFAULT_TITLE%</title>
     <meta name="description" content="%VITE_SITE_DEFAULT_DESCRIPTION%" />
-    <meta name="keywords" content="auto parts Kenya, spare parts Nairobi, car parts, OEM parts, automotive parts shop Kenya, genuine parts" />
+    <meta name="keywords" content="auto parts Kenya, spare parts Nairobi, car parts Kenya, OEM parts Kenya, automotive parts shop Kenya, genuine spare parts, Toyota parts Kenya, Nissan parts Kenya, vehicle spare parts Nairobi" />
     <meta name="author" content="%VITE_COMPANY_NAME%" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="theme-color" content="#0B1220" />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+
+    <!-- Canonical -->
     <link rel="canonical" href="%VITE_SITE_URL%/" />
-    
+
+    <!-- Favicon & icons -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <meta name="application-name" content="%VITE_COMPANY_NAME%" />
+    <meta name="apple-mobile-web-app-title" content="%VITE_COMPANY_SHORT_NAME%" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <!-- Geo targeting -->
+    <meta name="geo.region" content="KE" />
+    <meta name="geo.placename" content="Nairobi, Kenya" />
+    <meta name="geo.position" content="-1.286389;36.817223" />
+    <meta name="ICBM" content="-1.286389, 36.817223" />
+
+    <!-- Open Graph -->
     <meta property="og:title" content="%VITE_SITE_DEFAULT_TITLE%" />
     <meta property="og:description" content="%VITE_SITE_DEFAULT_DESCRIPTION%" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/icon.svg" />
+    <meta property="og:image" content="%VITE_SITE_URL%/logo.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="%VITE_COMPANY_NAME% – Genuine Automotive Spare Parts Kenya" />
     <meta property="og:url" content="%VITE_SITE_URL%/" />
     <meta property="og:site_name" content="%VITE_COMPANY_NAME%" />
+    <meta property="og:locale" content="en_KE" />
 
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="%VITE_TWITTER_HANDLE%" />
     <meta name="twitter:title" content="%VITE_SITE_DEFAULT_TITLE%" />
     <meta name="twitter:description" content="%VITE_SITE_DEFAULT_DESCRIPTION%" />
-    <meta name="twitter:image" content="/icon.svg" />
+    <meta name="twitter:image" content="%VITE_SITE_URL%/logo.png" />
+    <meta name="twitter:image:alt" content="%VITE_COMPANY_NAME%" />
 
+    <!-- Google verification -->
     <meta name="google-site-verification" content="G0qkldKNllDHqg0aHaimkG13qCFYl4LvNBvFnICxrko" />
+
+    <!-- Preconnect to external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://res.cloudinary.com" crossorigin />
+    <link rel="dns-prefetch" href="https://res.cloudinary.com" />
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
   </head>
 

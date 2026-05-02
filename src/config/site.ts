@@ -54,3 +54,7 @@ export const SUPPORT_EMAIL =
 
 export const ORDERS_EMAIL =
   import.meta.env.VITE_ORDERS_EMAIL?.trim() || "orders@precisionparts.co.ke";
+
+/** Canonical site origin — used in Helmet canonical/OG URLs */
+export const SITE_URL =
+  (import.meta.env.VITE_SITE_URL?.trim() || "https://precisionparts.co.ke").replace(/\/+$/, "");

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { LayoutGrid, Building2, Droplet, MapPin, Settings, Factory } from "lucide-react";
+import { LayoutGrid, Factory } from "lucide-react";
 
 interface ProductSpecsProps {
   product: any;
@@ -10,55 +10,35 @@ export const ProductSpecs = ({ product }: ProductSpecsProps) => {
     {
       label: "Category",
       value: product.category?.name || "Automotive Parts",
-      icon: <LayoutGrid className="h-4 w-4 text-muted-foreground" />,
-      link: `/category/${product.category?.name?.toLowerCase().replace(/\s+/g, '-') || 'products'}`
+      icon: LayoutGrid,
+      link: `/category/${product.category?.name?.toLowerCase().replace(/\s+/g, "-") || "parts"}`,
     },
     {
-      label: "Manufacturer",
-      value: product.brand || "Authentic OEM",
-      icon: <Factory className="h-4 w-4 text-muted-foreground" />,
-      link: product.brand ? `/brands/${encodeURIComponent(product.brand)}` : null
+      label: "Brand / Manufacturer",
+      value: product.brand || "Genuine OEM",
+      icon: Factory,
+      link: product.brand ? `/brands/${encodeURIComponent(product.brand)}` : null,
     },
-    {
-      label: "Specifications",
-      value: product.specifications || "Authentic OEM",
-      icon: <Settings className="h-4 w-4 text-muted-foreground" />,
-      link: null
-    },
-    {
-      label: "Dimensions",
-      value: product.dimensions || "Standard Fit",
-      icon: <Droplet className="h-4 w-4 text-muted-foreground" />,
-      link: null
-    },
-    {
-      label: "Origin",
-      value: product.origin || "Global",
-      icon: <MapPin className="h-4 w-4 text-muted-foreground" />,
-      link: product.origin ? `/origin/${encodeURIComponent(product.origin)}` : null
-    }
-  ];
+  ].filter(s => s.value);
+
+  if (specs.length === 0) return null;
 
   return (
-    <div className="mt-6 grid grid-cols-2 sm:grid-cols-2 gap-3 text-sm">
-      {specs.map((spec, index) => (
-        <div key={index} className="min-w-0 rounded-xl border bg-white p-3">
-          <div className="flex items-start gap-2">
-            <div className="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-muted/50">
-              {spec.icon}
-            </div>
-            <div className="min-w-0">
-              <div className="text-[11px] font-semibold text-muted-foreground">{spec.label}</div>
-              <div className="font-semibold text-gray-900 truncate">
-                {spec.link ? (
-                  <Link to={spec.link} className="hover:text-primary hover:underline underline-offset-2">
-                    {spec.value}
-                  </Link>
-                ) : (
-                  spec.value
-                )}
-              </div>
-            </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+      {specs.map(({ label, value, icon: Icon, link }) => (
+        <div key={label} className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-3.5 shadow-sm">
+          <div className="shrink-0 h-9 w-9 rounded-lg bg-primary/8 flex items-center justify-center">
+            <Icon className="h-4 w-4 text-primary" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{label}</p>
+            <p className="text-sm font-semibold text-gray-900 truncate">
+              {link ? (
+                <Link to={link} className="hover:text-primary hover:underline underline-offset-2 transition-colors">
+                  {value}
+                </Link>
+              ) : value}
+            </p>
           </div>
         </div>
       ))}

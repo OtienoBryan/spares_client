@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { Helmet } from "react-helmet-async";
+import { COMPANY_NAME, SITE_URL } from "@/config/site";
 import { productSlug } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -177,6 +179,24 @@ const Offers = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Special Offers – Discounted Spare Parts | {COMPANY_NAME}</title>
+        <meta name="description" content="Shop discounted genuine automotive spare parts. Limited time offers on brakes, filters, suspension, engine parts and more. Fast delivery across Kenya." />
+        <meta name="keywords" content="spare parts offers Kenya, discounted auto parts Nairobi, car parts on sale Kenya, automotive deals Kenya" />
+        <link rel="canonical" href={`${SITE_URL}/offers`} />
+        <meta property="og:title" content={`Special Offers – Discounted Spare Parts | ${COMPANY_NAME}`} />
+        <meta property="og:description" content="Limited time deals on genuine automotive spare parts. Fast delivery across Kenya." />
+        <meta property="og:url" content={`${SITE_URL}/offers`} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "OfferCatalog",
+          "name": `Special Offers | ${COMPANY_NAME}`,
+          "description": "Discounted genuine automotive spare parts with fast delivery across Kenya.",
+          "url": `${SITE_URL}/offers`,
+        })}</script>
+      </Helmet>
       {/* Header Section */}
       <section className="py-4 sm:py-5 md:py-6 bg-gradient-to-br from-Component/10 to-primary/10">
         <div className="container mx-auto px-3 sm:px-4">

@@ -98,6 +98,9 @@ export interface Product {
   subcategory?: SubCategory;
   subcategoryId?: number;
   skus?: ProductSKU[];
+  vehicleModels?: { id: number; name: string; makeId?: number | null; make?: { id: number; name: string; logo?: string | null } }[];
+  vehicleYears?: { id: number; yearFrom: number; yearTo: number | null; modelId: number; model?: { id: number; name: string; make?: { id: number; name: string } } }[];
+  productImages?: { id: number; url: string; sortOrder: number }[];
   createdAt: string;
   updatedAt: string;
 }

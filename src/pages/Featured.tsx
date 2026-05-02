@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
+import { Helmet } from "react-helmet-async";
+import { COMPANY_NAME, SITE_URL } from "@/config/site";
 import { productSlug } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -142,6 +144,24 @@ const Featured = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Featured Products – Top Automotive Spare Parts | {COMPANY_NAME}</title>
+        <meta name="description" content="Browse our featured selection of top-quality genuine automotive spare parts. Hand-picked OEM parts for all major vehicle models with fast delivery across Kenya." />
+        <meta name="keywords" content="featured spare parts Kenya, top auto parts Nairobi, best car parts Kenya, quality automotive parts, OEM spare parts Nairobi" />
+        <link rel="canonical" href={`${SITE_URL}/featured`} />
+        <meta property="og:title" content={`Featured Products | ${COMPANY_NAME}`} />
+        <meta property="og:description" content="Top-quality genuine automotive spare parts. Fast delivery across Kenya." />
+        <meta property="og:url" content={`${SITE_URL}/featured`} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "name": `Featured Products | ${COMPANY_NAME}`,
+          "description": "Hand-picked top-quality genuine automotive spare parts.",
+          "url": `${SITE_URL}/featured`,
+        })}</script>
+      </Helmet>
       {/* Header Section */}
       <section className="py-4 sm:py-5 md:py-6 bg-gradient-to-br from-Component/10 to-primary/10">
         <div className="container mx-auto px-3 sm:px-4">

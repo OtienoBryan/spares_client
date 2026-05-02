@@ -1,11 +1,13 @@
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Wrench } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductGridCardActions } from "@/components/ProductGridCardActions";
 import { useCart } from "@/contexts/CartContext";
 import { useVehicleMakes, useProductsByVehicleMake } from "@/hooks/useApi";
 import { productSlug } from "@/lib/utils";
 import { formatPrice } from "@/data/products";
+import { COMPANY_NAME, SITE_URL } from "@/config/site";
 
 const VehicleMakePage = () => {
   const { makeId } = useParams<{ makeId: string }>();
@@ -17,7 +19,49 @@ const VehicleMakePage = () => {
 
   const make = makes?.find((m) => m.id === id);
 
+  const canonicalUrl = `${SITE_URL}/make/${id}`;
+  const title = make ? `${make.name} Spare Parts – Genuine Auto Parts | ${COMPANY_NAME}` : `Vehicle Parts | ${COMPANY_NAME}`;
+  const description = make
+    ? `Shop genuine spare parts for all ${make.name} models. Browse our full catalog of OEM-quality ${make.name} parts with fast delivery across Kenya.`
+    : `Browse genuine automotive spare parts. Fast delivery across Kenya.`;
+
+  const structuredData = make ? {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": title,
+    "description": description,
+    "url": canonicalUrl,
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": SITE_URL },
+        { "@type": "ListItem", "position": 2, "name": "Vehicle Makes", "item": `${SITE_URL}/makes` },
+        { "@type": "ListItem", "position": 3, "name": make.name, "item": canonicalUrl },
+      ]
+    }
+  } : null;
+
   return (
+    <>
+    {make && (
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <meta name="keywords" content={`${make.name} spare parts Kenya, ${make.name} auto parts Nairobi, genuine ${make.name} parts, ${make.name} OEM parts`} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        {make.logo && <meta property="og:image" content={make.logo} />}
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        {structuredData && (
+          <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+        )}
+      </Helmet>
+    )}
     <div className="container mx-auto px-3 sm:px-4 py-6 md:py-10">
       {/* Back link */}
       <Link
@@ -129,6 +173,7 @@ const VehicleMakePage = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 
