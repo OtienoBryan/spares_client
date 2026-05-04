@@ -3,7 +3,6 @@ import { ArrowRight, Settings, Zap, Disc, ArrowDownUp, Filter, Lightbulb, Packag
 import { useCategories } from "@/hooks/useApi";
 import { Category } from "@/services/api";
 
-// Map a category name to a fallback lucide icon
 function getCategoryIcon(name: string) {
   const n = name.toLowerCase();
   if (n.includes("engine")) return Settings;
@@ -15,24 +14,24 @@ function getCategoryIcon(name: string) {
   return Package;
 }
 
-// Accent colour palette — cycles through categories
 const ACCENT_PALETTE = [
-  { ring: "ring-blue-200",   bg: "bg-blue-50",    icon: "text-blue-600",   hover: "group-hover:bg-blue-600"   },
-  { ring: "ring-amber-200",  bg: "bg-amber-50",   icon: "text-amber-600",  hover: "group-hover:bg-amber-600"  },
-  { ring: "ring-red-200",    bg: "bg-red-50",     icon: "text-red-600",    hover: "group-hover:bg-red-600"    },
-  { ring: "ring-emerald-200",bg: "bg-emerald-50", icon: "text-emerald-600",hover: "group-hover:bg-emerald-600"},
-  { ring: "ring-violet-200", bg: "bg-violet-50",  icon: "text-violet-600", hover: "group-hover:bg-violet-600" },
-  { ring: "ring-cyan-200",   bg: "bg-cyan-50",    icon: "text-cyan-600",   hover: "group-hover:bg-cyan-600"   },
-  { ring: "ring-orange-200", bg: "bg-orange-50",  icon: "text-orange-600", hover: "group-hover:bg-orange-600" },
-  { ring: "ring-pink-200",   bg: "bg-pink-50",    icon: "text-pink-600",   hover: "group-hover:bg-pink-600"   },
+  { bg: "bg-blue-50",     icon: "text-blue-500",    border: "border-blue-100"   },
+  { bg: "bg-amber-50",    icon: "text-amber-500",   border: "border-amber-100"  },
+  { bg: "bg-red-50",      icon: "text-red-500",     border: "border-red-100"    },
+  { bg: "bg-emerald-50",  icon: "text-emerald-500", border: "border-emerald-100"},
+  { bg: "bg-violet-50",   icon: "text-violet-500",  border: "border-violet-100" },
+  { bg: "bg-cyan-50",     icon: "text-cyan-500",    border: "border-cyan-100"   },
+  { bg: "bg-orange-50",   icon: "text-orange-500",  border: "border-orange-100" },
+  { bg: "bg-pink-50",     icon: "text-pink-500",    border: "border-pink-100"   },
 ];
 
 function SkeletonCard() {
   return (
-    <div className="animate-pulse rounded-xl border border-gray-100 bg-white p-2.5 shadow-sm">
-      <div className="mb-2.5 h-16 w-full rounded-lg bg-gray-100" />
-      <div className="mb-2 h-3.5 w-2/3 rounded bg-gray-100" />
-      <div className="h-3 w-full rounded bg-gray-100" />
+    <div className="animate-pulse rounded-2xl border border-gray-100 bg-white overflow-hidden shadow-sm">
+      <div className="h-28 sm:h-32 bg-gray-100" />
+      <div className="p-2">
+        <div className="h-2.5 w-3/4 mx-auto rounded bg-gray-100" />
+      </div>
     </div>
   );
 }
@@ -45,39 +44,38 @@ function CategoryCard({ category, index }: { category: Category; index: number }
   return (
     <Link
       to={path}
-      className="group relative flex flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg active:scale-[0.97] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 touch-manipulation"
       aria-label={`Explore ${category.name}`}
     >
-      {/* Image / Illustration area */}
-      <div className="relative flex h-16 sm:h-18 w-full items-center justify-center overflow-hidden bg-transparent">
+      {/* Image area — large */}
+      <div className={`relative flex h-28 sm:h-32 md:h-36 w-full items-center justify-center overflow-hidden ${accent.bg} border-b ${accent.border}`}>
         {category.image ? (
           <img
             src={category.image}
             alt={category.name}
             loading="lazy"
-            className="h-12 w-12 sm:h-14 sm:w-14 object-contain transition-transform duration-500 group-hover:scale-105"
+            decoding="async"
+            className="h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28 object-contain transition-transform duration-300 group-hover:scale-110 drop-shadow-sm"
           />
         ) : (
-          <span className={`flex h-10 w-10 items-center justify-center rounded-full ring-2 ${accent.ring} transition-all duration-300`}>
-            <Icon className={`h-5 w-5 ${accent.icon}`} />
-          </span>
+          <div className={`flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl ${accent.bg} border ${accent.border}`}>
+            <Icon className={`h-8 w-8 sm:h-10 sm:w-10 ${accent.icon}`} />
+          </div>
         )}
+
+        {/* Hover overlay arrow */}
+        <div className="absolute inset-0 flex items-end justify-end p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow">
+            <ArrowRight className="h-3 w-3" />
+          </span>
+        </div>
       </div>
 
-      {/* Body */}
-      <div className="flex flex-1 flex-col items-center text-center gap-1 p-2 sm:p-2.5">
-        <h3 className="text-[12px] sm:text-[13px] font-bold text-gray-900 leading-tight group-hover:text-primary transition-colors">
+      {/* Label */}
+      <div className="flex items-center justify-center px-2 py-2.5 text-center">
+        <span className="text-[10px] sm:text-[11px] font-semibold text-gray-700 group-hover:text-primary transition-colors leading-tight line-clamp-2">
           {category.name}
-        </h3>
-        {category.description ? (
-          <p className="text-[10px] sm:text-[11px] text-muted-foreground leading-snug line-clamp-2">
-            {category.description}
-          </p>
-        ) : null}
-        <div className="mt-auto flex items-center gap-1 pt-0.5 text-[10px] font-bold text-primary opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-          Explore
-          <ArrowRight className="h-3 w-3" />
-        </div>
+        </span>
       </div>
     </Link>
   );
@@ -86,42 +84,41 @@ function CategoryCard({ category, index }: { category: Category; index: number }
 export function SystemDiscovery() {
   const { data: allCategories, loading } = useCategories();
 
-  // Only show active categories; exclude utility entries like "Home"
   const categories = (allCategories || [])
     .filter((c) => c.isActive && c.name.toLowerCase() !== "home");
 
   return (
-    <section className="py-4 sm:py-6 bg-white overflow-hidden">
-      <div className="container mx-auto px-2 sm:px-3">
+    <section className="py-6 sm:py-8 bg-white overflow-hidden">
+      <div className="container mx-auto px-3 sm:px-4">
 
-        {/* Section header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+        {/* Header */}
+        <div className="flex items-start sm:items-center justify-between gap-3 mb-5 sm:mb-6">
           <div>
-            <h2 className="text-lg sm:text-xl md:text-2xl font-extrabold text-gray-900 tracking-tight flex items-center gap-1.5 sm:gap-2">
-              <span className="material-icons text-primary text-xl sm:text-2xl">precision_manufacturing</span>
+            <h2 className="text-base sm:text-xl md:text-2xl font-bold text-primary mb-0.5 sm:mb-1 flex items-center gap-2">
+              <span className="material-icons text-primary text-xl sm:text-2xl leading-none">precision_manufacturing</span>
               Explore by Vehicle System
             </h2>
-            <p className="mt-1 sm:mt-1.5 text-xs sm:text-sm text-muted-foreground max-w-xl font-medium">
-              Professional-grade components categorized by system for accurate fitment.
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              Shop genuine parts by system for accurate fitment.
             </p>
           </div>
           <Link
             to="/catalog"
-            className="self-start sm:self-auto inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all touch-manipulation"
+            className="shrink-0 inline-flex items-center gap-1.5 bg-primary hover:bg-primary/90 text-white px-3 py-2 rounded-lg text-xs font-semibold transition-colors touch-manipulation"
           >
-            Browse all
+            View All
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-2 sm:gap-2.5 md:gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-2.5 sm:gap-3">
           {loading
             ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
             : categories.length === 0
             ? (
               <div className="col-span-full rounded-xl border border-dashed border-gray-200 py-10 text-center text-sm text-muted-foreground">
-                No categories found. Add categories in the admin panel.
+                No categories found.
               </div>
             )
             : categories.map((cat, i) => (
