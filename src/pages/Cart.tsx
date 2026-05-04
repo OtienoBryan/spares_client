@@ -70,7 +70,7 @@ const Cart = () => {
       });
     } else {
       toast({
-        title: "Invalid promo code",
+        title: "Invalid promos code",
         description: "Please check your code and try again.",
         variant: "destructive",
       });
